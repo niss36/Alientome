@@ -1,43 +1,37 @@
 package com.game.entities;
 
-import com.game.Block;
 import com.game.entities.ai.*;
 import com.game.level.Level;
-import com.util.Direction;
 import com.util.Side;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class EntityEnemy extends EntityLiving {
 
-    private static final BufferedImage[] sprites = new BufferedImage[1];
-    private static boolean init = false;
+    private static BufferedImage[] sprites;
 
     private final int followRange;
     private boolean stuck;
 
-    private AI ai;
+    private final AI ai;
 
     public EntityEnemy(int x, int y, Level level, int followRange) {
 
-        super(x, y, new Dimension(20, 26), level, 10);
+        super(x, y, new Dimension(20, 27), level, 10);
 
         maxVelocity = 3;
 
         this.followRange = entityRandom.nextInt(50) + followRange - 25;
 
-        ai = new AIRepeat(new AIFollow(this, level.player, followRange, false));
+        ai = new AIRepeat(
+                new AISelector(
+                        new AIFollow(this, level.player, this.followRange, false),
+                        new AIWander(this)
+                )
+        );
 
-        if (!init) try {
-            for (int i = 0; i < 1; i++)
-                sprites[i] = ImageIO.read(ClassLoader.getSystemResourceAsStream("Enemy/" + i + ".png"));
-            init = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if (sprites == null) sprites = getSpritesAnimated("Enemy", 1);
     }
 
     @Override
@@ -78,7 +72,7 @@ public class EntityEnemy extends EntityLiving {
             if (other instanceof EntityPlayer) {
                 if (side == Side.BOTTOM) {
                     damage(10);
-                    other.motionY -= 11;
+                    if(onGround) other.motionY = -11;
                 }
                 else ((EntityPlayer) other).damage(1);
             }
@@ -95,7 +89,7 @@ public class EntityEnemy extends EntityLiving {
         int x = (int) this.x - min.x;
         int y = (int) this.y - min.y;
 
-        super.drawAnimated(g, sprites, x, y);
+        super.drawAnimated(g, sprites, x, y, 10);
 
         if (debug) drawHitBox(g, x, y);
 

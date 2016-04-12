@@ -42,7 +42,7 @@ public class Block {
                 break;
             }
 
-            case -4: {
+            case -1: {
 
                 g.setColor(Color.darkGray);
                 break;
@@ -78,7 +78,7 @@ public class Block {
     }
 
     public boolean isOpaque() {
-        return !(index == 0 || index == -4);
+        return !(index == 0 || index == -1);
     }
 
     public int getX() {

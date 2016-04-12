@@ -2,14 +2,21 @@ package com.game.entities.ai;
 
 import com.game.entities.Entity;
 
+/**
+ * <code>AI</code> to make the target <code>Entity</code> wander randomly.
+ * Fails if the associated <code>AIMoveTo</code> or <code>AIIdle</code> fails.
+ * Succeeds if the associated <code>AIIdle</code> succeeds.
+ */
 public class AIWander extends AI {
 
     private AIMoveTo aiMoveTo;
-    private AIIdle aiIdle = new AIIdle(entity);
+    private final AIIdle aiIdle = new AIIdle(entity);
 
+    /**
+     * @param entity the target <code>Entity</code>
+     */
     public AIWander(Entity entity) {
         super(entity);
-        reset();
     }
 
     @Override
@@ -30,6 +37,7 @@ public class AIWander extends AI {
 
     @Override
     public void start() {
+        reset();
         super.start();
         aiMoveTo.start();
     }

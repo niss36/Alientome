@@ -2,10 +2,7 @@ package com.game.entities.ai;
 
 import java.util.*;
 
-/**
- * <code>AI</code> to execute a <code>List</code> of <code>AI</code>s.
- */
-public class AISequence extends AI {
+public class AISelector extends AI {
 
     private AI currentAI;
     private final ArrayList<AI> ais = new ArrayList<>();
@@ -14,7 +11,7 @@ public class AISequence extends AI {
     /**
      * @param ais the <code>AI</code>s to execute
      */
-    public AISequence(AI... ais) {
+    public AISelector(AI... ais) {
         super(ais[0].entity);
 
         this.ais.addAll(Arrays.asList(ais));
@@ -23,7 +20,7 @@ public class AISequence extends AI {
     /**
      * @param ais the <code>AI</code>s to execute
      */
-    public AISequence(List<AI> ais) {
+    public AISelector(List<AI> ais) {
         super(ais.get(0).entity);
 
         this.ais.addAll(ais);
@@ -49,15 +46,18 @@ public class AISequence extends AI {
 
         currentAI.act();
 
-        if(!currentAI.isRunning()) {
-            if(currentAI.isFailure())
-                fail();
-            else if(aiQueue.peek() == null) state = currentAI.getState();
-            else if(aiQueue.peek() == null) state = currentAI.getState();
-            else {
-                currentAI = aiQueue.poll();
-                currentAI.start();
-            }
+        if(currentAI.isRunning()) return;
+
+        if(currentAI.isSuccess()) {
+            succeed();
+            return;
+        }
+
+        if(aiQueue.peek() == null) state = currentAI.getState();
+
+        else {
+            currentAI = aiQueue.poll();
+            currentAI.start();
         }
     }
 }

@@ -15,8 +15,8 @@ public class Game implements Runnable {
     private final Panel panel;
     private KeyEventDispatcher ked;
 
-    boolean pause = false;
-    String[] pauseChoices = {"Resume", "Reset", "Quit"};
+    private boolean pause = false;
+    private final String[] pauseChoices = {"Resume", "Reset", "Quit"};
 
     public Game(Panel p) {
 
@@ -34,8 +34,9 @@ public class Game implements Runnable {
                     return true;
                 }
 
-                if (e.getKeyCode() == KeyEvent.VK_X && e.getID() == KeyEvent.KEY_PRESSED) {
-                    Level.getInstance().player.throwGhostBall();
+                if (e.getKeyCode() == KeyEvent.VK_X) {
+                    if(e.getID() == KeyEvent.KEY_PRESSED) Level.getInstance().player.startCharging();
+                    else if(e.getID() == KeyEvent.KEY_RELEASED) Level.getInstance().player.stopCharging();
                     return true;
                 }
 

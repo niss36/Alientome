@@ -3,10 +3,18 @@ package com.game.entities.ai;
 import com.game.entities.Entity;
 import com.util.Direction;
 
+/**
+ * <code>AI</code> to move the target <code>Entity</code> to the specified destination.
+ * Fails if the target <code>Entity</code> dies and succeeds if the destination is reached.
+ */
 public class AIMoveTo extends AI {
 
-    int destX;
+    private final int destX;
 
+    /**
+     * @param entity the target <code>Entity</code>
+     * @param destX the destination X coordinate.
+     */
     public AIMoveTo(Entity entity, int destX) {
 
         super(entity);
@@ -21,11 +29,14 @@ public class AIMoveTo extends AI {
     public void act() {
         if(isRunning()) {
             if(entity.isDead()) fail();
-            else move(entity);
+            else move();
         }
     }
 
-    private void move(Entity entity) {
+    /**
+     * Private method to update the target <code>Entity</code>'s position each tick.
+     */
+    private void move() {
 
         if(destX != entity.getX()) {
             if(destX > entity.getX()) {
@@ -34,11 +45,14 @@ public class AIMoveTo extends AI {
                 entity.move(Direction.LEFT);
             }
         }
-        if(isAtDestination(entity)) succeed();
+        if(isAtDestination()) succeed();
+        else if(entity.collidedX) fail();
     }
 
-    private boolean isAtDestination(Entity entity) {
-
+    /**
+     * @return whether the target <code>Entity</code> is at the destination X
+     */
+    private boolean isAtDestination() {
         return destX == entity.getX();
     }
 }

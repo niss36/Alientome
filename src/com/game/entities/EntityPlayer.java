@@ -2,29 +2,26 @@ package com.game.entities;
 
 import com.game.level.Level;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class EntityPlayer extends EntityLiving {
 
-    private static final BufferedImage[] sprites = new BufferedImage[2];
-    private static boolean init = false;
+    private static BufferedImage[] sprites;
+    private static BufferedImage[] spritesCharging;
     private int ghostBallCoolDown = 0;
+
+    private boolean charging = false;
+    private boolean charged = false;
+    private float chargeState;
 
     public EntityPlayer(int x, int y, Level level) {
 
         super(x, y, new Dimension(20, 31), level, 20);
 
-        if (!init) try {
-            for (int i = 0; i < 2; i++)
-                sprites[i] = ImageIO.read(ClassLoader.getSystemResourceAsStream("Alientome/" + i + ".png"));
-            init = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if (sprites == null) sprites = getSpritesAnimated("Alientome", 2);
+        if (spritesCharging == null) spritesCharging = getSpritesAnimated("Alientome/Charge", 5);
     }
 
     @Override
@@ -33,6 +30,14 @@ public class EntityPlayer extends EntityLiving {
         super.onUpdate();
 
         if (ghostBallCoolDown > 0) ghostBallCoolDown--;
+
+        if(charging) {
+            chargeState = chargeState >= 4.9f ? 3 : chargeState + 0.1f;
+            charged = chargeState >= 4 || charged;
+            maxVelocity = 2;
+        } else {
+            maxVelocity = 5;
+        }
     }
 
     @Override
@@ -52,7 +57,9 @@ public class EntityPlayer extends EntityLiving {
         int x = (int) this.x - min.x;
         int y = (int) this.y - min.y;
 
-        super.drawAnimated(g, sprites, x, y);
+        if(charging) draw(g, spritesCharging[(int)chargeState], x, y);
+
+        else drawAnimated(g, sprites, x, y, 10);
 
         if (debug) drawHitBox(g, x, y);
 
@@ -61,13 +68,29 @@ public class EntityPlayer extends EntityLiving {
         drawHealthBar(g, min);
     }
 
-    public void throwGhostBall() {
+    private void throwGhostBall(boolean big) {
 
         if (ghostBallCoolDown == 0) {
 
-            level.spawnEntity(new EntityGhostBall(this));
+            level.spawnEntity(new EntityGhostBall(this, big));
 
             ghostBallCoolDown = 33;
+        }
+    }
+
+    public void startCharging() {
+
+        if(ghostBallCoolDown == 0 && !charging) {
+            charging = true;
+            charged = false;
+            chargeState = 0;
+        }
+    }
+
+    public void stopCharging() {
+        if(charging) {
+            throwGhostBall(charged);
+            charging = false;
         }
     }
 }
