@@ -7,13 +7,17 @@ import java.awt.*;
 
 public abstract class EntityProjectile extends Entity {
 
-    protected final Entity thrower;
+    final Entity thrower;
 
-    EntityProjectile(Entity thrower, Dimension dim) {
+    int damage;
+
+    EntityProjectile(Entity thrower, Dimension dim, int damage) {
 
         super(thrower.x + thrower.dim.width / 2, thrower.y, dim, thrower.level);
 
         this.thrower = thrower;
+
+        this.damage = damage;
 
         facing = thrower.facing;
     }

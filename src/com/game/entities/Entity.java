@@ -7,19 +7,21 @@ import com.util.AxisAlignedBB;
 import com.util.Direction;
 import com.util.Side;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Random;
 
 public abstract class Entity {
 
     public final boolean collide;
-    protected final Random entityRandom = new Random();
+    final Random entityRandom = new Random();
     final Dimension dim;
-    final int blockWidth;
+    private final int blockWidth;
     public final Level level;
-    protected boolean onGround;
-    protected boolean dead = false;
+    boolean onGround;
+    private boolean dead = false;
     double x;
     double y;
     double motionX;
@@ -30,7 +32,8 @@ public abstract class Entity {
     public boolean collidedX;
     public boolean collidedY;
     Direction facing = Direction.RIGHT;
-    int imageUsed;
+    private int imageUsed;
+    private int animationCount;
     private AxisAlignedBB boundingBox;
 
     Entity(double x, double y, Dimension dim, Level level) {
@@ -128,8 +131,7 @@ public abstract class Entity {
         } else onDeath();
     }
 
-    public void setDead() {
-
+    void setDead() {
         dead = true;
     }
 
@@ -252,7 +254,7 @@ public abstract class Entity {
         if (debug) drawHitBox(g, x, y);
     }
 
-    public void drawHitBox(Graphics g, int x, int y) {
+    void drawHitBox(Graphics g, int x, int y) {
 
         Color c = g.getColor();
 
@@ -263,7 +265,30 @@ public abstract class Entity {
         g.setColor(c);
     }
 
-    public void draw(Graphics g, BufferedImage image, int x, int y) {
+    private BufferedImage getSprite(String path) {
+        BufferedImage sprite = null;
+
+        try {
+            sprite = ImageIO.read(ClassLoader.getSystemResourceAsStream(path + ".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return sprite;
+    }
+
+    BufferedImage[] getSpritesAnimated(String dirPath, int count) {
+
+        BufferedImage[] sprites = new BufferedImage[count];
+
+        for(int i = 0; i < count; i ++) {
+            sprites[i] = getSprite(dirPath + "/" + i);
+        }
+
+        return sprites;
+    }
+
+    void draw(Graphics g, BufferedImage image, int x, int y) {
 
         switch (facing) {
 
@@ -278,11 +303,18 @@ public abstract class Entity {
         }
     }
 
-    public void drawAnimated(Graphics g, BufferedImage[] images, int x, int y) {
+    void drawAnimated(Graphics g, BufferedImage[] images, int x, int y, int timer) {
 
-        draw(g, images[(imageUsed / (images.length * 4)) % images.length], x, y);
+        animationCount ++;
 
-        imageUsed = imageUsed > images.length * 8 - 1 ? 0 : imageUsed + 1;
+        if(animationCount >= timer) {
+            animationCount = 0;
+            imageUsed ++;
+        }
+
+        if(imageUsed >= images.length) imageUsed = 0;
+
+        draw(g, images[imageUsed], x, y);
     }
 
     public double getX() {

@@ -2,10 +2,17 @@ package com.game.entities.ai;
 
 import com.game.entities.Entity;
 
+/**
+ * <code>AI</code> to idle an <code>Entity</code> for a random amount of time.
+ * Fails if the target <code>Entity</code> dies and succeeds if the time to wait has been reached.
+ */
 public class AIIdle extends AI {
 
-    int time;
+    private int time;
 
+    /**
+     * @param entity the target <code>Entity</code>
+     */
     public AIIdle(Entity entity) {
         super(entity);
 

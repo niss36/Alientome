@@ -4,8 +4,16 @@ import com.game.entities.Entity;
 
 import java.util.Random;
 
+/**
+ * AI is used to simulate intelligent behavior for non-player entities.
+ */
 public abstract class AI {
 
+    /**
+     * Enum used to track the execution state of this AI.
+     * An instance whose <code>State</code> is <code>State.RUNNING</code>
+     * should continue executing on next calls to <code>AI.act()</code>.
+     */
     public enum State {
 
         RUNNING,
@@ -13,30 +21,49 @@ public abstract class AI {
         SUCCESS
     }
 
-    protected Random aIRandom = new Random();
+    final Random aIRandom = new Random();
 
-    Entity entity;
+    final Entity entity;
 
     State state;
 
-    public AI(Entity entity) {
+    /**
+     * Initialize the <code>AI</code>.
+     *
+     * @param entity the target <code>Entity</code>
+     */
+    AI(Entity entity) {
 
         this.entity = entity;
     }
 
+    /**
+     * Should be called every game update. Overrides of this method
+     * contains all the logic to the <code>AI</code>.
+     */
     public abstract void act();
 
+    /**
+     * Used to put the AI back into the initial phase,
+     * including additional <code>AI</code>-specific variables.
+     */
     public abstract void reset();
 
+    /**
+     * Should only be called when <code>this.state != State.RUNNING</code>. Used to initialize this <code>AI</code>
+     * and, in overrides, children <code>AI</code>.
+     */
     public void start() {
         state = State.RUNNING;
     }
 
-    protected void fail() {
+    // GETTERS AND SETTERS
+
+    void fail() {
         state = State.FAIL;
     }
 
-    protected void succeed() {
+    void succeed() {
         state = State.SUCCESS;
     }
 

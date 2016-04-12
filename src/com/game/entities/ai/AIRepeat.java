@@ -1,12 +1,22 @@
 package com.game.entities.ai;
 
+/**
+ * <code>AI</code> to repeat an other <code>AI</code>. Fails if the repeated <code>AI</code> fails
+ * and succeeds when the target <code>AI</code> was repeated the specified amount of times.
+ * (If <code>this.time < 0</code>, it will never succeed as it will repeat the <code>AI</code> until it fails)
+ */
 public class AIRepeat extends AI {
 
-    private AI ai;
+    private final AI ai;
     private int times;
-    private int originalTimes;
+    private final int originalTimes;
 
-    public AIRepeat(AI ai, int times) {
+    /**
+     * @param ai the <code>AI</code> to repeat
+     * @param times the number of repetitions.
+     *              If <code>times < 0</code>, repeat indefinitely
+     */
+    private AIRepeat(AI ai, int times) {
         super(ai.entity);
 
         this.ai = ai;
@@ -14,6 +24,11 @@ public class AIRepeat extends AI {
         this.originalTimes = times;
     }
 
+    /**
+     * Repeat an <code>AI</code> indefinitely
+     *
+     * @param ai the <code>AI</code> to repeat
+     */
     public AIRepeat(AI ai) {
         this(ai, -1);
     }
