@@ -11,8 +11,7 @@ public class Frame extends JFrame {
     private Frame() {
 
         setTitle("Alientome");
-        setSize(900, 900);
-//        setResizable(false);
+        setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 

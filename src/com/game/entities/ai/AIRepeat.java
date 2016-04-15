@@ -8,11 +8,11 @@ package com.game.entities.ai;
 public class AIRepeat extends AI {
 
     private final AI ai;
-    private int times;
     private final int originalTimes;
+    private int times;
 
     /**
-     * @param ai the <code>AI</code> to repeat
+     * @param ai    the <code>AI</code> to repeat
      * @param times the number of repetitions.
      *              If <code>times < 0</code>, repeat indefinitely
      */
@@ -46,10 +46,10 @@ public class AIRepeat extends AI {
 
     @Override
     public void act() {
-        if(ai.isFailure()) fail();
-        else if(ai.isSuccess()) {
-            if(times == 0) succeed();
-            else if(times > 0 || times <= -1) {
+        if (ai.isFailure()) fail();
+        else if (ai.isSuccess()) {
+            if (times == 0) succeed();
+            else if (times > 0 || times <= -1) {
                 times--;
                 ai.reset();
                 ai.start();

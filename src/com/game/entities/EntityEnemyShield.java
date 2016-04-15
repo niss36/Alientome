@@ -5,6 +5,10 @@ import com.util.Side;
 
 import java.awt.*;
 
+/**
+ * Similar to the <code>EntityEnemy/code>, but cannot be hurt by projectiles
+ * on the <code>Side</code> it is facing.
+ */
 public class EntityEnemyShield extends EntityEnemy {
 
     public EntityEnemyShield(int x, int y, Level level, int followRange) {
@@ -14,7 +18,7 @@ public class EntityEnemyShield extends EntityEnemy {
     @Override
     public void notifyCollision(Entity other, Side side) {
 
-        if(other instanceof EntityProjectile && side != facing.toSide()) damage(5);
+        if (other instanceof EntityProjectile && side != facing.toSide()) damage(5);
 
     }
 

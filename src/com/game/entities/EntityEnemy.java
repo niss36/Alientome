@@ -7,15 +7,25 @@ import com.util.Side;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * This <code>Entity</code> is hostile towards the <code>EntityPlayer</code>
+ * and will try to kill him.
+ */
 public class EntityEnemy extends EntityLiving {
 
     private static BufferedImage[] sprites;
 
     private final int followRange;
-    private boolean stuck;
-
     private final AI ai;
+    //private boolean stuck;
 
+    /**
+     * @param x           the x coordinate
+     * @param y           the y coordinate
+     * @param level       the <code>Level</code> this <code>Entity</code> is in
+     * @param followRange the range at which the <code>EntityEnemy</code>
+     *                    will follow the <code>EntityPlayer</code>
+     */
     public EntityEnemy(int x, int y, Level level, int followRange) {
 
         super(x, y, new Dimension(20, 27), level, 10);
@@ -37,7 +47,7 @@ public class EntityEnemy extends EntityLiving {
     @Override
     public void onUpdate() {
 
-        if(ai.getState() == null) ai.start();
+        if (ai.getState() == null) ai.start();
         ai.act();
 
         super.onUpdate();
@@ -72,9 +82,8 @@ public class EntityEnemy extends EntityLiving {
             if (other instanceof EntityPlayer) {
                 if (side == Side.BOTTOM) {
                     damage(10);
-                    if(onGround) other.motionY = -11;
-                }
-                else ((EntityPlayer) other).damage(1);
+                    if (onGround) other.motionY = -11;
+                } else ((EntityPlayer) other).damage(1);
             }
 
             return true;
@@ -91,7 +100,7 @@ public class EntityEnemy extends EntityLiving {
 
         super.drawAnimated(g, sprites, x, y, 10);
 
-        if (debug) drawHitBox(g, x, y);
+        if (debug) drawBoundingBox(g, x, y);
 
         g.setColor(Color.orange);
 

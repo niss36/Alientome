@@ -5,12 +5,21 @@ import com.util.Side;
 
 import java.awt.*;
 
+/**
+ * Used to represent an <code>Entity</code> who dies on collision and can damage
+ * <code>Entity</code>s it collides with.
+ */
 public abstract class EntityProjectile extends Entity {
 
     final Entity thrower;
 
-    int damage;
+    final int damage;
 
+    /**
+     * @param thrower the <code>Entity</code> this was thrown by. Will be ignored in collision checks.
+     * @param dim     the <code>Dimension</code> of this <code>Entity</code> (width, height)
+     * @param damage  the amount to damage <code>Entity</code>s on collision
+     */
     EntityProjectile(Entity thrower, Dimension dim, int damage) {
 
         super(thrower.x + thrower.dim.width / 2, thrower.y, dim, thrower.level);

@@ -1,24 +1,15 @@
 package com.util;
 
-import java.awt.event.KeyEvent;
-
 public enum Direction {
 
-    UP(KeyEvent.VK_W),
-    DOWN(KeyEvent.VK_S),
-    LEFT(KeyEvent.VK_A),
-    RIGHT(KeyEvent.VK_D);
-
-    private final int key;
-
-    Direction(int key) {
-
-        this.key = key;
-    }
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT;
 
     public static Direction toDirection(int key) {
 
-        return key == LEFT.key ? LEFT : key == RIGHT.key ? RIGHT : null;
+        return key == Config.getInstance().getKey("Key.MoveLeft") ? LEFT : key == Config.getInstance().getKey("Key.MoveRight") ? RIGHT : null;
     }
 
     public Side toSide() {

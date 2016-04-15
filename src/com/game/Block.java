@@ -5,6 +5,9 @@ import com.util.AxisAlignedBB;
 
 import java.awt.*;
 
+/**
+ * Used to represent tiles in the <code>Level</code>.
+ */
 public class Block {
 
     public static int width;
@@ -14,6 +17,12 @@ public class Block {
 
     private final AxisAlignedBB boundingBox;
 
+    /**
+     * Initialize this <code>Block</code>
+     *
+     * @param x the x coordinate
+     * @param y the y coordinate
+     */
     public Block(int x, int y) {
 
         this.x = x;
@@ -24,15 +33,29 @@ public class Block {
         boundingBox = new AxisAlignedBB(x * width, y * width, x * width + width, y * width + width);
     }
 
+    /**
+     * @param p the <code>Point</code> to get coordinates from
+     */
     public Block(Point p) {
         this(p.x, p.y);
     }
 
+    /**
+     * Static method to initialize the static width of <code>Block</code>s.
+     *
+     * @param width the width value to be used
+     */
     public static void init(int width) {
-
         Block.width = width;
     }
 
+    /**
+     * Draw this <code>Block</code> using the supplied <code>Graphics</code>
+     *
+     * @param g     the <code>Graphics</code> to draw with
+     * @param min   the relative origin
+     * @param debug whether debug info should be drawn
+     */
     public void draw(Graphics g, Point min, boolean debug) {
 
         switch (index) {
@@ -77,9 +100,14 @@ public class Block {
         }
     }
 
+    /**
+     * @return whether this <code>Block</code> can't be seen and passed through
+     */
     public boolean isOpaque() {
         return !(index == 0 || index == -1);
     }
+
+    //GETTERS AND SETTERS
 
     public int getX() {
         return x;

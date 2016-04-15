@@ -13,7 +13,7 @@ public class AIMoveTo extends AI {
 
     /**
      * @param entity the target <code>Entity</code>
-     * @param destX the destination X coordinate.
+     * @param destX  the destination X coordinate.
      */
     public AIMoveTo(Entity entity, int destX) {
 
@@ -23,12 +23,13 @@ public class AIMoveTo extends AI {
     }
 
     @Override
-    public void reset() { }
+    public void reset() {
+    }
 
     @Override
     public void act() {
-        if(isRunning()) {
-            if(entity.isDead()) fail();
+        if (isRunning()) {
+            if (entity.isDead()) fail();
             else move();
         }
     }
@@ -38,15 +39,15 @@ public class AIMoveTo extends AI {
      */
     private void move() {
 
-        if(destX != entity.getX()) {
-            if(destX > entity.getX()) {
+        if (destX != entity.getX()) {
+            if (destX > entity.getX()) {
                 entity.move(Direction.RIGHT);
             } else {
                 entity.move(Direction.LEFT);
             }
         }
-        if(isAtDestination()) succeed();
-        else if(entity.collidedX) fail();
+        if (isAtDestination()) succeed();
+        else if (entity.collidedX) fail();
     }
 
     /**

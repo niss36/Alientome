@@ -48,6 +48,7 @@ public class Panel extends JPanel {
 
         player.onUpdate();
 
+        //noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < entities.size(); i++) entities.get(i).onUpdate();
 
         this.player = player;

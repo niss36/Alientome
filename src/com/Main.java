@@ -3,6 +3,7 @@ package com;
 import com.game.Block;
 import com.game.level.Level;
 import com.gui.Frame;
+import com.util.Config;
 
 public class Main {
 
@@ -15,5 +16,7 @@ public class Main {
         Frame.getInstance().setVisible(true);
 
         Frame.getInstance().game.init();
+
+        Config.getInstance().load();
     }
 }
