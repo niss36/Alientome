@@ -10,6 +10,7 @@ public class EntityPlayer extends EntityLiving {
 
     private static BufferedImage[] sprites;
     private static BufferedImage[] spritesCharging;
+    private static BufferedImage[] spritesCharged;
     private int ghostBallCoolDown = 0;
 
     private boolean charging = false;
@@ -22,6 +23,7 @@ public class EntityPlayer extends EntityLiving {
 
         if (sprites == null) sprites = getSpritesAnimated("Alientome", 2);
         if (spritesCharging == null) spritesCharging = getSpritesAnimated("Alientome/Charge", 5);
+        if (spritesCharged == null) spritesCharged = getSpritesAnimated("Alientome/Charged", 2);
     }
 
     @Override
@@ -31,10 +33,10 @@ public class EntityPlayer extends EntityLiving {
 
         if (ghostBallCoolDown > 0) ghostBallCoolDown--;
 
-        if(charging) {
-            chargeState = chargeState >= 4.9f ? 3 : chargeState + 0.1f;
+        if (charging) {
+            chargeState = chargeState >= 4 ? 4f : chargeState + 0.1f;
             charged = chargeState >= 4 || charged;
-            maxVelocity = 2;
+            maxVelocity = Math.max(5 - (int) chargeState, 2);
         } else {
             maxVelocity = 5;
         }
@@ -57,11 +59,13 @@ public class EntityPlayer extends EntityLiving {
         int x = (int) this.x - min.x;
         int y = (int) this.y - min.y;
 
-        if(charging) draw(g, spritesCharging[(int)chargeState], x, y);
+        if (charged) drawAnimated(g, spritesCharged, x, y, 10);
+
+        else if (charging) drawImage(g, spritesCharging[(int) chargeState], x, y);
 
         else drawAnimated(g, sprites, x, y, 10);
 
-        if (debug) drawHitBox(g, x, y);
+        if (debug) drawBoundingBox(g, x, y);
 
         g.setColor(Color.black);
 
@@ -80,7 +84,7 @@ public class EntityPlayer extends EntityLiving {
 
     public void startCharging() {
 
-        if(ghostBallCoolDown == 0 && !charging) {
+        if (ghostBallCoolDown == 0 && !charging) {
             charging = true;
             charged = false;
             chargeState = 0;
@@ -88,9 +92,10 @@ public class EntityPlayer extends EntityLiving {
     }
 
     public void stopCharging() {
-        if(charging) {
+        if (charging) {
             throwGhostBall(charged);
             charging = false;
+            charged = false;
         }
     }
 }

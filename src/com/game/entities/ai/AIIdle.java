@@ -22,9 +22,9 @@ public class AIIdle extends AI {
     @Override
     public void act() {
 
-        if(isRunning()) {
-            if(entity.isDead()) fail();
-            else if(time == 0) succeed();
+        if (isRunning()) {
+            if (entity.isDead()) fail();
+            else if (time == 0) succeed();
             else time--;
         }
 

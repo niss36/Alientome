@@ -5,26 +5,12 @@ import com.game.entities.Entity;
 import java.util.Random;
 
 /**
- * AI is used to simulate intelligent behavior for non-player entities.
+ * <code>AI</code> is used to simulate intelligent behavior for non-player entities.
  */
 public abstract class AI {
 
-    /**
-     * Enum used to track the execution state of this AI.
-     * An instance whose <code>State</code> is <code>State.RUNNING</code>
-     * should continue executing on next calls to <code>AI.act()</code>.
-     */
-    public enum State {
-
-        RUNNING,
-        FAIL,
-        SUCCESS
-    }
-
     final Random aIRandom = new Random();
-
     final Entity entity;
-
     State state;
 
     /**
@@ -57,11 +43,11 @@ public abstract class AI {
         state = State.RUNNING;
     }
 
-    // GETTERS AND SETTERS
-
     void fail() {
         state = State.FAIL;
     }
+
+    // GETTERS AND SETTERS
 
     void succeed() {
         state = State.SUCCESS;
@@ -81,5 +67,17 @@ public abstract class AI {
 
     public State getState() {
         return state;
+    }
+
+    /**
+     * Enum used to track the execution state of this AI.
+     * An instance whose <code>State</code> is <code>State.RUNNING</code>
+     * should continue executing on next calls to <code>AI.act()</code>.
+     */
+    public enum State {
+
+        RUNNING,
+        FAIL,
+        SUCCESS
     }
 }

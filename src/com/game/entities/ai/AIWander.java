@@ -9,8 +9,8 @@ import com.game.entities.Entity;
  */
 public class AIWander extends AI {
 
-    private AIMoveTo aiMoveTo;
     private final AIIdle aiIdle = new AIIdle(entity);
+    private AIMoveTo aiMoveTo;
 
     /**
      * @param entity the target <code>Entity</code>
@@ -22,16 +22,16 @@ public class AIWander extends AI {
     @Override
     public void act() {
 
-        if(aiMoveTo.isRunning()) {
+        if (aiMoveTo.isRunning()) {
             aiMoveTo.act();
 
-            if(aiMoveTo.isSuccess() || entity.collidedX) aiIdle.start();
-            else if(aiMoveTo.isFailure()) fail();
-        } else if(aiIdle.isRunning()) {
+            if (aiMoveTo.isSuccess() || entity.collidedX) aiIdle.start();
+            else if (aiMoveTo.isFailure()) fail();
+        } else if (aiIdle.isRunning()) {
             aiIdle.act();
 
-            if(aiIdle.isSuccess()) succeed();
-            else if(aiIdle.isFailure()) fail();
+            if (aiIdle.isSuccess()) succeed();
+            else if (aiIdle.isFailure()) fail();
         }
     }
 

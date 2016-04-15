@@ -6,6 +6,9 @@ import com.util.Side;
 
 import java.awt.*;
 
+/**
+ * Used to represent an <code>Entity</code> who has health and can be killed.
+ */
 public abstract class EntityLiving extends Entity {
 
     private final int maxHealth;
@@ -13,6 +16,13 @@ public abstract class EntityLiving extends Entity {
 
     private int damageCoolDown = 0;
 
+    /**
+     * @param x         the x coordinate
+     * @param y         the y coordinate
+     * @param dim       the <code>Dimension</code> of this <code>Entity</code> (width, height)
+     * @param level     the <code>Level</code> this <code>Entity</code> is in
+     * @param maxHealth the maximum health this <code>EntityLiving</code> can have
+     */
     EntityLiving(int x, int y, Dimension dim, Level level, int maxHealth) {
         super(x, y, dim, level);
 
@@ -37,7 +47,13 @@ public abstract class EntityLiving extends Entity {
         drawHealthBar(g, min);
     }
 
-    protected void drawHealthBar(Graphics g, Point min) {
+    /**
+     * Used to visually represent this <code>EntityLiving</code>'s health.
+     *
+     * @param g   the <code>Graphics</code> to draw with
+     * @param min the relative origin
+     */
+    void drawHealthBar(Graphics g, Point min) {
 
         if (health <= 0) return;
 
@@ -67,9 +83,15 @@ public abstract class EntityLiving extends Entity {
     @Override
     public void notifyCollision(Entity other, Side side) {
 
-        if(other instanceof EntityProjectile) damage(((EntityProjectile)other).damage);
+        if (other instanceof EntityProjectile) damage(((EntityProjectile) other).damage);
     }
 
+    /**
+     * Removes <code>value</code> health to this <code>EntityLiving</code>'s health
+     * if it was not already hurt recently.
+     *
+     * @param value the health to damage by
+     */
     public void damage(int value) {
         if (damageCoolDown == 0) {
             health -= value;

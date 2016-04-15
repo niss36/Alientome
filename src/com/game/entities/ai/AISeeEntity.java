@@ -13,9 +13,9 @@ public class AISeeEntity extends AI {
     private final int range;
 
     /**
-     * @param entity the target <code>Entity</code>
+     * @param entity     the target <code>Entity</code>
      * @param lookingFor the <code>Entity</code> checked
-     * @param range the maximum sight range
+     * @param range      the maximum sight range
      */
     public AISeeEntity(Entity entity, Entity lookingFor, int range) {
         super(entity);

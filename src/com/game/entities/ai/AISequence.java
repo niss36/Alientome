@@ -7,9 +7,9 @@ import java.util.*;
  */
 public class AISequence extends AI {
 
-    private AI currentAI;
     private final ArrayList<AI> ais = new ArrayList<>();
     private final Queue<AI> aiQueue = new LinkedList<>();
+    private AI currentAI;
 
     /**
      * @param ais the <code>AI</code>s to execute
@@ -31,7 +31,7 @@ public class AISequence extends AI {
 
     @Override
     public void reset() {
-        for (AI ai : ais) ai.reset();
+        ais.forEach(AI::reset);
     }
 
     @Override
@@ -49,11 +49,11 @@ public class AISequence extends AI {
 
         currentAI.act();
 
-        if(!currentAI.isRunning()) {
-            if(currentAI.isFailure())
+        if (!currentAI.isRunning()) {
+            if (currentAI.isFailure())
                 fail();
-            else if(aiQueue.peek() == null) state = currentAI.getState();
-            else if(aiQueue.peek() == null) state = currentAI.getState();
+            else if (aiQueue.peek() == null) state = currentAI.getState();
+            else if (aiQueue.peek() == null) state = currentAI.getState();
             else {
                 currentAI = aiQueue.poll();
                 currentAI.start();

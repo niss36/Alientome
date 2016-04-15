@@ -13,15 +13,20 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Random;
 
+/**
+ * The <code>Entity</code> class is used to represent non-<code>Block</code> objects in the <code>Level</code>
+ */
 public abstract class Entity {
 
     public final boolean collide;
-    final Random entityRandom = new Random();
-    final Dimension dim;
-    private final int blockWidth;
+    public final Dimension dim;
     public final Level level;
+    final Random entityRandom = new Random();
+    private final int blockWidth;
+    public boolean collidedX;
+    public boolean collidedY;
+    public Object lastCollidedWith;
     boolean onGround;
-    private boolean dead = false;
     double x;
     double y;
     double motionX;
@@ -29,13 +34,20 @@ public abstract class Entity {
     double maxVelocity;
     Block blockIn;
     boolean gravity;
-    public boolean collidedX;
-    public boolean collidedY;
     Direction facing = Direction.RIGHT;
+    private boolean dead = false;
     private int imageUsed;
     private int animationCount;
     private AxisAlignedBB boundingBox;
 
+    /**
+     * Initialize the <code>Entity</code>
+     *
+     * @param x     the x coordinate
+     * @param y     the y coordinate
+     * @param dim   the <code>Dimension</code> of this <code>Entity</code> (width, height)
+     * @param level the <code>Level</code> this <code>Entity</code> is in
+     */
     Entity(double x, double y, Dimension dim, Level level) {
 
         this.x = x;
@@ -57,10 +69,21 @@ public abstract class Entity {
         boundingBox = new AxisAlignedBB(x, y, x + dim.width, y + dim.height);
     }
 
+    /**
+     * Private method used to decrease motion.
+     *
+     * @param d     the number to decrease
+     * @param value the amount to decrease
+     * @return If <code>d==0</code> 0 else <code>d</code> closer to 0 by <code>value</code>
+     */
     private static double decrease(double d, double value) {
         return d < 0 ? d + value : d > 0 ? d - value : 0;
     }
 
+    /**
+     * Called every game update. Used to update the <code>Entity</code>'s position and logic.
+     * Overrides should always call <code>super.onUpdate()</code>.
+     */
     public void onUpdate() {
 
         if (!dead) {
@@ -131,14 +154,27 @@ public abstract class Entity {
         } else onDeath();
     }
 
+    /**
+     * Set this <code>Entity</code> dead. It will be deleted next call to <code>onUpdate()</code>.
+     */
     void setDead() {
         dead = true;
     }
 
+    /**
+     * Called when this <code>Entity</code> is updated after being set dead.
+     */
     void onDeath() {
         level.removeEntity(this);
     }
 
+    /**
+     * Called when this <code>Entity</code> collides with a <code>Block</code>.
+     *
+     * @param block the <code>Block</code> collided with
+     * @param side  the <code>Side</code> of the collision
+     * @return whether the collision was processed
+     */
     public boolean onCollidedWithBlock(Block block, Side side) {
 
         if (block.isOpaque()) {
@@ -165,12 +201,21 @@ public abstract class Entity {
                     break;
             }
 
+            lastCollidedWith = block;
+
             return true;
         }
 
         return false;
     }
 
+    /**
+     * Called when this <code>Entity</code> collides with another <code>Entity</code>
+     *
+     * @param other the <code>Entity</code> collided with
+     * @param side  the <code>Side</code> of the collision
+     * @return whether the collision was processed
+     */
     public boolean onCollidedWithEntity(Entity other, Side side) {
 
         if (collide && other.collide && side != null && !(other instanceof EntityProjectile)) {
@@ -204,6 +249,8 @@ public abstract class Entity {
                     break;
             }
 
+            lastCollidedWith = other;
+
 //            System.out.println(getClass() + " " + onGround + "  " + other.getClass() + " " + other.onGround);
 
             return true;
@@ -212,12 +259,29 @@ public abstract class Entity {
         return false;
     }
 
+    /**
+     * Lets this <code>Entity</code> execute its specific code when an other <code>Entity</code> collides with it.
+     *
+     * @param other the <code>Entity</code> collided with
+     * @param side  the <code>Side</code> of the collision
+     * @see this.onCollidedWithEntity
+     */
     public abstract void notifyCollision(Entity other, Side side);
 
+    /**
+     * @param direction the <code>Direction</code> to move towards
+     */
     public void move(Direction direction) {
         move(direction, 1);
     }
 
+    /**
+     * Adds or subtracts the specified value to <code>this.motionX</code> or
+     * <code>this.motionY</code> according to the <code>Direction</code>
+     *
+     * @param direction the <code>Direction</code> to move towards
+     * @param value     the value to add to velocity
+     */
     void move(Direction direction, double value) {
 
         switch (direction) {
@@ -240,10 +304,20 @@ public abstract class Entity {
         motionX = motionX < -maxVelocity ? -maxVelocity : motionX > maxVelocity ? maxVelocity : motionX;
     }
 
+    /**
+     * Makes this <code>Entity</code> jump if it is on the ground.
+     */
     public void jump() {
         if (onGround) motionY = -18;
     }
 
+    /**
+     * Draws this <code>Entity</code> using the supplied <code>Graphics</code>
+     *
+     * @param g     the <code>Graphics</code> to draw with
+     * @param min   the relative origin of the draw surface
+     * @param debug whether it should draw hit boxes or not
+     */
     public void draw(Graphics g, Point min, boolean debug) {
 
         int x = (int) this.x - min.x;
@@ -251,10 +325,17 @@ public abstract class Entity {
 
         g.fillRect(x, y, dim.width, dim.height);
 
-        if (debug) drawHitBox(g, x, y);
+        if (debug) drawBoundingBox(g, x, y);
     }
 
-    void drawHitBox(Graphics g, int x, int y) {
+    /**
+     * Outlines this <code>Entity</code>'s <code>AxisAlignedBoundingBox</code>. Called only in debug mode.
+     *
+     * @param g the <code>Graphics</code> to draw with
+     * @param x the top-left corner's x coordinate
+     * @param y the top-left corner's y coordinate
+     */
+    void drawBoundingBox(Graphics g, int x, int y) {
 
         Color c = g.getColor();
 
@@ -265,6 +346,59 @@ public abstract class Entity {
         g.setColor(c);
     }
 
+    /**
+     * Draws the given image at the specified location, rotating it vertically
+     * according to the facing <code>Direction</code>.
+     *
+     * @param g     the <code>Graphics</code> to draw with
+     * @param image the <code>BufferedImage</code> to draw
+     * @param x     the top-left corner's x coordinate
+     * @param y     the top-left corner's y coordinate
+     */
+    void drawImage(Graphics g, BufferedImage image, int x, int y) {
+
+        switch (facing) {
+
+            case LEFT:
+                g.drawImage(image, x, y, null);
+                break;
+            case RIGHT:
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.drawImage(image, x + image.getWidth(), y, -image.getWidth(), image.getHeight(), null);
+                break;
+        }
+    }
+
+    /**
+     * Draws the given images alternating over them a given number of times.
+     *
+     * @param g      the <code>Graphics</code> to draw with
+     * @param images the <code>BufferedImage[]</code> to draw
+     * @param x      the top-left corner's x coordinate
+     * @param y      the top-left corner's y coordinate
+     * @param times  the number of game updates before changing image
+     * @see this.drawImage
+     */
+    void drawAnimated(Graphics g, BufferedImage[] images, int x, int y, int times) {
+
+        animationCount++;
+
+        if (animationCount >= times) {
+            animationCount = 0;
+            imageUsed++;
+        }
+
+        if (imageUsed >= images.length) imageUsed = 0;
+
+        drawImage(g, images[imageUsed], x, y);
+    }
+
+    /**
+     * Used when initializing the textures.
+     *
+     * @param path the path to the sprite in the resources folder
+     * @return the <code>BufferedImage</code> at this location, or <code>null</code> if it doesn't exist.
+     */
     private BufferedImage getSprite(String path) {
         BufferedImage sprite = null;
 
@@ -277,45 +411,48 @@ public abstract class Entity {
         return sprite;
     }
 
+    /**
+     * Used when initializing animated textures.
+     *
+     * @param dirPath the path to the directory where the sprites are located
+     * @param count   the number of sprites
+     * @return a <code>BufferedImage[]</code> containing the sprites found
+     * @see this.getSprite
+     */
     BufferedImage[] getSpritesAnimated(String dirPath, int count) {
 
         BufferedImage[] sprites = new BufferedImage[count];
 
-        for(int i = 0; i < count; i ++) {
+        for (int i = 0; i < count; i++) {
             sprites[i] = getSprite(dirPath + "/" + i);
         }
 
         return sprites;
     }
 
-    void draw(Graphics g, BufferedImage image, int x, int y) {
-
-        switch (facing) {
-
-            case LEFT:
-                g.drawImage(image, x, y, null);
-                break;
-            case RIGHT:
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.drawImage(image, x + image.getWidth(), y, -image.getWidth(), image.getHeight(), null);
-                break;
-
-        }
+    /**
+     * @param other the <code>Entity</code> to get the distance to
+     * @return the euclidean distance from this to the other <code>Entity</code>
+     */
+    public double distanceTo(Entity other) {
+        return posVector().distance(other.posVector());
     }
 
-    void drawAnimated(Graphics g, BufferedImage[] images, int x, int y, int timer) {
-
-        animationCount ++;
-
-        if(animationCount >= timer) {
-            animationCount = 0;
-            imageUsed ++;
-        }
-
-        if(imageUsed >= images.length) imageUsed = 0;
-
-        draw(g, images[imageUsed], x, y);
+    /**
+     * @return this <code>Entity</code>'s bounding box as it will be in the next game update
+     */
+    public AxisAlignedBB getNextBoundingBox() {
+        return boundingBox.offset(motionX, motionY);
     }
+
+    /**
+     * @return a <code>Vec2d</code> containing this <code>Entity</code>'s coordinates
+     */
+    public Vec2d posVector() {
+        return new Vec2d(x, y);
+    }
+
+    //GETTERS AND SETTERS
 
     public double getX() {
         return x;
@@ -325,20 +462,12 @@ public abstract class Entity {
         return y;
     }
 
-    public double distanceTo(Entity other) {
-        return posVector().distance(other.posVector());
+    public double getMotionX() {
+        return motionX;
     }
 
-    public AxisAlignedBB getBoundingBox() {
-        return boundingBox;
-    }
-
-    public AxisAlignedBB getNextBoundingBox() {
-        return boundingBox.offset(motionX, motionY);
-    }
-
-    public Vec2d posVector() {
-        return new Vec2d(x, y);
+    public double getMotionY() {
+        return motionY;
     }
 
     public boolean isDead() {
