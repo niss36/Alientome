@@ -38,7 +38,7 @@ public abstract class EntityLiving extends Entity {
 
         if (health <= 0) setDead();
 
-        if (blockIn.getIndex() == -1) damage(1);
+        if (blockIn.getIndex() == 2) damage(1);
     }
 
     @Override
@@ -77,7 +77,7 @@ public abstract class EntityLiving extends Entity {
 
         return super.onCollidedWithBlock(block, side);
 
-        //if(block.getIndex() == -1) damage(5);
+        //if(block.getIndex() == 2) damage(5);
     }
 
     @Override

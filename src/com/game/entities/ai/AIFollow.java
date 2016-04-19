@@ -6,7 +6,7 @@ import com.util.Direction;
 
 /**
  * <code>AI</code> to make the target <code>Entity</code> follow an other <code>Entity</code>.
- * Fails if the target <code>Entity</code> fails, and is set to <code>State.FAIL</code>
+ * Fails if the target <code>Entity</code> dies, and is set to <code>State.FAIL</code>
  * or <code>State.SUCCESS</code> when the followed <code>Entity</code> dies according to
  * <code>this.onFollowedDeath</code>.
  */

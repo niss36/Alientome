@@ -1,9 +1,9 @@
 package com.util;
 
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -11,11 +11,15 @@ public class Config {
     private static final Config ourInstance = new Config();
     private final HashMap<String, Integer> keys = new HashMap<>();
     private final String[] names = {"Key.Jump", "Key.MoveLeft", "Key.MoveRight", "Key.Fire", "Key.Debug", "Key.Pause"};
-    private final int[] defaults = {KeyEvent.VK_SPACE, KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_X, KeyEvent.VK_H, KeyEvent.VK_ESCAPE};
+    private final int[] defaults = new int[names.length];
     private Properties properties;
+    private File userConfig = new File(FileNames.config);
 
     private Config() {
+        Properties defaultProperties = getProperties(defaultConfig());
+
         for (int i = 0; i < names.length; i++) {
+            defaults[i] = keyValue(defaultProperties.getProperty(names[i]), 0);
             keys.put(names[i], defaults[i]);
         }
     }
@@ -26,7 +30,18 @@ public class Config {
 
     public void load() {
 
-        properties = getProperties();
+        checkFiles();
+
+        InputStream stream;
+
+        try {
+            stream = new FileInputStream(userConfig);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            stream = null;
+        }
+
+        properties = getProperties(stream);
 
         if (properties == null) {
             System.out.println("Using default Config");
@@ -41,9 +56,33 @@ public class Config {
         }
     }
 
-    private Properties getProperties() {
+    public void save() {
 
-        InputStream stream = getClass().getResourceAsStream("DefaultConfig.properties");
+        try {
+            properties.store(new FileOutputStream(userConfig), null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private InputStream defaultConfig() {
+        return getClass().getResourceAsStream("DefaultConfig.properties");
+    }
+
+    private void checkFiles() {
+
+        File dir = new File(FileNames.directory);
+        if(!dir.exists()) dir.mkdir();
+
+        if(!userConfig.exists()) try {
+            InputStream in = defaultConfig();
+            Files.copy(in, userConfig.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Properties getProperties(InputStream stream) {
 
         if (stream == null) return null;
 
