@@ -18,5 +18,7 @@ public class Main {
         Frame.getInstance().game.init();
 
         Config.getInstance().load();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> Config.getInstance().save()));
     }
 }
