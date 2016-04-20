@@ -1,8 +1,9 @@
 package com.game.entities;
 
+import com.game.Level;
 import com.game.entities.ai.*;
-import com.game.level.Level;
 import com.util.Side;
+import com.util.SpritesLoader;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -15,9 +16,7 @@ public class EntityEnemy extends EntityLiving {
 
     private static BufferedImage[] sprites;
 
-    private final int followRange;
     private final AI ai;
-    //private boolean stuck;
 
     /**
      * @param x           the x coordinate
@@ -32,16 +31,20 @@ public class EntityEnemy extends EntityLiving {
 
         maxVelocity = 3;
 
-        this.followRange = entityRandom.nextInt(50) + followRange - 25;
+        followRange = entityRandom.nextInt(50) + followRange - 25;
+
+        AITest[] tests = {new AIEntityAbove(this, level.player), new AISeeEntity(this, level.player, followRange)};
+        AI[] actions = {new AIFlee(this, level.player, 150), new AIFollow(this, level.player, false)};
 
         ai = new AIRepeat(
-                new AISelector(
-                        new AIFollow(this, level.player, this.followRange, false),
+                new AITestAction(
+                        tests,
+                        actions,
                         new AIWander(this)
                 )
         );
 
-        if (sprites == null) sprites = getSpritesAnimated("Enemy", 1);
+        if (sprites == null) sprites = SpritesLoader.getSpritesAnimated("Enemy", 1);
     }
 
     @Override
@@ -51,28 +54,6 @@ public class EntityEnemy extends EntityLiving {
         ai.act();
 
         super.onUpdate();
-
-        /*double xDif = x - level.player.x;
-        double yDif = y - level.player.y;
-
-        if (Math.sqrt(xDif * xDif + yDif * yDif) <= followRange) {
-
-            if (level.player.x < x) move(Direction.LEFT);
-            if (level.player.x > x) move(Direction.RIGHT);
-
-            if (collidedX && level.player.x != x) {
-                if (!stuck) jump();
-                else
-                    stuck = true;
-            }
-
-            boolean b = false;
-
-            for (int i = 0; i < 2; i++)
-                b = new Block((int) ((x + motionX + i * dim.width - i) / blockWidth), (int) ((y + 1 + dim.height) / blockWidth)).isOpaque() || b;
-
-            if (!b && level.player.y <= y) jump();
-        }*/
     }
 
     @Override
@@ -102,7 +83,7 @@ public class EntityEnemy extends EntityLiving {
 
         if (debug) drawBoundingBox(g, x, y);
 
-        g.setColor(Color.orange);
+        g.setColor(Color.black);
 
         drawHealthBar(g, min);
     }

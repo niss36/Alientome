@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<level>
+    <player spawnX="3" spawnY="5"/>
+    <entities>
+        <entity type="1" spawnX="8" spawnY="5"/>
+        <entity type="1" spawnX="8" spawnY="0"/>
+        <entity type="1" spawnX="17" spawnY="5"/>
+        <entity type="1" spawnX="6" spawnY="0"/>
+    </entities>
+</level>

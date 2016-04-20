@@ -1,27 +1,22 @@
 package com.game;
 
-import com.game.level.Level;
 import com.util.AxisAlignedBB;
+import com.util.SpritesLoader;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 /**
  * Used to represent tiles in the <code>Level</code>.
  */
-public class Block {
+public class Block implements BlockConstants {
 
+    private static final BufferedImage[] sprites = new BufferedImage[3];
     public static int width;
     private final int x;
     private final int y;
-    private final int index;
-
+    private final byte index;
     private final AxisAlignedBB boundingBox;
-
-    private static BufferedImage[] sprites = new BufferedImage[3];
-    private static BufferedImage n = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 
     /**
      * Initialize this <code>Block</code>
@@ -36,7 +31,8 @@ public class Block {
 
         index = Level.getInstance().get(x, y);
 
-        if(index != Integer.MIN_VALUE && sprites[index] == null) sprites[index] = getSprite();
+        if (index != VOID && sprites[index] == null)
+            sprites[index] = SpritesLoader.getSprite("Block/" + index);
 
         boundingBox = new AxisAlignedBB(x * width, y * width, x * width + width, y * width + width);
     }
@@ -55,6 +51,12 @@ public class Block {
      */
     public static void init(int width) {
         Block.width = width;
+        BlockConstants.init();
+    }
+
+    public static byte parse(int rgb) {
+
+        return rgbConvert.containsKey(rgb) ? rgbConvert.get(rgb) : VOID;
     }
 
     /**
@@ -69,29 +71,29 @@ public class Block {
         int x = this.x * width - min.x;
         int y = this.y * width - min.y;
 
-        if(index != Integer.MIN_VALUE && sprites[index] != n) g.drawImage(sprites[index], x, y, null);
+        if (index != VOID && sprites[index] != SpritesLoader.NULL) g.drawImage(sprites[index], x, y, null);
 
         else {
             switch (index) {
 
-                case Integer.MIN_VALUE: {
+                case VOID: {
                     g.setColor(Color.white);
                     break;
                 }
 
-                case 0: {
+                case AIR: {
 
                     g.setColor(Color.blue);
                     break;
                 }
 
-                case 1: {
+                case SAND: {
 
-                    g.setColor(Color.green);
+                    g.setColor(Color.orange);
                     break;
                 }
 
-                case 2: {
+                case HOLE: {
 
                     g.setColor(Color.darkGray);
                     break;
@@ -112,18 +114,6 @@ public class Block {
         }
     }
 
-    private BufferedImage getSprite() {
-        BufferedImage sprite = n;
-
-        try {
-            sprite = ImageIO.read(ClassLoader.getSystemResourceAsStream("Block/" + index + ".png"));
-        } catch (IOException | IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-
-        return sprite;
-    }
-
     /**
      * @return whether this <code>Block</code> can't be seen and passed through
      */
@@ -141,7 +131,7 @@ public class Block {
         return y;
     }
 
-    public int getIndex() {
+    public byte getIndex() {
         return index;
     }
 

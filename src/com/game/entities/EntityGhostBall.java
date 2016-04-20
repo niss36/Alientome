@@ -2,6 +2,7 @@ package com.game.entities;
 
 import com.util.Direction;
 import com.util.Side;
+import com.util.SpritesLoader;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -24,7 +25,7 @@ public class EntityGhostBall extends EntityProjectile {
      */
     EntityGhostBall(Entity thrower, boolean big) {
 
-        super(thrower, new Dimension(8 + (big ? 4 : 0), 8 + (big ? 4 : 0)), big ? 10 : 5);
+        super(thrower, new Dimension(big ? 12 : 8, big ? 12 : 8), big ? 10 : 5);
 
         this.big = big;
 
@@ -34,8 +35,8 @@ public class EntityGhostBall extends EntityProjectile {
 
         gravity = false;
 
-        if (sprites == null) sprites = getSpritesAnimated("GhostBall", 2);
-        if (spritesBig == null) spritesBig = getSpritesAnimated("GhostBall/Big", 10);
+        if (sprites == null) sprites = SpritesLoader.getSpritesAnimated("GhostBall", 2);
+        if (spritesBig == null) spritesBig = SpritesLoader.getSpritesAnimated("GhostBall/Big", 10);
     }
 
     @Override

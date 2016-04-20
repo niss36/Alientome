@@ -1,16 +1,14 @@
 package com.game.entities;
 
 import com.game.Block;
-import com.game.level.Level;
+import com.game.Level;
 import com.sun.javafx.geom.Vec2d;
 import com.util.AxisAlignedBB;
 import com.util.Direction;
 import com.util.Side;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Random;
 
 /**
@@ -67,6 +65,19 @@ public abstract class Entity {
         gravity = true;
 
         boundingBox = new AxisAlignedBB(x, y, x + dim.width, y + dim.height);
+    }
+
+    static Entity create(int type, int x, int y, Level level) {
+        switch (type) {
+            case 1:
+                return new EntityEnemy(x, y, level, 300);
+
+            case 2:
+                return new EntityEnemyShield(x, y, level, 300);
+
+            default:
+                return null;
+        }
     }
 
     /**
@@ -316,7 +327,7 @@ public abstract class Entity {
      *
      * @param g     the <code>Graphics</code> to draw with
      * @param min   the relative origin of the draw surface
-     * @param debug whether it should draw hit boxes or not
+     * @param debug whether this <code>Entity</code>'s bounding box should be drawn
      */
     public void draw(Graphics g, Point min, boolean debug) {
 
@@ -391,43 +402,6 @@ public abstract class Entity {
         if (imageUsed >= images.length) imageUsed = 0;
 
         drawImage(g, images[imageUsed], x, y);
-    }
-
-    /**
-     * Used when initializing the textures.
-     *
-     * @param path the path to the sprite in the resources folder
-     * @return the <code>BufferedImage</code> at this location, or <code>null</code> if it doesn't exist.
-     */
-    private BufferedImage getSprite(String path) {
-        BufferedImage sprite = null;
-
-        try {
-            sprite = ImageIO.read(ClassLoader.getSystemResourceAsStream(path + ".png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return sprite;
-    }
-
-    /**
-     * Used when initializing animated textures.
-     *
-     * @param dirPath the path to the directory where the sprites are located
-     * @param count   the number of sprites
-     * @return a <code>BufferedImage[]</code> containing the sprites found
-     * @see this.getSprite
-     */
-    BufferedImage[] getSpritesAnimated(String dirPath, int count) {
-
-        BufferedImage[] sprites = new BufferedImage[count];
-
-        for (int i = 0; i < count; i++) {
-            sprites[i] = getSprite(dirPath + "/" + i);
-        }
-
-        return sprites;
     }
 
     /**

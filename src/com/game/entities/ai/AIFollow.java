@@ -15,25 +15,20 @@ public class AIFollow extends AI {
     private final Entity following;
     private final State onFollowedDeath;
 
-    private final AISeeEntity aiSeeEntity;
-
     /**
      * @param entity              the target <code>Entity</code>
      * @param following           the <code>Entity</code> to follow
-     * @param followRange         the maximum following range
      * @param failOnFollowedDeath if this is <code>true</code>, the <code>AI</code>'s
      *                            <code>State</code> will be set to <code>State.FAIL</code> when the followed
      *                            <code>Entity</code> dies. Else it will be set to <code>State.SUCCESS</code>
      */
-    public AIFollow(Entity entity, Entity following, int followRange, boolean failOnFollowedDeath) {
+    public AIFollow(Entity entity, Entity following, boolean failOnFollowedDeath) {
         super(entity);
 
         this.following = following;
 
         if (failOnFollowedDeath) onFollowedDeath = State.FAIL;
         else onFollowedDeath = State.SUCCESS;
-
-        aiSeeEntity = new AISeeEntity(entity, following, followRange);
     }
 
     @Override
@@ -46,15 +41,10 @@ public class AIFollow extends AI {
             else if (following.isDead()) state = onFollowedDeath;
 
             else {
-                aiSeeEntity.act();
-                if (aiSeeEntity.isSuccess()) {
+                if (following.getX() > entity.getX()) entity.move(Direction.RIGHT);
+                else if (following.getX() < entity.getX()) entity.move(Direction.LEFT);
 
-                    if (following.getX() > entity.getX()) entity.move(Direction.RIGHT);
-                    else if (following.getX() < entity.getX()) entity.move(Direction.LEFT);
-
-                    if (following.getX() != entity.getX()) avoidObstacles();
-
-                } else if (aiSeeEntity.isFailure()) fail();
+                if (following.getX() != entity.getX()) avoidObstacles();
             }
         }
     }
@@ -63,28 +53,17 @@ public class AIFollow extends AI {
 
         if (entity.collidedX && entity.lastCollidedWith != following) entity.jump();
 
-        else {
-            boolean b/* = false*/;
+        else if (following.getY() <= entity.getY()) {
 
-            /*for (int i = 0; i < 2; i++) {
-                b = new Block((int) ((entity.getX() + entity.getMotionX() + i * entity.dim.width - i) / Block.width),
-                        (int) ((entity.getY() + 1 + entity.dim.height) / Block.width)).isOpaque() || b;
-            }*/
+            boolean b = new Block((int) ((entity.getX() + entity.dim.width / 2 + entity.getMotionX()) / Block.width),
+                    (int) ((entity.getY() + entity.dim.height + 1) / Block.width)).isOpaque();
 
-            b = new Block((int) ((entity.getX() + entity.getMotionX()) / Block.width), (int) ((entity.getY() + entity.dim.height + 1) / Block.width)).isOpaque();
-
-            if (!b && following.getY() <= entity.getY()) entity.jump();
+            if (!b) entity.jump();
         }
     }
 
     @Override
     public void reset() {
         start();
-    }
-
-    @Override
-    public void start() {
-        super.start();
-        aiSeeEntity.start();
     }
 }

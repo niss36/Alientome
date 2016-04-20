@@ -1,7 +1,7 @@
 package com;
 
 import com.game.Block;
-import com.game.level.Level;
+import com.game.Level;
 import com.gui.Frame;
 import com.util.Config;
 
@@ -9,13 +9,13 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Level.getInstance().init("Level1.txt");
-
         Block.init(64);
+
+        Level.getInstance().init(1);
 
         Frame.getInstance().setVisible(true);
 
-        Frame.getInstance().game.init();
+        Frame.getInstance().panelGame.init();
 
         Config.getInstance().load();
 

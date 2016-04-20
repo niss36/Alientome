@@ -1,7 +1,7 @@
 package com.game.entities;
 
 import com.game.Block;
-import com.game.level.Level;
+import com.game.Level;
 import com.util.Side;
 
 import java.awt.*;
@@ -38,7 +38,7 @@ public abstract class EntityLiving extends Entity {
 
         if (health <= 0) setDead();
 
-        if (blockIn.getIndex() == 2) damage(1);
+        if (blockIn.getIndex() == Block.HOLE) damage(1);
     }
 
     @Override

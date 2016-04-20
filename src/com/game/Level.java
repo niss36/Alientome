@@ -1,18 +1,22 @@
-package com.game.level;
+package com.game;
 
-import com.game.Block;
-import com.game.Game;
 import com.game.entities.Entity;
-import com.game.entities.EntityEnemy;
+import com.game.entities.EntityBuilder;
 import com.game.entities.EntityPlayer;
 import com.gui.Panel;
 import com.util.Config;
 import com.util.Direction;
+import com.util.SpritesLoader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
-import java.io.InputStreamReader;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * This single-instance class holds the <code>Block</code> array defining the world,
@@ -21,10 +25,10 @@ import java.util.Scanner;
 public class Level {
 
     private static final Level instance = new Level();
-    private final ArrayList<Point> spawnList = new ArrayList<>();
+    private final ArrayList<EntityBuilder> spawnList = new ArrayList<>();
     private final ArrayList<Entity> entities = new ArrayList<>();
     public EntityPlayer player;
-    private int[][] blocks;
+    private byte[][] blocks;
     private int x;
     private int y;
     private int spawnX;
@@ -39,34 +43,67 @@ public class Level {
     }
 
     /**
-     * Initializes the <code>Block</code> array and spawn points of <code>EntityPlayer</code>
-     * and other <code>Entity</code>s from a text file.
+     * Initializes the <code>Block</code> array from an image, and spawn points
+     * of <code>EntityPlayer</code> and other <code>Entity</code>s from a text file.
      *
-     * @param path the path of the level file relative to this class's location
+     * @param levelID the id of the <code>Level</code> to load
      */
-    public void init(String path) {
+    public void init(int levelID) {
 
-        Scanner sc = new Scanner(new InputStreamReader(getClass().getResourceAsStream(path)));
+        blockWidth = Block.width;
 
-        sc.next();
-        x = sc.nextInt();
-        y = sc.nextInt();
+        BufferedImage image = SpritesLoader.getSprite("Level/" + levelID);
 
-        sc.next();
-        spawnX = sc.nextInt();
-        spawnY = sc.nextInt();
+        x = image.getWidth();
+        y = image.getHeight();
 
-        sc.next();
-        blocks = new int[x][y];
+        blocks = new byte[x][y];
 
-        for (int i = 0; i < y; i++)
-            for (int j = 0; j < x; j++)
-                blocks[j][i] = sc.nextInt();
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+                blocks[i][j] = Block.parse(image.getRGB(i, j));
+            }
+        }
 
-        sc.next();
-        while (sc.hasNext()) {
+        try {
+            parseLevelXML(levelID);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
 
-            spawnList.add(new Point(sc.nextInt(), sc.nextInt()));
+    private void parseLevelXML(int levelID) throws Exception {
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+
+        Document document = builder.parse(ClassLoader.getSystemResourceAsStream("Level/" + levelID + ".xml"));
+
+        Element root = document.getDocumentElement();
+        NodeList rootNodes = root.getChildNodes();
+
+        for (int i = 0; i < rootNodes.getLength(); i++) {
+            if (rootNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                Element node = (Element) rootNodes.item(i);
+
+                if (node.getNodeName().equals("player")) {
+                    spawnX = Integer.parseInt(node.getAttribute("spawnX"));
+                    spawnY = Integer.parseInt(node.getAttribute("spawnY"));
+                } else if (node.getNodeName().equals("entities")) {
+
+                    NodeList entities = node.getElementsByTagName("entity");
+
+                    for (int j = 0; j < entities.getLength(); j++) {
+
+                        if (entities.item(j).getNodeType() == Node.ELEMENT_NODE) {
+                            Element entity = (Element) entities.item(j);
+
+                            spawnList.add(EntityBuilder.parse(entity, this));
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -74,10 +111,10 @@ public class Level {
      * @param x the x coordinate
      * @param y the y coordinate
      * @return the index of the <code>Block</code> at the specified coordinates, or
-     * <code>Integer.MIN_VALUE</code> if out of bounds.
+     * <code>Block.VOID</code> if out of bounds.
      */
-    public int get(int x, int y) {
-        return x >= 0 && x < this.x && y >= 0 && y < this.y ? blocks[x][y] : Integer.MIN_VALUE;
+    public byte get(int x, int y) {
+        return x >= 0 && x < this.x && y >= 0 && y < this.y ? blocks[x][y] : Block.VOID;
     }
 
     /**
@@ -86,24 +123,21 @@ public class Level {
      */
     public void reset() {
 
-        blockWidth = Block.width;
-
         entities.clear();
 
         spawnPlayer();
 
-        for (Point p : spawnList) {
-
-            spawnEntity(new EntityEnemy(p.x * blockWidth, p.y * blockWidth, this, 300));
+        for (EntityBuilder builder : spawnList) {
+            spawnEntity(builder.create());
         }
     }
 
     /**
-     * Respawn the <code>EntityPlayer</code> at the spawn coordinates.
+     * Spawns the <code>EntityPlayer</code> at the spawn coordinates.
      */
     private void spawnPlayer() {
 
-        player = new EntityPlayer(spawnX * Block.width, spawnY * Block.width, this);
+        player = new EntityPlayer(spawnX * blockWidth, spawnY * blockWidth, this);
     }
 
     /**
@@ -139,7 +173,6 @@ public class Level {
         ArrayList<Entity> aL = (ArrayList<Entity>) entities.clone();
         aL.remove(entity);
 
-        //entity.onCollidedWithEntity(entity1, entity1.getNextBoundingBox().intersectionSideWith(entity.getNextBoundingBox()));
         aL.stream().filter(entity1 -> entity1.getNextBoundingBox().intersectsWith(entity.getNextBoundingBox())).forEach(entity1 -> {
 
             //entity.onCollidedWithEntity(entity1, entity1.getNextBoundingBox().intersectionSideWith(entity.getNextBoundingBox()));

@@ -12,18 +12,18 @@ import java.lang.reflect.Field;
 
 class KeyButton extends JButton implements ActionListener, KeyListener {
 
+    private static boolean inUse;
     private final Component parent;
-
     private final int index;
     private int currentKeyCode;
     private String currentKeyName;
-
     private int keyPressed;
-    private boolean inUse;
     private boolean space;
 
     public KeyButton(Component parent, int index) {
         super();
+
+        inUse = false;
 
         this.parent = parent;
         this.index = index;
@@ -68,21 +68,25 @@ class KeyButton extends JButton implements ActionListener, KeyListener {
             new Thread(() -> {
                 inUse = true;
                 keyPressed = 0;
+
                 setText("<...>");
-                while (keyPressed == 0 || (Config.getInstance().isUsed(keyPressed) && keyPressed != currentKeyCode && keyPressed != KeyEvent.VK_ESCAPE)) {
+
+                while (keyPressed == 0 ||
+                        (Config.getInstance().isUsed(keyPressed)
+                                && keyPressed != currentKeyCode
+                                && keyPressed != KeyEvent.VK_ESCAPE)
+                        )
                     parent.requestFocus();
-                }
+
                 if (keyPressed == KeyEvent.VK_ESCAPE || keyPressed == currentKeyCode) {
                     setText(currentKeyName);
                     inUse = false;
                     return;
                 }
                 setCurrentKey(keyPressed);
-                Config.getInstance().updatePropertiesAndKeyMap(index, getText(), currentKeyCode);
+                Config.getInstance().updatePropertiesAndKeyMap(index, currentKeyName, currentKeyCode);
                 inUse = false;
             }).start();
-
-        space = false;
     }
 
     @Override

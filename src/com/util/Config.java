@@ -12,8 +12,8 @@ public class Config {
     private final HashMap<String, Integer> keys = new HashMap<>();
     private final String[] names = {"Key.Jump", "Key.MoveLeft", "Key.MoveRight", "Key.Fire", "Key.Debug", "Key.Pause"};
     private final int[] defaults = new int[names.length];
+    private final File userConfig = new File(FileNames.config);
     private Properties properties;
-    private File userConfig = new File(FileNames.config);
 
     private Config() {
         Properties defaultProperties = getProperties(defaultConfig());
@@ -72,9 +72,9 @@ public class Config {
     private void checkFiles() {
 
         File dir = new File(FileNames.directory);
-        if(!dir.exists()) dir.mkdir();
+        if (!dir.exists() && !dir.mkdir()) System.out.println("Base directory could not be created.");
 
-        if(!userConfig.exists()) try {
+        if (!userConfig.exists()) try {
             InputStream in = defaultConfig();
             Files.copy(in, userConfig.toPath());
         } catch (IOException e) {

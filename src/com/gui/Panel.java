@@ -11,11 +11,17 @@ import java.util.ArrayList;
 
 public class Panel extends JPanel {
 
+    public Game game;
+
     private EntityPlayer player;
     private ArrayList<Entity> entities = new ArrayList<>();
     private Point min = new Point(0, 0);
 
     private boolean debug = false;
+
+    private long prevTime;
+    private int fps;
+    private int tempFPS;
 
     public void paintComponent(Graphics g) {
 
@@ -28,6 +34,13 @@ public class Panel extends JPanel {
         for (Entity entity : entities) entity.draw(g, min, debug);
 
         if (player != null) player.draw(g, min, debug);
+
+        if (debug) {
+            Font f = new Font(null, Font.PLAIN, 20);
+            g.setFont(f);
+            g.setColor(Color.red);
+            g.drawString(tempFPS + "FPS", 0, 15);
+        }
     }
 
     public void switchDebug() {
@@ -35,13 +48,20 @@ public class Panel extends JPanel {
     }
 
     public void init() {
-
-        Game game = new Game(this);
+        game = new Game(this);
 
         new Thread(game, "Thread-Game").start();
     }
 
     public void update(EntityPlayer player, ArrayList<Entity> entities) {
+
+        if (prevTime == 0 || System.currentTimeMillis() - prevTime >= 1000) {
+            prevTime = System.currentTimeMillis();
+            tempFPS = fps;
+            fps = 0;
+        } else {
+            fps++;
+        }
 
         min = new Point((int) player.getX() - getWidth() / 2,
                 (int) player.getY() - getHeight() / 2);
