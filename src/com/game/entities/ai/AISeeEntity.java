@@ -7,7 +7,7 @@ import com.game.entities.Entity;
  * Fails if <code>this.entity.distanceTo(this.lookingFor) > this.range</code>, if the line of sight is blocked
  * or if either <code>Entity</code> dies. Otherwise, succeeds.
  */
-public class AISeeEntity extends AI {
+public class AISeeEntity extends AITest {
 
     private final Entity lookingFor;
     private final int range;

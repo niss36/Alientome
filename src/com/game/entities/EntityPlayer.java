@@ -1,6 +1,8 @@
 package com.game.entities;
 
-import com.game.level.Level;
+import com.game.Level;
+import com.gui.Frame;
+import com.util.SpritesLoader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,9 +23,9 @@ public class EntityPlayer extends EntityLiving {
 
         super(x, y, new Dimension(20, 31), level, 20);
 
-        if (sprites == null) sprites = getSpritesAnimated("Alientome", 2);
-        if (spritesCharging == null) spritesCharging = getSpritesAnimated("Alientome/Charge", 5);
-        if (spritesCharged == null) spritesCharged = getSpritesAnimated("Alientome/Charged", 2);
+        if (sprites == null) sprites = SpritesLoader.getSpritesAnimated("Alientome", 2);
+        if (spritesCharging == null) spritesCharging = SpritesLoader.getSpritesAnimated("Alientome/Charge", 5);
+        if (spritesCharged == null) spritesCharged = SpritesLoader.getSpritesAnimated("Alientome/Charged", 2);
     }
 
     @Override
@@ -47,7 +49,11 @@ public class EntityPlayer extends EntityLiving {
 
         String[] options = {"Respawn", "Quit"};
 
+        Frame.getInstance().panelGame.game.setPause(true);
+
         int i = JOptionPane.showOptionDialog(null, "You died.", "Oops", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+
+        Frame.getInstance().panelGame.game.setPause(false);
 
         if (i == JOptionPane.YES_OPTION) level.reset();
         else System.exit(0);

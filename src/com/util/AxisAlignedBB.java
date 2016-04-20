@@ -40,8 +40,11 @@ public class AxisAlignedBB {
     }
 
     public AxisAlignedBB offset(double x, double y) {
-
         return new AxisAlignedBB(minX + x, minY + y, maxX + x, maxY + y);
+    }
+
+    public AxisAlignedBB expand(double x, double y) {
+        return new AxisAlignedBB(minX - x, minY - y, maxX + x, maxY + y);
     }
 
     public double width() {
@@ -61,7 +64,6 @@ public class AxisAlignedBB {
     }
 
     public String toString() {
-
         return "[" + minX + ";" + minY + "] -> [" + maxX + ";" + maxY + "]";
     }
 }

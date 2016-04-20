@@ -1,6 +1,5 @@
 package com.game;
 
-import com.game.level.Level;
 import com.gui.MenuDialog;
 import com.gui.Panel;
 import com.util.Config;
@@ -20,6 +19,8 @@ public class Game implements Runnable {
 
     private KeyEventDispatcher ked;
     private boolean pause = false;
+
+    private boolean run = true;
 
     /**
      * Initialize the <code>Game</code>
@@ -51,12 +52,7 @@ public class Game implements Runnable {
                 }
 
                 if (e.getKeyCode() == Config.getInstance().getKey("Key.Pause") && e.getID() == KeyEvent.KEY_PRESSED) {
-                    pause = true;
-                    int i = new MenuDialog(null, "Game paused", true).showDialog(); //JOptionPane.showOptionDialog(null, "", "Game paused", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, pauseChoices, pauseChoices[0]);
-                    if (i == MenuDialog.RESET /*JOptionPane.NO_OPTION*/) Level.getInstance().reset();
-                    else if (i == MenuDialog.QUIT /*JOptionPane.CANCEL_OPTION*/) System.exit(0);
-                    pause = false;
-
+                    pause();
                     return true;
                 }
 
@@ -74,10 +70,28 @@ public class Game implements Runnable {
         Level.getInstance().reset();
     }
 
+    public void pause() {
+        if (!pause) {
+            pause = true;
+            int i = new MenuDialog(null, "Game paused", true).showDialog();
+            pressedKeys.clear();
+            if (i == MenuDialog.RESET) Level.getInstance().reset();
+            else if (i == MenuDialog.QUIT) {
+                run = false;
+                System.exit(0);
+            }
+            pause = false;
+        }
+    }
+
+    public void setPause(boolean pause) {
+        this.pause = pause;
+    }
+
     @Override
     public void run() {
 
-        while (true) {
+        while (run) {
 
             try {
                 Thread.sleep(30);

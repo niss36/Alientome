@@ -1,12 +1,12 @@
 package com.game.entities;
 
-import com.game.level.Level;
+import com.game.Level;
 import com.util.Side;
 
 import java.awt.*;
 
 /**
- * Similar to the <code>EntityEnemy/code>, but cannot be hurt by projectiles
+ * Similar to the <code>EntityEnemy</code>, but cannot be hurt by projectiles
  * on the <code>Side</code> it is facing.
  */
 public class EntityEnemyShield extends EntityEnemy {
