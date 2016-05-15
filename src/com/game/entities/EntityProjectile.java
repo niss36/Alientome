@@ -11,7 +11,7 @@ import java.awt.*;
  */
 public abstract class EntityProjectile extends Entity {
 
-    final Entity thrower;
+    private final Entity thrower;
 
     final int damage;
 
@@ -47,8 +47,6 @@ public abstract class EntityProjectile extends Entity {
     public boolean onCollidedWithEntity(Entity other, Side side) {
 
         if (other != thrower && !(other instanceof EntityProjectile)) {
-
-            /*if (other instanceof EntityLiving) ((EntityLiving) other).damage(5);*/
 
             other.notifyCollision(this, side);
 

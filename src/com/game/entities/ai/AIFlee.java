@@ -55,7 +55,6 @@ public class AIFlee extends AI {
     }
 
     @Override
-    public void reset() {
-        start();
+    protected void reset() {
     }
 }

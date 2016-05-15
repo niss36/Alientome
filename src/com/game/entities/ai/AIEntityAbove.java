@@ -37,7 +37,7 @@ public class AIEntityAbove extends AITest {
     }
 
     @Override
-    public void reset() {
+    protected void reset() {
 
     }
 }

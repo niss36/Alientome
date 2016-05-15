@@ -3,24 +3,24 @@ package com.game.entities;
 import com.game.Block;
 import com.game.Level;
 import com.sun.javafx.geom.Vec2d;
-import com.util.AxisAlignedBB;
-import com.util.Direction;
-import com.util.Side;
+import com.util.*;
+import com.util.visual.Animation;
+import com.util.visual.AnimationInfo;
+import com.util.visual.SpritesLoader;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.Random;
 
 /**
  * The <code>Entity</code> class is used to represent non-<code>Block</code> objects in the <code>Level</code>
  */
-public abstract class Entity {
+public abstract class Entity implements EntityConstants {
 
-    public final boolean collide;
+    private static int blockWidth;
+    private final boolean collide;
     public final Dimension dim;
     public final Level level;
     final Random entityRandom = new Random();
-    private final int blockWidth;
     public boolean collidedX;
     public boolean collidedY;
     public Object lastCollidedWith;
@@ -34,8 +34,8 @@ public abstract class Entity {
     boolean gravity;
     Direction facing = Direction.RIGHT;
     private boolean dead = false;
-    private int imageUsed;
-    private int animationCount;
+    private final Animation[] animations;
+    private int animationUsed = 0;
     private AxisAlignedBB boundingBox;
 
     /**
@@ -65,19 +65,41 @@ public abstract class Entity {
         gravity = true;
 
         boundingBox = new AxisAlignedBB(x, y, x + dim.width, y + dim.height);
+
+        SpritesLoader.init(getClass(), createAnimationInfo());
+
+        animations = SpritesLoader.getAnimation(getClass());
     }
 
-    static Entity create(int type, int x, int y, Level level) {
-        switch (type) {
-            case 1:
-                return new EntityEnemy(x, y, level, 300);
+    public static Entity createFromBlockPos(int type, int x, int y, Level level) {
 
-            case 2:
-                return new EntityEnemyShield(x, y, level, 300);
+        Entity entity;
+
+        switch (type) {
+            case PLAYER:
+                entity = new EntityPlayer(0, 0, level);
+                break;
+
+            case ENEMY:
+                entity = new EntityEnemy(0, 0, level, 300);
+                break;
+
+            case ENEMY_SHIELD:
+                entity = new EntityEnemyShield(0, 0, level, 300);
+                break;
+
+            case ENEMY_BOW:
+                entity = new EntityEnemyBow(0, 0, level);
+                break;
 
             default:
                 return null;
         }
+
+        entity.x = x * blockWidth + blockWidth / 2 - entity.dim.width / 2;
+        entity.y = y * blockWidth + blockWidth - entity.dim.height;
+
+        return entity;
     }
 
     /**
@@ -103,8 +125,17 @@ public abstract class Entity {
                 collidedY = false;
                 collidedX = false;
 
-                boundingBox = new AxisAlignedBB(x, y, x + dim.width, y + dim.height);
-                blockIn = new Block((int) ((x + dim.width / 2) / blockWidth), (int) ((y + dim.height / 2) / blockWidth));
+                boundingBox = boundingBox();
+                blockIn = blockIn();
+
+                if(blockIn.getBoundingBox().intersectsWith(boundingBox)) {
+
+                    if(onCollidedWithBlock(blockIn, blockIn.getBoundingBox().intersectionSideWith(boundingBox))) {
+
+                        boundingBox = boundingBox();
+                        blockIn = blockIn();
+                    }
+                }
 
                 if (motionY != 0) {
 
@@ -114,12 +145,11 @@ public abstract class Entity {
 
                         Block b = new Block(blockIn.getX() + i, blockIn.getY() + t);
 
-                        if (b.getBoundingBox().intersectsWith(boundingBox.offset(0, motionY))) {
+                        if (b.getBoundingBox().intersectsWith(boundingBox.offset(0, motionY))
+                                && onCollidedWithBlock(b, Side.toSide(0, t))) {
 
-                            onCollidedWithBlock(b, Side.toSide(0, t));
-
-                            boundingBox = new AxisAlignedBB(x, y, x + dim.width, y + dim.height);
-                            blockIn = new Block((int) ((x + dim.width / 2) / blockWidth), (int) ((y + dim.height / 2) / blockWidth));
+                            boundingBox = boundingBox();
+                            blockIn = blockIn();
                         }
                     }
                 }
@@ -132,10 +162,9 @@ public abstract class Entity {
 
                         Block b = new Block(blockIn.getX() + t, blockIn.getY() + i);
 
-                        if (b.getBoundingBox().intersectsWith(boundingBox.offset(motionX, 0))) {
-                            onCollidedWithBlock(b, Side.toSide(t, 0));
-                            boundingBox = new AxisAlignedBB(x, y, x + dim.width, y + dim.height);
-                        }
+                        if (b.getBoundingBox().intersectsWith(boundingBox.offset(motionX, 0))
+                                && onCollidedWithBlock(b, Side.toSide(t, 0)))
+                            boundingBox = boundingBox();
                     }
                 }
 
@@ -156,13 +185,23 @@ public abstract class Entity {
                 y += motionY;
             }
 
-            if (!onGround && gravity) move(Direction.DOWN);
+            if (gravity && !onGround) move(Direction.DOWN);
 
             motionX = decrease(motionX, 0.5d);
             motionY = decrease(motionY, 0.5d);
 
-            blockIn = new Block((int) ((x + dim.width / 2) / blockWidth), (int) ((y + dim.height / 2) / blockWidth));
+            blockIn = blockIn();
         } else onDeath();
+    }
+
+    private Block blockIn() {
+
+        return new Block((int) ((x + dim.width / 2) / blockWidth), (int) ((y + dim.height / 2) / blockWidth));
+    }
+
+    private AxisAlignedBB boundingBox() {
+
+        return new AxisAlignedBB(x, y, x + dim.width, y + dim.height);
     }
 
     /**
@@ -262,8 +301,6 @@ public abstract class Entity {
 
             lastCollidedWith = other;
 
-//            System.out.println(getClass() + " " + onGround + "  " + other.getClass() + " " + other.onGround);
-
             return true;
         }
 
@@ -277,7 +314,7 @@ public abstract class Entity {
      * @param side  the <code>Side</code> of the collision
      * @see this.onCollidedWithEntity
      */
-    public abstract void notifyCollision(Entity other, Side side);
+    protected abstract void notifyCollision(Entity other, Side side);
 
     /**
      * @param direction the <code>Direction</code> to move towards
@@ -293,7 +330,7 @@ public abstract class Entity {
      * @param direction the <code>Direction</code> to move towards
      * @param value     the value to add to velocity
      */
-    void move(Direction direction, double value) {
+    public void move(Direction direction, double value) {
 
         switch (direction) {
             case UP:
@@ -334,9 +371,16 @@ public abstract class Entity {
         int x = (int) this.x - min.x;
         int y = (int) this.y - min.y;
 
-        g.fillRect(x, y, dim.width, dim.height);
+        draw(g, x, y);
 
         if (debug) drawBoundingBox(g, x, y);
+    }
+
+    void draw(Graphics g, int x, int y) {
+
+        if(animations[animationUsed] != null) animations[animationUsed].draw(g, x, y, facing);
+
+        else g.fillRect(x, y, dim.width, dim.height);
     }
 
     /**
@@ -346,7 +390,7 @@ public abstract class Entity {
      * @param x the top-left corner's x coordinate
      * @param y the top-left corner's y coordinate
      */
-    void drawBoundingBox(Graphics g, int x, int y) {
+    private void drawBoundingBox(Graphics g, int x, int y) {
 
         Color c = g.getColor();
 
@@ -357,51 +401,13 @@ public abstract class Entity {
         g.setColor(c);
     }
 
-    /**
-     * Draws the given image at the specified location, rotating it vertically
-     * according to the facing <code>Direction</code>.
-     *
-     * @param g     the <code>Graphics</code> to draw with
-     * @param image the <code>BufferedImage</code> to draw
-     * @param x     the top-left corner's x coordinate
-     * @param y     the top-left corner's y coordinate
-     */
-    void drawImage(Graphics g, BufferedImage image, int x, int y) {
+    protected abstract AnimationInfo[] createAnimationInfo();
 
-        switch (facing) {
-
-            case LEFT:
-                g.drawImage(image, x, y, null);
-                break;
-            case RIGHT:
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.drawImage(image, x + image.getWidth(), y, -image.getWidth(), image.getHeight(), null);
-                break;
+    void setAnimationInUse(int index) {
+        if(animationUsed != index) {
+            animationUsed = index;
+            animations[animationUsed].reset();
         }
-    }
-
-    /**
-     * Draws the given images alternating over them a given number of times.
-     *
-     * @param g      the <code>Graphics</code> to draw with
-     * @param images the <code>BufferedImage[]</code> to draw
-     * @param x      the top-left corner's x coordinate
-     * @param y      the top-left corner's y coordinate
-     * @param times  the number of game updates before changing image
-     * @see this.drawImage
-     */
-    void drawAnimated(Graphics g, BufferedImage[] images, int x, int y, int times) {
-
-        animationCount++;
-
-        if (animationCount >= times) {
-            animationCount = 0;
-            imageUsed++;
-        }
-
-        if (imageUsed >= images.length) imageUsed = 0;
-
-        drawImage(g, images[imageUsed], x, y);
     }
 
     /**
@@ -438,10 +444,6 @@ public abstract class Entity {
 
     public double getMotionX() {
         return motionX;
-    }
-
-    public double getMotionY() {
-        return motionY;
     }
 
     public boolean isDead() {

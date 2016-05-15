@@ -13,6 +13,7 @@ public class Frame extends JFrame implements FocusListener {
     private Frame() {
 
         setTitle("Alientome");
+        setSize(800, 600);
         setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

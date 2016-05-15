@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Properties;
 
+import static com.util.Util.log;
+
 public class Config {
     private static final Config ourInstance = new Config();
     private final HashMap<String, Integer> keys = new HashMap<>();
@@ -30,6 +32,8 @@ public class Config {
 
     public void load() {
 
+        log("Loading config", 0);
+
         checkFiles();
 
         InputStream stream;
@@ -44,7 +48,7 @@ public class Config {
         properties = getProperties(stream);
 
         if (properties == null) {
-            System.out.println("Using default Config");
+            log("Using default Config", 1);
             return;
         }
 
@@ -54,12 +58,16 @@ public class Config {
 
             keys.put(names[i], v);
         }
+
+        log("Loaded config", 0);
     }
 
     public void save() {
 
+        log("Saving config", 0);
         try {
             properties.store(new FileOutputStream(userConfig), null);
+            log("Saved config", 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -72,7 +80,7 @@ public class Config {
     private void checkFiles() {
 
         File dir = new File(FileNames.directory);
-        if (!dir.exists() && !dir.mkdir()) System.out.println("Base directory could not be created.");
+        if (!dir.exists() && !dir.mkdir()) log("Main directory could not be created.", 2);
 
         if (!userConfig.exists()) try {
             InputStream in = defaultConfig();
@@ -114,7 +122,7 @@ public class Config {
             }
         }
 
-        System.out.println("Key name " + name + " is incorrect. Using default value.");
+        log("Key name " + name + " is incorrect. Using default value.", 1);
 
         return defaultValue;
     }
@@ -134,5 +142,14 @@ public class Config {
 
     public boolean isUsed(int keyCode) {
         return keys.containsValue(keyCode);
+    }
+
+    public static class FileNames {
+
+        private static final String userHome = System.getProperty("user.home");
+        private static final String fileSeparator = System.getProperty("file.separator");
+
+        public static final String directory = userHome + fileSeparator + "Alientome";
+        public static final String config = directory + fileSeparator + "Config.properties";
     }
 }
