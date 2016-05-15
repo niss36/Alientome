@@ -23,7 +23,7 @@ public class AIMoveTo extends AI {
     }
 
     @Override
-    public void reset() {
+    protected void reset() {
     }
 
     @Override
@@ -39,12 +39,18 @@ public class AIMoveTo extends AI {
      */
     private void move() {
 
-        if (destX != entity.getX()) {
-            if (destX > entity.getX()) {
-                entity.move(Direction.RIGHT);
-            } else {
-                entity.move(Direction.LEFT);
+        if (destX != (int) entity.getX()) {
+
+            int predictedX = (int) (entity.getX() +
+                    Math.signum(entity.getMotionX()) * entity.getMotionX() * entity.getMotionX() +
+                    entity.getMotionX() / 2);
+
+            if((entity.getX() <= destX && predictedX >= destX) || (entity.getX() >= destX && predictedX <= destX)) {
+                succeed();
+                return;
             }
+
+            entity.move(destX > entity.getX() ? Direction.RIGHT : Direction.LEFT);
         }
         if (isAtDestination()) succeed();
         else if (entity.collidedX) fail();

@@ -1,12 +1,15 @@
-package com.util;
+package com.util.visual;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class SpritesLoader {
 
     public static final BufferedImage NULL = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+
+    private static final HashMap<Class, Animation[]> animationsMap = new HashMap<>();
 
     /**
      * Used when initializing the textures.
@@ -37,7 +40,7 @@ public class SpritesLoader {
      * @return a <code>BufferedImage[]</code> containing the sprites found
      * @see SpritesLoader#getSprite
      */
-    public static BufferedImage[] getSpritesAnimated(String dirPath, int spritesCount) {
+    private static BufferedImage[] getSpritesAnimated(String dirPath, int spritesCount) {
 
         BufferedImage[] sprites = new BufferedImage[spritesCount];
 
@@ -46,5 +49,27 @@ public class SpritesLoader {
         }
 
         return sprites;
+    }
+
+    public static void init(Class caller, AnimationInfo[] info) {
+
+        if(!animationsMap.containsKey(caller)) {
+
+            Animation[] animations = new Animation[info.length];
+
+            for(int i = 0; i < info.length; i ++) {
+
+                BufferedImage[] sprites = getSpritesAnimated(info[i].directory, info[i].spritesCount);
+
+                animations[i] = new Animation(sprites, info[i].times);
+            }
+
+            animationsMap.put(caller, animations);
+        }
+    }
+
+    public static Animation[] getAnimation(Class caller) {
+
+        return animationsMap.get(caller);
     }
 }

@@ -1,11 +1,10 @@
 package com.game.entities;
 
+import com.util.visual.AnimationInfo;
 import com.util.Direction;
 import com.util.Side;
-import com.util.SpritesLoader;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 /**
  * <code>EntityProjectile</code> thrown by the <code>EntityPlayer</code>.
@@ -13,9 +12,6 @@ import java.awt.image.BufferedImage;
  * <code>EntityPlayer</code> was facing.
  */
 public class EntityGhostBall extends EntityProjectile {
-
-    private static BufferedImage[] sprites;
-    private static BufferedImage[] spritesBig;
 
     private final boolean big;
 
@@ -34,13 +30,13 @@ public class EntityGhostBall extends EntityProjectile {
         maxVelocity = big ? 7 : 10;
 
         gravity = false;
-
-        if (sprites == null) sprites = SpritesLoader.getSpritesAnimated("GhostBall", 2);
-        if (spritesBig == null) spritesBig = SpritesLoader.getSpritesAnimated("GhostBall/Big", 10);
     }
 
     @Override
     public void onUpdate() {
+
+        if(big) setAnimationInUse(1);
+        else setAnimationInUse(0);
 
         move(facing, 5);
 
@@ -53,15 +49,16 @@ public class EntityGhostBall extends EntityProjectile {
     }
 
     @Override
-    public void draw(Graphics g, Point min, boolean debug) {
+    protected void draw(Graphics g, int x, int y) {
+        super.draw(g, x - (facing == Direction.LEFT ? 0 : dim.width), y);
+    }
 
-        int x = (int) this.x - min.x;
-        int y = (int) this.y - min.y;
+    @Override
+    protected AnimationInfo[] createAnimationInfo() {
+        AnimationInfo[] info = new AnimationInfo[2];
+        info[0] = new AnimationInfo("GhostBall", 2, 5);
+        info[1] = new AnimationInfo("GhostBall/Big", 10, 2);
 
-        if (big) drawAnimated(g, spritesBig, x + (facing == Direction.LEFT ? 0 : -12), y, 2);
-
-        else drawAnimated(g, sprites, x + (facing == Direction.LEFT ? 0 : -8), y, 5);
-
-        if (debug) drawBoundingBox(g, x, y);
+        return info;
     }
 }

@@ -47,19 +47,19 @@ public class AxisAlignedBB {
         return new AxisAlignedBB(minX - x, minY - y, maxX + x, maxY + y);
     }
 
-    public double width() {
+    private double width() {
         return maxX - minX;
     }
 
-    public double height() {
+    private double height() {
         return maxY - minY;
     }
 
-    public double centerX() {
+    private double centerX() {
         return minX + width() / 2;
     }
 
-    public double centerY() {
+    private double centerY() {
         return minY + height() / 2;
     }
 

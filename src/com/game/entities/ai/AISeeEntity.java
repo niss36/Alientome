@@ -36,7 +36,6 @@ public class AISeeEntity extends AITest {
     }
 
     @Override
-    public void reset() {
-        start();
+    protected void reset() {
     }
 }

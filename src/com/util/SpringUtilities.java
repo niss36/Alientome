@@ -40,6 +40,7 @@ import java.awt.*;
  * These utilities are used by several programs, such as
  * SpringBox and SpringCompactGrid.
  */
+@SuppressWarnings("ALL")
 public class SpringUtilities {
     /**
      * A debugging utility that prints to stdout the component's

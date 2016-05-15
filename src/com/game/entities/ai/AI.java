@@ -33,7 +33,7 @@ public abstract class AI {
      * Used to put the AI back into the initial phase,
      * including additional <code>AI</code>-specific variables.
      */
-    public abstract void reset();
+    protected abstract void reset();
 
     /**
      * Should only be called when <code>this.state != State.RUNNING</code>. Used to initialize this <code>AI</code>
@@ -53,15 +53,15 @@ public abstract class AI {
         state = State.SUCCESS;
     }
 
-    public boolean isSuccess() {
+    boolean isSuccess() {
         return state == State.SUCCESS;
     }
 
-    public boolean isFailure() {
+    boolean isFailure() {
         return state == State.FAIL;
     }
 
-    public boolean isRunning() {
+    boolean isRunning() {
         return state == State.RUNNING;
     }
 

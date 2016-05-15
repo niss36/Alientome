@@ -20,7 +20,7 @@ class KeyButton extends JButton implements ActionListener, KeyListener {
     private int keyPressed;
     private boolean space;
 
-    public KeyButton(Component parent, int index) {
+    public KeyButton(JPanel parent, int index) {
         super();
 
         inUse = false;
@@ -95,7 +95,12 @@ class KeyButton extends JButton implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (inUse) keyPressed = e.getKeyCode();
+        if (inUse) {
+            if (e.getModifiers() != 0) {
+                keyPressed = 0;
+                e.consume();
+            } else keyPressed = e.getKeyCode();
+        }
     }
 
     @Override

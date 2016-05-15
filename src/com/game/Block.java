@@ -1,7 +1,7 @@
 package com.game;
 
 import com.util.AxisAlignedBB;
-import com.util.SpritesLoader;
+import com.util.visual.SpritesLoader;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -73,31 +73,18 @@ public class Block implements BlockConstants {
 
         if (index != VOID && sprites[index] != SpritesLoader.NULL) g.drawImage(sprites[index], x, y, null);
 
-        else {
+        else if(!isTransparent()) {
             switch (index) {
 
-                case VOID: {
-                    g.setColor(Color.white);
-                    break;
-                }
-
-                case AIR: {
-
-                    g.setColor(Color.blue);
-                    break;
-                }
-
-                case SAND: {
-
+                case SAND:
                     g.setColor(Color.orange);
                     break;
-                }
 
-                case HOLE: {
-
+                case HOLE:
                     g.setColor(Color.darkGray);
                     break;
-                }
+
+                default:return;
             }
 
             //noinspection SuspiciousNameCombination
@@ -115,10 +102,17 @@ public class Block implements BlockConstants {
     }
 
     /**
-     * @return whether this <code>Block</code> can't be seen and passed through
+     * @return whether this <code>Block</code> can't be passed through
      */
     public boolean isOpaque() {
-        return !(index == 0 || index == 2);
+        return !(index == AIR || index == HOLE);
+    }
+
+    /**
+     * @return whether this <code>Block</code> has no texture
+     */
+    private boolean isTransparent() {
+        return index == AIR || index == VOID;
     }
 
     //GETTERS AND SETTERS

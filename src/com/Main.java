@@ -19,6 +19,6 @@ public class Main {
 
         Config.getInstance().load();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> Config.getInstance().save()));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> Config.getInstance().save(), "main"));
     }
 }

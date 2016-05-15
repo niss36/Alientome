@@ -6,7 +6,7 @@ import com.game.entities.EntityPlayer;
 import com.gui.Panel;
 import com.util.Config;
 import com.util.Direction;
-import com.util.SpritesLoader;
+import com.util.visual.SpritesLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -17,6 +17,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+
+import static com.util.Util.log;
 
 /**
  * This single-instance class holds the <code>Block</code> array defining the world,
@@ -34,6 +36,7 @@ public class Level {
     private int spawnX;
     private int spawnY;
     private int blockWidth;
+    private BufferedImage background;
 
     private Level() {
     }
@@ -50,9 +53,13 @@ public class Level {
      */
     public void init(int levelID) {
 
+        log("Loading level " + levelID, 0);
+
         blockWidth = Block.width;
 
         BufferedImage image = SpritesLoader.getSprite("Level/" + levelID);
+
+        background = SpritesLoader.getSprite("Background/" + levelID);
 
         x = image.getWidth();
         y = image.getHeight();
@@ -69,8 +76,10 @@ public class Level {
             parseLevelXML(levelID);
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(-1);
+            log("Error loading level", 3);
         }
+
+        log("Loaded level", 0);
     }
 
     private void parseLevelXML(int levelID) throws Exception {
@@ -117,6 +126,10 @@ public class Level {
         return x >= 0 && x < this.x && y >= 0 && y < this.y ? blocks[x][y] : Block.VOID;
     }
 
+    public BufferedImage getBackground() {
+        return background;
+    }
+
     /**
      * Resets the level : clears the <code>Entity</code> list, respawn the
      * <code>EntityPlayer</code> and the <code>Entity</code>s according to spawn list.
@@ -137,7 +150,7 @@ public class Level {
      */
     private void spawnPlayer() {
 
-        player = new EntityPlayer(spawnX * blockWidth, spawnY * blockWidth, this);
+        player = (EntityPlayer) Entity.createFromBlockPos(Entity.PLAYER, spawnX, spawnY, this);
     }
 
     /**

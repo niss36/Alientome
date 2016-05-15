@@ -43,7 +43,7 @@ public class AIWander extends AI {
     }
 
     @Override
-    public void reset() {
+    protected void reset() {
         aiMoveTo = new AIMoveTo(entity, (int) entity.getX() + aIRandom.nextInt(50) - 25);
         aiIdle.reset();
     }

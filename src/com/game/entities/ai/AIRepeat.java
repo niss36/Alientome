@@ -40,7 +40,7 @@ public class AIRepeat extends AI {
     }
 
     @Override
-    public void reset() {
+    protected void reset() {
         times = originalTimes;
     }
 

@@ -7,15 +7,15 @@ import java.awt.*;
 
 public class MenuDialog extends JDialog {
 
-    public static final int RESUME = 0;
+    private static final int RESUME = 0;
     public static final int RESET = 1;
     public static final int QUIT = 2;
     private final CardLayout cl = new CardLayout();
     private final String[] names = {"Main", "Options"};
     private int result;
 
-    public MenuDialog(JFrame owner, String title, boolean modal) {
-        super(owner, title, modal);
+    public MenuDialog() {
+        super((JFrame) null, "Game paused", true);
 
         setSize(250, 250);
         setLocationRelativeTo(null);
@@ -35,11 +35,8 @@ public class MenuDialog extends JDialog {
         SpringLayout sl = new SpringLayout();
 
         JPanel keys = new JPanel(sl);
-        keys.setFocusable(true);
 
         keys.setBorder(BorderFactory.createTitledBorder("Key Bindings"));
-
-        keys.setFocusable(true);
 
         String[] labels = {"Jump : ", "Move Left : ", "Move Right : ", "Fire : ", "Debug : "};
 

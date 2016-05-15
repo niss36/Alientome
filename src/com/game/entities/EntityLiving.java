@@ -2,17 +2,25 @@ package com.game.entities;
 
 import com.game.Block;
 import com.game.Level;
+import com.game.Shield;
 import com.util.Side;
+import com.util.visual.SpritesLoader;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  * Used to represent an <code>Entity</code> who has health and can be killed.
  */
 public abstract class EntityLiving extends Entity {
 
+    private static BufferedImage iconHealth;
+    private static BufferedImage iconShield;
+
     private final int maxHealth;
-    private int health = 0;
+    float health = 0;
+
+    Shield shield;
 
     private int damageCoolDown = 0;
 
@@ -26,7 +34,10 @@ public abstract class EntityLiving extends Entity {
     EntityLiving(int x, int y, Dimension dim, Level level, int maxHealth) {
         super(x, y, dim, level);
 
-        this.maxHealth = health = maxHealth;
+        health = this.maxHealth = maxHealth;
+
+        if(iconHealth == null) iconHealth = SpritesLoader.getSprite("Misc/iconHealth");
+        if(iconShield == null) iconShield = SpritesLoader.getSprite("Misc/iconShield");
     }
 
     @Override
@@ -44,25 +55,33 @@ public abstract class EntityLiving extends Entity {
     @Override
     public void draw(Graphics g, Point min, boolean debug) {
         super.draw(g, min, debug);
-        drawHealthBar(g, min);
+        drawStatusBars(g, min);
+    }
+
+    private void drawStatusBars(Graphics g, Point min) {
+
+        double x = this.x - min.x;
+        double y = this.y - min.y;
+
+        drawHealthBar(g, x, y);
+        drawShieldBar(g, x, y - 6);
     }
 
     /**
      * Used to visually represent this <code>EntityLiving</code>'s health.
      *
      * @param g   the <code>Graphics</code> to draw with
-     * @param min the relative origin
      */
-    void drawHealthBar(Graphics g, Point min) {
+    private void drawHealthBar(Graphics g, double x, double y) {
 
-        if (health <= 0) return;
+        if(health <= 0) return;
 
-        double x = this.x - min.x;
-        double y = this.y - min.y;
-
+        g.setColor(Color.black);
         g.fillRect((int) x - 5, (int) y - 10, 30, 6);
 
-        float percentHP = (float) health / maxHealth;
+        g.drawImage(iconHealth, (int) x - 11, (int) y - 10, null);
+
+        float percentHP = health / maxHealth;
 
         if (this instanceof EntityEnemy) g.setColor(Color.red);
         else if (percentHP >= 0.75) g.setColor(Color.green);
@@ -72,12 +91,34 @@ public abstract class EntityLiving extends Entity {
         g.fillRect((int) x - 4, (int) y - 9, (int) (percentHP * 28), 4);
     }
 
+    private void drawShieldBar(Graphics g, double x, double y) {
+
+        if(shield == null || shield.percentValue() <= 0) return;
+
+        g.setColor(Color.black);
+        g.fillRect((int) x - 5, (int) y - 10, 30, 6);
+
+        g.drawImage(iconShield, (int) x - 11, (int) y - 10, null);
+
+        g.setColor(Color.blue);
+        g.fillRect((int) x - 4, (int) y - 9, (int) (shield.percentValue() * 28), 4);
+    }
+
     @Override
     public boolean onCollidedWithBlock(Block block, Side side) {
 
-        return super.onCollidedWithBlock(block, side);
+        double tMotionY = motionY;
 
-        //if(block.getIndex() == 2) damage(5);
+        if (super.onCollidedWithBlock(block, side)) {
+
+            if (side == Side.TOP && tMotionY >= 15) {
+                damage(getFallDamage(tMotionY));
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -92,10 +133,23 @@ public abstract class EntityLiving extends Entity {
      *
      * @param value the health to damage by
      */
-    public void damage(int value) {
+    void damage(float value) {
+        if(damageCoolDown == 0) {
+            if(shield == null) damageAbsolute(value);
+            else shield.damage(value, false);
+            damageCoolDown = 1;
+        }
+    }
+
+    public void damageAbsolute(float value) {
         if (damageCoolDown == 0) {
             health -= value;
             damageCoolDown = 1;
         }
+    }
+
+    float getFallDamage(double verticalMotion) {
+
+        return verticalMotion >= 0 ? (float) verticalMotion / 5 : 0;
     }
 }

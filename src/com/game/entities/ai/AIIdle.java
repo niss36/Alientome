@@ -31,7 +31,7 @@ public class AIIdle extends AI {
     }
 
     @Override
-    public void reset() {
+    protected void reset() {
         time = aIRandom.nextInt(25) + 25;
     }
 }
