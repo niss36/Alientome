@@ -22,10 +22,10 @@ public class AIFire extends AI {
     @Override
     public void act() {
 
-        if(target.getX() < entity.getX()) entity.move(Direction.LEFT, 0);
-        else if(target.getX() > entity.getX()) entity.move(Direction.RIGHT, 0);
+        if (target.getX() < entity.getX()) entity.move(Direction.LEFT, 0);
+        else if (target.getX() > entity.getX()) entity.move(Direction.RIGHT, 0);
 
-        ((EntityEnemyBow)entity).fire();
+        ((EntityEnemyBow) entity).fire();
     }
 
     @Override

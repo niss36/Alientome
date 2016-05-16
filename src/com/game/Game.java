@@ -1,6 +1,5 @@
 package com.game;
 
-import com.gui.MenuDialog;
 import com.gui.Panel;
 import com.util.Config;
 import com.util.Direction;
@@ -14,21 +13,12 @@ import java.util.ArrayList;
  */
 public class Game implements Runnable {
 
-    public enum State {
-
-        RUNNING,
-        PAUSED,
-        DEATH
-    }
-
     public final ArrayList<Integer> pressedKeys = new ArrayList<>();
     private final Panel panel;
-
+    public State state = State.RUNNING;
     private KeyEventDispatcher ked;
 
     private boolean run = true;
-
-    public State state = State.RUNNING;
 
     /**
      * Initialize the <code>Game</code>
@@ -47,12 +37,12 @@ public class Game implements Runnable {
             public boolean dispatchKeyEvent(KeyEvent e) {
 
                 if (e.getKeyCode() == Config.getInstance().getKey("Key.Pause") && e.getID() == KeyEvent.KEY_PRESSED) {
-                    if(state == State.PAUSED) {
+                    if (state == State.PAUSED) {
                         resume();
                         return true;
                     }
 
-                    if(state == State.RUNNING) {
+                    if (state == State.RUNNING) {
                         pause();
                         return true;
                     }
@@ -86,49 +76,30 @@ public class Game implements Runnable {
     }
 
     public void pause() {
-        if (state == State.RUNNING) {
-            setPause(true);
-            panel.repaint();
-            /*int i = new MenuDialog().showDialog();
-            if (i == MenuDialog.RESET) Level.getInstance().reset();
-            else if (i == MenuDialog.QUIT) {
-                run = false;
-                System.exit(0);
-            }
-            setPause(false);*/
-        }
+        if (state == State.RUNNING) panel.showCard(Panel.MENU);
     }
 
     public void resume() {
-        setPause(false);
+
+        panel.showCard(Panel.BLANK);
+        pressedKeys.clear();
     }
 
     public void reset() {
 
         resume();
-
         Level.getInstance().reset();
     }
 
     public void quit() {
 
         resume();
-
         run = false;
         System.exit(0);
     }
 
     public void playerDeath() {
-
-        state = State.DEATH;
-    }
-
-    public void setPause(boolean pause) {
-        if(pause) state = State.PAUSED;
-        else {
-            state = State.RUNNING;
-            pressedKeys.clear();
-        }
+        panel.showCard(Panel.DEATH);
     }
 
     @Override
@@ -144,5 +115,13 @@ public class Game implements Runnable {
 
             if (state == State.RUNNING) Level.getInstance().update(this, panel);
         }
+    }
+
+    public enum State {
+
+        RUNNING,
+        PAUSED,
+        PAUSED_OPTIONS,
+        DEATH
     }
 }

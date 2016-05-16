@@ -2,12 +2,9 @@ package com.game.entities;
 
 import com.game.Level;
 import com.gui.Frame;
-import com.util.Config;
 import com.util.visual.AnimationInfo;
 
-import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 public class EntityPlayer extends EntityLiving {
 
@@ -29,7 +26,7 @@ public class EntityPlayer extends EntityLiving {
         if (ghostBallCoolDown > 0) ghostBallCoolDown--;
 
         if (chargeState >= 0) {
-            if(chargeState >= 4) setAnimationInUse(2);
+            if (chargeState >= 4) setAnimationInUse(2);
             else {
                 setAnimationInUse(1);
                 chargeState += 0.1f;
@@ -39,27 +36,12 @@ public class EntityPlayer extends EntityLiving {
             setAnimationInUse(0);
             maxVelocity = 5;
         }
-
-        /*ArrayList<Integer> l = Frame.getInstance().panelGame.game.pressedKeys;
-        if(!l.contains(Config.getInstance().getKey("Key.MoveLeft")) && !l.contains(Config.getInstance().getKey("Key.MoveRight")))
-            if(motionX != 0) System.out.println((int) (x + Math.signum(motionX) * motionX * motionX + motionX / 2));*/
     }
 
     @Override
     public void onDeath() {
 
-//        String[] options = {"Respawn", "Quit"};
-
-        Frame.getInstance().panelGame.game.playerDeath();/*
-
-        Frame.getInstance().panelGame.game.setPause(true);
-
-        int i = JOptionPane.showOptionDialog(null, "You died.", "Oops", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
-
-        Frame.getInstance().panelGame.game.setPause(false);
-
-        if (i == JOptionPane.YES_OPTION) level.reset();
-        else System.exit(0);*/
+        Frame.getInstance().panelGame.game.playerDeath();
     }
 
     @Override

@@ -51,7 +51,6 @@ public class Block implements BlockConstants {
      */
     public static void init(int width) {
         Block.width = width;
-        BlockConstants.init();
     }
 
     public static byte parse(int rgb) {
@@ -73,7 +72,7 @@ public class Block implements BlockConstants {
 
         if (index != VOID && sprites[index] != SpritesLoader.NULL) g.drawImage(sprites[index], x, y, null);
 
-        else if(!isTransparent()) {
+        else if (!isTransparent()) {
             switch (index) {
 
                 case SAND:
@@ -84,7 +83,8 @@ public class Block implements BlockConstants {
                     g.setColor(Color.darkGray);
                     break;
 
-                default:return;
+                default:
+                    return;
             }
 
             //noinspection SuspiciousNameCombination

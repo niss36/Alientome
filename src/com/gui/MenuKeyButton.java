@@ -1,18 +1,15 @@
 package com.gui;
 
 import com.util.Config;
+import com.util.ConfigListener;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.lang.reflect.Field;
 
-class KeyButton extends JButton implements ActionListener, KeyListener {
+class MenuKeyButton extends MenuButton implements ActionListener, KeyListener, ConfigListener {
 
-    private static boolean inUse;
+    public static boolean inUse;
     private final Component parent;
     private final int index;
     private int currentKeyCode;
@@ -20,8 +17,8 @@ class KeyButton extends JButton implements ActionListener, KeyListener {
     private int keyPressed;
     private boolean space;
 
-    public KeyButton(JPanel parent, int index) {
-        super();
+    public MenuKeyButton(Component parent, Dimension dimension, int xCenterOffset, int yCenterOffset, int index) {
+        super(parent, "", dimension, xCenterOffset, yCenterOffset);
 
         inUse = false;
 
@@ -106,5 +103,11 @@ class KeyButton extends JButton implements ActionListener, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         if (inUse) space = e.getKeyCode() == KeyEvent.VK_SPACE;
+    }
+
+    @Override
+    public void configReset() {
+
+        setCurrentKey(Config.getInstance().getKey(index));
     }
 }

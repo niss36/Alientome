@@ -2,8 +2,8 @@ package com.game.entities;
 
 import com.game.Level;
 import com.game.entities.ai.*;
-import com.util.visual.AnimationInfo;
 import com.util.Direction;
+import com.util.visual.AnimationInfo;
 
 import java.awt.*;
 
@@ -26,7 +26,7 @@ public class EntityEnemyBow extends EntityEnemy {
 
     public void fire() {
 
-        if(coolDown == 0) {
+        if (coolDown == 0) {
 
             fireState = 0;
             setAnimationInUse(1);
@@ -37,12 +37,12 @@ public class EntityEnemyBow extends EntityEnemy {
     @Override
     public void onUpdate() {
 
-        if(coolDown > 0) coolDown--;
+        if (coolDown > 0) coolDown--;
 
-        if(fireState >= 0) {
-            if(fireState < 11) fireState ++;
+        if (fireState >= 0) {
+            if (fireState < 11) fireState++;
             else {
-                level.spawnEntity(new EntityArrow(this, 3, -level.player.distanceTo(this)/25));
+                level.spawnEntity(new EntityArrow(this, 3, (-level.player.distanceTo(this) + entityRandom.nextInt(50) - 25) / 25));
                 fireState = -1;
                 setAnimationInUse(0);
             }
@@ -53,7 +53,7 @@ public class EntityEnemyBow extends EntityEnemy {
 
     @Override
     void draw(Graphics g, int x, int y) {
-        if(fireState == -1 || facing == Direction.RIGHT) super.draw(g, x, y);
+        if (fireState == -1 || facing == Direction.RIGHT) super.draw(g, x, y);
         else {
 
             int s = (fireState + 1) / 4;

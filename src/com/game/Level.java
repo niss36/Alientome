@@ -55,11 +55,11 @@ public class Level {
 
         log("Loading level " + levelID, 0);
 
-        blockWidth = Block.width;
-
         BufferedImage image = SpritesLoader.getSprite("Level/" + levelID);
 
         background = SpritesLoader.getSprite("Background/" + levelID);
+
+        BlockConstants.init();
 
         x = image.getWidth();
         y = image.getHeight();
@@ -76,7 +76,7 @@ public class Level {
             parseLevelXML(levelID);
         } catch (Exception e) {
             e.printStackTrace();
-            log("Error loading level", 3);
+            log("Error loading level : " + e.getMessage(), 3);
         }
 
         log("Loaded level", 0);
@@ -96,7 +96,10 @@ public class Level {
             if (rootNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element node = (Element) rootNodes.item(i);
 
-                if (node.getNodeName().equals("player")) {
+                if (node.getNodeName().equals("block")) {
+                    blockWidth = Integer.parseInt(node.getAttribute("width"));
+                    Block.init(blockWidth);
+                } else if (node.getNodeName().equals("player")) {
                     spawnX = Integer.parseInt(node.getAttribute("spawnX"));
                     spawnY = Integer.parseInt(node.getAttribute("spawnY"));
                 } else if (node.getNodeName().equals("entities")) {

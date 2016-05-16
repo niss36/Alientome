@@ -21,12 +21,12 @@ public class Animation {
 
     public void draw(Graphics g, int x, int y, Direction direction) {
 
-        if(++ count >= times) {
+        if (++count >= times) {
             count = 0;
-            imageUsed ++;
+            imageUsed++;
         }
 
-        if(imageUsed >= sprites.length) imageUsed = 0;
+        if (imageUsed >= sprites.length) imageUsed = 0;
 
         switch (direction) {
 
