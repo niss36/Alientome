@@ -5,6 +5,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ * This static class contains the logic to load and store sprites.
+ */
 public class SpritesLoader {
 
     public static final BufferedImage NULL = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
@@ -51,13 +54,19 @@ public class SpritesLoader {
         return sprites;
     }
 
+    /**
+     * Initializes and stores the <code>caller</code>'s <code>Animation</code>s
+     *
+     * @param caller the <code>Class</code> to initialize
+     * @param info   the <code>AnimationInfo</code> array, one element equals one <code>Animation</code>
+     */
     public static void init(Class caller, AnimationInfo[] info) {
 
-        if(!animationsMap.containsKey(caller)) {
+        if (!animationsMap.containsKey(caller)) {
 
             Animation[] animations = new Animation[info.length];
 
-            for(int i = 0; i < info.length; i ++) {
+            for (int i = 0; i < info.length; i++) {
 
                 BufferedImage[] sprites = getSpritesAnimated(info[i].directory, info[i].spritesCount);
 
@@ -68,6 +77,10 @@ public class SpritesLoader {
         }
     }
 
+    /**
+     * @param caller the <code>Class</code> to retrieve the <code>Animation</code>s of
+     * @return an array of <code>Animation</code>s that was previously stored
+     */
     public static Animation[] getAnimation(Class caller) {
 
         return animationsMap.get(caller);

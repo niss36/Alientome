@@ -11,9 +11,8 @@ import java.awt.*;
  */
 public abstract class EntityProjectile extends Entity {
 
-    private final Entity thrower;
-
     final int damage;
+    private final Entity thrower;
 
     /**
      * @param thrower the <code>Entity</code> this was thrown by. Will be ignored in collision checks.

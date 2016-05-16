@@ -2,8 +2,8 @@ package com.game.entities;
 
 import com.game.Level;
 import com.game.Shield;
-import com.util.visual.AnimationInfo;
 import com.util.Side;
+import com.util.visual.AnimationInfo;
 
 /**
  * Similar to the <code>EntityEnemy</code>, but cannot be hurt by projectiles
@@ -23,7 +23,7 @@ public class EntityEnemyShield extends EntityEnemy {
 
         super.onUpdate();
 
-        if(shield.percentValue() <= 0) {
+        if (shield.percentValue() <= 0) {
             level.removeEntity(this);
             EntityEnemy enemy = new EntityEnemy((int) x, (int) y, level, followRange);
             enemy.health = health;

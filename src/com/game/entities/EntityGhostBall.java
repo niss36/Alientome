@@ -1,8 +1,8 @@
 package com.game.entities;
 
-import com.util.visual.AnimationInfo;
 import com.util.Direction;
 import com.util.Side;
+import com.util.visual.AnimationInfo;
 
 import java.awt.*;
 
@@ -35,7 +35,7 @@ public class EntityGhostBall extends EntityProjectile {
     @Override
     public void onUpdate() {
 
-        if(big) setAnimationInUse(1);
+        if (big) setAnimationInUse(1);
         else setAnimationInUse(0);
 
         move(facing, 5);

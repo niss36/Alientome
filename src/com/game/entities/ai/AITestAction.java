@@ -35,7 +35,7 @@ public class AITestAction extends AI {
     @Override
     public void act() {
 
-        if(!current.isRunning()) current.start();
+        if (!current.isRunning()) current.start();
         current.act();
 
         for (int i = 0; i < aiTests.size(); i++) {
@@ -51,7 +51,7 @@ public class AITestAction extends AI {
             }
         }
 
-        if(current != defaultAction) current = defaultAction;
+        if (current != defaultAction) current = defaultAction;
 
         currentIndex = -1;
     }

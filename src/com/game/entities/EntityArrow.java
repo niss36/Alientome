@@ -1,8 +1,8 @@
 package com.game.entities;
 
-import com.util.visual.AnimationInfo;
 import com.util.Direction;
 import com.util.Side;
+import com.util.visual.AnimationInfo;
 
 import java.awt.*;
 

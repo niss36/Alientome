@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -16,6 +17,10 @@ public class Config {
     private final int[] defaults = new int[names.length];
     private final File userConfig = new File(FileNames.config);
     private Properties properties;
+
+    private final ArrayList<ConfigListener> listeners = new ArrayList<>();
+
+    public boolean hasReset;
 
     private Config() {
         Properties defaultProperties = getProperties(defaultConfig());
@@ -88,6 +93,23 @@ public class Config {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void addConfigListener(ConfigListener listener) {
+        listeners.add(listener);
+    }
+
+    public void reset() {
+        properties = getProperties(defaultConfig());
+
+        for (int i = 0; i < names.length; i++) {
+
+            int v = keyValue(properties.getProperty(names[i]), defaults[i]);
+
+            keys.put(names[i], v);
+        }
+
+        listeners.forEach(ConfigListener::configReset);
     }
 
     private Properties getProperties(InputStream stream) {

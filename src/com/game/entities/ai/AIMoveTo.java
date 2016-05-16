@@ -45,7 +45,7 @@ public class AIMoveTo extends AI {
                     Math.signum(entity.getMotionX()) * entity.getMotionX() * entity.getMotionX() +
                     entity.getMotionX() / 2);
 
-            if((entity.getX() <= destX && predictedX >= destX) || (entity.getX() >= destX && predictedX <= destX)) {
+            if ((entity.getX() <= destX && predictedX >= destX) || (entity.getX() >= destX && predictedX <= destX)) {
                 succeed();
                 return;
             }

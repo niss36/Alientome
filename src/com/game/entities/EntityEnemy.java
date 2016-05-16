@@ -2,8 +2,8 @@ package com.game.entities;
 
 import com.game.Level;
 import com.game.entities.ai.*;
-import com.util.visual.AnimationInfo;
 import com.util.Side;
+import com.util.visual.AnimationInfo;
 
 import java.awt.*;
 
@@ -13,8 +13,8 @@ import java.awt.*;
  */
 public class EntityEnemy extends EntityLiving {
 
-    private final boolean damagePlayer;
     final int followRange;
+    private final boolean damagePlayer;
     private final AI ai;
 
     /**

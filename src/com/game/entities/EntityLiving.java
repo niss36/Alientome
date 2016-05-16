@@ -36,8 +36,8 @@ public abstract class EntityLiving extends Entity {
 
         health = this.maxHealth = maxHealth;
 
-        if(iconHealth == null) iconHealth = SpritesLoader.getSprite("Misc/iconHealth");
-        if(iconShield == null) iconShield = SpritesLoader.getSprite("Misc/iconShield");
+        if (iconHealth == null) iconHealth = SpritesLoader.getSprite("Misc/iconHealth");
+        if (iconShield == null) iconShield = SpritesLoader.getSprite("Misc/iconShield");
     }
 
     @Override
@@ -70,11 +70,11 @@ public abstract class EntityLiving extends Entity {
     /**
      * Used to visually represent this <code>EntityLiving</code>'s health.
      *
-     * @param g   the <code>Graphics</code> to draw with
+     * @param g the <code>Graphics</code> to draw with
      */
     private void drawHealthBar(Graphics g, double x, double y) {
 
-        if(health <= 0) return;
+        if (health <= 0) return;
 
         g.setColor(Color.black);
         g.fillRect((int) x - 5, (int) y - 10, 30, 6);
@@ -93,7 +93,7 @@ public abstract class EntityLiving extends Entity {
 
     private void drawShieldBar(Graphics g, double x, double y) {
 
-        if(shield == null || shield.percentValue() <= 0) return;
+        if (shield == null || shield.percentValue() <= 0) return;
 
         g.setColor(Color.black);
         g.fillRect((int) x - 5, (int) y - 10, 30, 6);
@@ -134,8 +134,8 @@ public abstract class EntityLiving extends Entity {
      * @param value the health to damage by
      */
     void damage(float value) {
-        if(damageCoolDown == 0) {
-            if(shield == null) damageAbsolute(value);
+        if (damageCoolDown == 0) {
+            if (shield == null) damageAbsolute(value);
             else shield.damage(value, false);
             damageCoolDown = 1;
         }

@@ -1,29 +1,21 @@
 package com.gui;
 
-import com.game.Game;
-import com.game.Game.State;
-
-import javax.swing.*;
 import java.awt.*;
 
-public class MenuLabel extends JComponent {
+class MenuLabel extends MenuItem {
 
-    private final String text;
+    public static final int LEFT = 0, CENTER = 1, RIGHT = 2;
 
-    private final Game game;
-
-    private final State requiredState;
+    private final int alignment;
 
     private final Font font = new Font("Serif", Font.BOLD, 30);
     private final FontMetrics metrics = getFontMetrics(font);
 
-    public MenuLabel(String text, Game game, Rectangle rec, State requiredState) {
+    public MenuLabel(Component parent, String text, Dimension dimension, int xCenterOffset, int yCenterOffset, int alignment) {
 
-        this.text = text;
-        this.game = game;
-        this.requiredState = requiredState;
+        super(parent, text, dimension, xCenterOffset, yCenterOffset);
 
-        setBounds(rec);
+        this.alignment = alignment;
     }
 
     @Override
@@ -31,14 +23,29 @@ public class MenuLabel extends JComponent {
 
         super.paintComponent(g);
 
-        if(game.state != requiredState) return;
-
         g.setColor(getForeground());
         g.setFont(font);
 
-        int x = (getWidth() - metrics.stringWidth(text)) / 2;
+        int x;
         int y = (getHeight() - metrics.getHeight()) / 2 + metrics.getAscent();
 
-        g.drawString(text, x, y);
+        switch (alignment) {
+
+            case CENTER:
+                x = (getWidth() - metrics.stringWidth(getText())) / 2;
+                break;
+
+            case RIGHT:
+                x = getWidth() - metrics.stringWidth(getText());
+                break;
+
+            case LEFT:
+
+            default:
+                x = 10;
+                break;
+        }
+
+        g.drawString(getText(), x, y);
     }
 }

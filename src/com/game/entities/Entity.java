@@ -3,7 +3,9 @@ package com.game.entities;
 import com.game.Block;
 import com.game.Level;
 import com.sun.javafx.geom.Vec2d;
-import com.util.*;
+import com.util.AxisAlignedBB;
+import com.util.Direction;
+import com.util.Side;
 import com.util.visual.Animation;
 import com.util.visual.AnimationInfo;
 import com.util.visual.SpritesLoader;
@@ -17,10 +19,11 @@ import java.util.Random;
 public abstract class Entity implements EntityConstants {
 
     private static int blockWidth;
-    private final boolean collide;
     public final Dimension dim;
     public final Level level;
     final Random entityRandom = new Random();
+    private final boolean collide;
+    private final Animation[] animations;
     public boolean collidedX;
     public boolean collidedY;
     public Object lastCollidedWith;
@@ -34,7 +37,6 @@ public abstract class Entity implements EntityConstants {
     boolean gravity;
     Direction facing = Direction.RIGHT;
     private boolean dead = false;
-    private final Animation[] animations;
     private int animationUsed = 0;
     private AxisAlignedBB boundingBox;
 
@@ -128,9 +130,9 @@ public abstract class Entity implements EntityConstants {
                 boundingBox = boundingBox();
                 blockIn = blockIn();
 
-                if(blockIn.getBoundingBox().intersectsWith(boundingBox)) {
+                if (blockIn.getBoundingBox().intersectsWith(boundingBox)) {
 
-                    if(onCollidedWithBlock(blockIn, blockIn.getBoundingBox().intersectionSideWith(boundingBox))) {
+                    if (onCollidedWithBlock(blockIn, blockIn.getBoundingBox().intersectionSideWith(boundingBox))) {
 
                         boundingBox = boundingBox();
                         blockIn = blockIn();
@@ -378,7 +380,7 @@ public abstract class Entity implements EntityConstants {
 
     void draw(Graphics g, int x, int y) {
 
-        if(animations[animationUsed] != null) animations[animationUsed].draw(g, x, y, facing);
+        if (animations[animationUsed] != null) animations[animationUsed].draw(g, x, y, facing);
 
         else g.fillRect(x, y, dim.width, dim.height);
     }
@@ -404,7 +406,7 @@ public abstract class Entity implements EntityConstants {
     protected abstract AnimationInfo[] createAnimationInfo();
 
     void setAnimationInUse(int index) {
-        if(animationUsed != index) {
+        if (animationUsed != index) {
             animationUsed = index;
             animations[animationUsed].reset();
         }
