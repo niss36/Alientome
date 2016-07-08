@@ -1,34 +1,37 @@
 package com.util;
 
+import com.util.listeners.ConfigListener;
+
+import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.function.Consumer;
 
+import static com.util.Util.closeSilently;
 import static com.util.Util.log;
 
-public class Config {
+public final class Config {
     private static final Config ourInstance = new Config();
-    private final HashMap<String, Integer> keys = new HashMap<>();
-    private final String[] names = {"Key.Jump", "Key.MoveLeft", "Key.MoveRight", "Key.Fire", "Key.Debug", "Key.Pause"};
-    private final int[] defaults = new int[names.length];
-    private final File userConfig = new File(FileNames.config);
+    private final String[] keyNames = {"Key.Jump", "Key.MoveLeft", "Key.MoveRight", "Key.Fire", "Key.Debug", "Key.Pause"};
+    private final String[] optionNames = {"UI.PauseOnLostFocus", "Debug.ShowBlockIn", "Debug.ShowSightLines"};
+    private final File userConfig;
+    private final ArrayList<ConfigListener> listeners = new ArrayList<>();
+    private final Properties defaultProperties;
+    private final HashMap<String, Object> values = new HashMap<>();
     private Properties properties;
 
-    private final ArrayList<ConfigListener> listeners = new ArrayList<>();
-
-    public boolean hasReset;
-
     private Config() {
-        Properties defaultProperties = getProperties(defaultConfig());
+        userConfig = FileManager.getInstance().getConfig();
 
-        for (int i = 0; i < names.length; i++) {
-            defaults[i] = keyValue(defaultProperties.getProperty(names[i]), 0);
-            keys.put(names[i], defaults[i]);
-        }
+        defaultProperties = getProperties(defaultConfig());
+
+        enumerate(defaultProperties.propertyNames(), defaultProperties);
     }
 
     public static Config getInstance() {
@@ -38,8 +41,6 @@ public class Config {
     public void load() {
 
         log("Loading config", 0);
-
-        checkFiles();
 
         InputStream stream;
 
@@ -57,12 +58,37 @@ public class Config {
             return;
         }
 
-        for (int i = 0; i < names.length; i++) {
+        String gameVersion = getString("Version");
+        String configVersion = properties.getProperty("Version");
 
-            int v = keyValue(properties.getProperty(names[i]), defaults[i]);
+        if (!gameVersion.equals(configVersion)) {
+            log("Config version mismatch. Game version : " + gameVersion + ". Config version : " + configVersion, 1);
 
-            keys.put(names[i], v);
+            properties.setProperty("Version", gameVersion);
         }
+
+        Enumeration<?> defaultNames = defaultProperties.propertyNames();
+        while (defaultNames.hasMoreElements()) {
+
+            String name = (String) defaultNames.nextElement();
+
+            if (properties.getProperty(name) == null) {
+                log("Missing property '" + name + "', creating with default value...", 1);
+                properties.setProperty(name, defaultProperties.getProperty(name));
+            }
+        }
+
+        Enumeration<?> configNames = properties.propertyNames();
+        while (configNames.hasMoreElements()) {
+
+            String name = (String) configNames.nextElement();
+
+            if (!defaultProperties.containsKey(name)) {
+                log("Unknown property '" + name + "', ignoring...", 1);
+            }
+        }
+
+        enumerate(defaultProperties.propertyNames(), properties);
 
         log("Loaded config", 0);
     }
@@ -70,8 +96,8 @@ public class Config {
     public void save() {
 
         log("Saving config", 0);
-        try {
-            properties.store(new FileOutputStream(userConfig), null);
+        try (FileOutputStream fos = new FileOutputStream(userConfig)) {
+            properties.store(fos, null);
             log("Saved config", 0);
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,16 +108,36 @@ public class Config {
         return getClass().getResourceAsStream("DefaultConfig.properties");
     }
 
-    private void checkFiles() {
+    public void createConfigFile(File file) {
 
-        File dir = new File(FileNames.directory);
-        if (!dir.exists() && !dir.mkdir()) log("Main directory could not be created.", 2);
+        assert !file.exists();
 
-        if (!userConfig.exists()) try {
-            InputStream in = defaultConfig();
-            Files.copy(in, userConfig.toPath());
+        try (InputStream in = defaultConfig()) {
+            Files.copy(in, file.toPath());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void enumerate(Enumeration<?> propertyNames, Properties properties) {
+
+        boolean def = properties == defaultProperties;
+
+        while (propertyNames.hasMoreElements()) {
+
+            String name = (String) propertyNames.nextElement();
+
+            Object obj;
+            String property = properties.getProperty(name);
+
+            if (name.indexOf("Key.") == 0) {
+
+                obj = keyValue(property, def ? -1 : getInt(name));
+            } else if (property.equalsIgnoreCase("true")) obj = true;
+            else if (property.equalsIgnoreCase("false")) obj = false;
+            else obj = property;
+
+            values.put(name, obj);
         }
     }
 
@@ -102,14 +148,26 @@ public class Config {
     public void reset() {
         properties = getProperties(defaultConfig());
 
-        for (int i = 0; i < names.length; i++) {
+        enumerate(defaultProperties.propertyNames(), properties);
 
-            int v = keyValue(properties.getProperty(names[i]), defaults[i]);
+        notifyListeners(ConfigListener::configReset);
+    }
 
-            keys.put(names[i], v);
+    public void resetKeys() {
+
+        for (int i = 0; i < keyNames.length; i++) {
+
+            String name = defaultProperties.getProperty(keyNames[i]);
+
+            setKey(i, name, keyValue(name, -1));
         }
 
-        listeners.forEach(ConfigListener::configReset);
+        notifyListeners(ConfigListener::configKeysReset);
+    }
+
+    private void notifyListeners(Consumer<? super ConfigListener> action) {
+
+        SwingUtilities.invokeLater(() -> listeners.forEach(action));
     }
 
     private Properties getProperties(InputStream stream) {
@@ -122,6 +180,8 @@ public class Config {
             properties.load(stream);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            closeSilently(stream);
         }
 
         return properties;
@@ -149,29 +209,51 @@ public class Config {
         return defaultValue;
     }
 
-    public int getKey(String name) {
-        return keys.get(name);
+    public Object get(String key) {
+
+        return values.get(key);
+    }
+
+    public String getString(String key) {
+
+        return (String) get(key);
+    }
+
+    public boolean getBoolean(String key) {
+
+        return (boolean) get(key);
+    }
+
+    public int getInt(String key) {
+
+        return (int) get(key);
     }
 
     public int getKey(int index) {
-        return getKey(names[index]);
+
+        return getInt(keyNames[index]);
     }
 
-    public void updatePropertiesAndKeyMap(int index, String keyName, int keyCode) {
-        properties.setProperty(names[index], keyName);
-        keys.put(names[index], keyCode);
+    public void setKey(int index, String keyName, int keyCode) {
+
+        properties.setProperty(keyNames[index], keyName);
+        values.put(keyNames[index], keyCode);
     }
 
-    public boolean isUsed(int keyCode) {
-        return keys.containsValue(keyCode);
+    public boolean isKeyUsed(int keyCode) {
+        for (String keyName : keyNames) if (getInt(keyName) == keyCode) return true;
+
+        return false;
     }
 
-    public static class FileNames {
+    public boolean getOption(int index) {
 
-        private static final String userHome = System.getProperty("user.home");
-        private static final String fileSeparator = System.getProperty("file.separator");
+        return getBoolean(optionNames[index]);
+    }
 
-        public static final String directory = userHome + fileSeparator + "Alientome";
-        public static final String config = directory + fileSeparator + "Config.properties";
+    public void setOption(int index, boolean value) {
+
+        properties.setProperty(optionNames[index], "" + value);
+        values.put(optionNames[index], value);
     }
 }

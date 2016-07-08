@@ -1,21 +1,24 @@
 package com;
 
-import com.game.Level;
 import com.gui.Frame;
 import com.util.Config;
+import com.util.FileManager;
+import com.util.visual.SpritesLoader;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Level.getInstance().init(1);
+        FileManager.getInstance().checkFiles();
 
         Config.getInstance().load();
 
-        Frame.getInstance().panelGame.init();
+        SpritesLoader.load();
 
         Frame.getInstance().setVisible(true);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> Config.getInstance().save(), "main"));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Config.getInstance().save();
+        }, "main"));
     }
 }

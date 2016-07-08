@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<level>
+    <block width="64"/>
+    <player spawnX="0" spawnY="2"/>
+    <entities>
+        <entity type="3" spawnX="2" spawnY="2"/>
+        <entity type="3" spawnX="3" spawnY="2"/>
+        <entity type="4" spawnX="4" spawnY="2"/>
+    </entities>
+    <buffs>
+        <buff type="0" spawnX="0" spawnY="2"/>
+    </buffs>
+</level>

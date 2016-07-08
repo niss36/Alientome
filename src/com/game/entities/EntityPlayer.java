@@ -1,8 +1,8 @@
 package com.game.entities;
 
-import com.game.Level;
+import com.game.level.Level;
 import com.gui.Frame;
-import com.util.visual.AnimationInfo;
+import com.util.Config;
 
 import java.awt.*;
 
@@ -10,10 +10,10 @@ public class EntityPlayer extends EntityLiving {
 
     private int ghostBallCoolDown = 0;
 
-    private float chargeState = -1;
+    private int chargeState = -1;
 
     @SuppressWarnings("SameParameterValue")
-    public EntityPlayer(int x, int y, Level level) {
+    EntityPlayer(int x, int y, Level level) {
 
         super(x, y, new Dimension(20, 31), level, 20);
     }
@@ -26,15 +26,30 @@ public class EntityPlayer extends EntityLiving {
         if (ghostBallCoolDown > 0) ghostBallCoolDown--;
 
         if (chargeState >= 0) {
-            if (chargeState >= 4) setAnimationInUse(2);
+            if (chargeState >= 40) handler.setAnimationUsed(2);
             else {
-                setAnimationInUse(1);
-                chargeState += 0.1f;
+
+                handler.setAnimationUsed(1);
+                chargeState++;
             }
-            maxVelocity = Math.max(5 - (int) chargeState, 2);
+            maxVelocity = Math.max(5 - chargeState / 10, 2);
         } else {
-            setAnimationInUse(0);
+
+            handler.setAnimationUsed(0);
             maxVelocity = 5;
+        }
+    }
+
+    @Override
+    public void draw(Graphics g, Point min, boolean debug) {
+        super.draw(g, min, debug);
+
+        if (debug && Config.getInstance().getBoolean("Debug.ShowBlockIn")) {
+
+            Color c = g.getColor();
+            g.setColor(new Color(255, 0, 0, 100));
+            blockIn.getBoundingBox().fill(g, min);
+            g.setColor(c);
         }
     }
 
@@ -44,21 +59,11 @@ public class EntityPlayer extends EntityLiving {
         Frame.getInstance().panelGame.game.playerDeath();
     }
 
-    @Override
-    protected AnimationInfo[] createAnimationInfo() {
-        AnimationInfo[] info = new AnimationInfo[3];
-        info[0] = new AnimationInfo("Alientome", 2, 10);
-        info[1] = new AnimationInfo("Alientome/Charge", 5, 10);
-        info[2] = new AnimationInfo("Alientome/Charged", 2, 10);
-
-        return info;
-    }
-
-    private void throwGhostBall(boolean big) {
+    private void throwGhostBall() {
 
         if (ghostBallCoolDown == 0) {
 
-            level.spawnEntity(new EntityGhostBall(this, big));
+            level.spawnEntity(new EntityGhostBall(this, chargeState >= 40));
 
             ghostBallCoolDown = 33;
         }
@@ -71,7 +76,7 @@ public class EntityPlayer extends EntityLiving {
 
     public void stopCharging() {
         if (chargeState >= 0) {
-            throwGhostBall(chargeState >= 4);
+            throwGhostBall();
             chargeState = -1;
         }
     }

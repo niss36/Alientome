@@ -10,6 +10,7 @@ public class Shield {
     private final boolean extendsHealth;
     private float value;
 
+    @SuppressWarnings("SameParameterValue")
     public Shield(EntityLiving owner, float value, boolean blockProjectiles, boolean extendsHealth) {
 
         this.owner = owner;
@@ -33,4 +34,10 @@ public class Shield {
     public float percentValue() {
         return value / maxValue;
     }
+
+    /*@Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        System.out.println(this);
+    }*/
 }

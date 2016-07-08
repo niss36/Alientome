@@ -1,6 +1,6 @@
 package com.game.entities;
 
-import com.game.Level;
+import com.game.level.Level;
 import org.w3c.dom.Element;
 
 public class EntityBuilder {

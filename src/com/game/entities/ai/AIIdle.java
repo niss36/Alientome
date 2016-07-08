@@ -14,9 +14,13 @@ public class AIIdle extends AI {
      * @param entity the target <code>Entity</code>
      */
     public AIIdle(Entity entity) {
+        this(entity, aIRandom.nextInt(25) + 25);
+    }
+
+    public AIIdle(Entity entity, int time) {
         super(entity);
 
-        time = aIRandom.nextInt(25) + 25;
+        this.time = time;
     }
 
     @Override

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<animations>
+    <!--Entities-->
+    <package name="com.game.entities." directory="Entity/">
+        <class name="EntityPlayer" subDirectory="Alientome/">
+            <animation path="" spritesCount="2" delay="10"/>
+            <animation path="Charge/" spritesCount="5" delay="10"/>
+            <animation path="Charged/" spritesCount="2" delay="10"/>
+        </class>
+        <class name="EntityArrow" subDirectory="Arrow/">
+            <animation path="" spritesCount="1" delay="10"/>
+        </class>
+        <class name="EntityEnemy" subDirectory="Enemy/">
+            <animation path="" spritesCount="1" delay="10"/>
+            <animation path="Attack/" spritesCount="3" delay="2"/>
+        </class>
+        <class name="EntityEnemyBow" subDirectory="EnemyBow/">
+            <animation path="" spritesCount="1" delay="10"/>
+            <animation path="Fire/" delay="3">
+                <sprite/>
+                <sprite offsetX="-6"/>
+                <sprite offsetX="-5"/>
+                <sprite offsetX="-4"/>
+                <sprite offsetX="-3"/>
+                <sprite offsetX="-2"/>
+                <sprite/>
+            </animation>
+        </class>
+        <class name="EntityEnemyShield" subDirectory="EnemyShield/">
+            <animation path="" spritesCount="1" delay="10"/>
+        </class>
+        <class name="EntityEnemyWizard" subDirectory="EnemyWizard/">
+            <animation path="" spritesCount="10" delay="5" offsetX="-1"/>
+            <animation path="Attack/" delay="7">
+                <sprite offsetX="-1"/>
+                <sprite offsetX="-2"/>
+                <sprite offsetX="-2" offsetY="-2"/>
+                <sprite offsetX="-12" offsetY="-2"/>
+                <sprite offsetX="-12"/>
+                <sprite offsetX="-10"/>
+            </animation>
+            <animation path="Heal/" delay="7">
+                <sprite offsetX="-1"/>
+                <sprite offsetX="-2"/>
+                <sprite offsetX="-2" offsetY="-2"/>
+                <sprite offsetX="-12" offsetY="-2"/>
+                <sprite offsetX="-12"/>
+                <sprite offsetX="-10"/>
+            </animation>
+        </class>
+        <class name="EntityGhostBall" subDirectory="GhostBall/">
+            <animation path="" spritesCount="2" delay="5"/>
+            <animation path="Big/" spritesCount="10" delay="2"/>
+        </class>
+    </package>
+    <!--Blocks-->
+    <package name="com.game.blocks." directory="Block/">
+        <class name="BlockSand" subDirectory="Sand/">
+            <animation path="" spritesCount="1" delay="10"/>
+        </class>
+        <class name="BlockSandBackground" subDirectory="SandBackground/">
+            <animation path="" spritesCount="1" delay="10"/>
+        </class>
+    </package>
+    <!--Buffs-->
+    <package name="com.game.buffs." directory="Buff/">
+        <class name="BuffHeal" subDirectory="Heal/">
+            <animation path="" spritesCount="8" delay="10"/>
+        </class>
+    </package>
+</animations>

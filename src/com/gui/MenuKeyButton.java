@@ -1,37 +1,39 @@
 package com.gui;
 
 import com.util.Config;
-import com.util.ConfigListener;
+import com.util.listeners.ConfigListener;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.lang.reflect.Field;
 
 class MenuKeyButton extends MenuButton implements ActionListener, KeyListener, ConfigListener {
 
     public static boolean inUse;
-    private final Component parent;
     private final int index;
     private int currentKeyCode;
     private String currentKeyName;
     private int keyPressed;
     private boolean space;
 
-    public MenuKeyButton(Component parent, Dimension dimension, int xCenterOffset, int yCenterOffset, int index) {
-        super(parent, "", dimension, xCenterOffset, yCenterOffset);
+    public MenuKeyButton(Dimension dimension, int index) {
+        super("", dimension);
 
         inUse = false;
-
-        this.parent = parent;
         this.index = index;
 
         setCurrentKey(Config.getInstance().getKey(index));
 
         addActionListener(this);
 
-        setFocusable(false);
+        setFocusable(true);
 
-        parent.addKeyListener(this);
+        addKeyListener(this);
+
+        Config.getInstance().addConfigListener(this);
     }
 
     private String keyCodeToString(int keyCode) {
@@ -60,7 +62,7 @@ class MenuKeyButton extends MenuButton implements ActionListener, KeyListener, C
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        parent.requestFocus();
+        requestFocus();
         if (!inUse && !space)
             new Thread(() -> {
                 inUse = true;
@@ -69,20 +71,22 @@ class MenuKeyButton extends MenuButton implements ActionListener, KeyListener, C
                 setText("<...>");
 
                 while (keyPressed == 0 ||
-                        (Config.getInstance().isUsed(keyPressed)
+                        (Config.getInstance().isKeyUsed(keyPressed)
                                 && keyPressed != currentKeyCode
                                 && keyPressed != KeyEvent.VK_ESCAPE)
                         )
-                    parent.requestFocus();
+                    requestFocus();
 
                 if (keyPressed == KeyEvent.VK_ESCAPE || keyPressed == currentKeyCode) {
                     setText(currentKeyName);
                     inUse = false;
+                    Frame.getInstance().panelGame.showCard(PanelGame.MENU_CONTROLS);
                     return;
                 }
                 setCurrentKey(keyPressed);
-                Config.getInstance().updatePropertiesAndKeyMap(index, currentKeyName, currentKeyCode);
+                Config.getInstance().setKey(index, currentKeyName, currentKeyCode);
                 inUse = false;
+                Frame.getInstance().panelGame.showCard(PanelGame.MENU_CONTROLS);
             }).start();
     }
 
@@ -107,7 +111,11 @@ class MenuKeyButton extends MenuButton implements ActionListener, KeyListener, C
 
     @Override
     public void configReset() {
+        configKeysReset();
+    }
 
+    @Override
+    public void configKeysReset() {
         setCurrentKey(Config.getInstance().getKey(index));
     }
 }

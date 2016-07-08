@@ -1,7 +1,8 @@
 package com.game.entities.ai;
 
-import com.game.Block;
+import com.game.blocks.Block;
 import com.game.entities.Entity;
+import com.game.level.LevelMap;
 import com.util.Direction;
 
 /**
@@ -41,28 +42,28 @@ public class AIFollow extends AI {
             else if (following.isDead()) state = onFollowedDeath;
 
             else {
-                if (following.getX() > entity.getX()) entity.move(Direction.RIGHT);
-                else if (following.getX() < entity.getX()) entity.move(Direction.LEFT);
+                if (following.getPos().x > entity.getPos().x) entity.move(Direction.RIGHT);
+                else if (following.getPos().x < entity.getPos().x) entity.move(Direction.LEFT);
 
-                if (following.getX() != entity.getX()) avoidObstacles();
+                if (following.getPos().x != entity.getPos().x) avoidObstacles();
             }
         }
+    }
+
+    @Override
+    protected void reset() {
     }
 
     private void avoidObstacles() {
 
         if (entity.collidedX && entity.lastCollidedWith != following) entity.jump();
 
-        else if (following.getY() <= entity.getY()) {
+        else if (following.getPos().y <= entity.getPos().y) {
 
-            boolean b = new Block((int) ((entity.getX() + entity.dim.width / 2 + entity.getMotionX()) / Block.width),
-                    (int) ((entity.getY() + entity.dim.height + 1) / Block.width)).isOpaque();
+            boolean b = LevelMap.getInstance().getBlock((int) ((entity.getPos().x + entity.dim.width / 2 + entity.getVelocity().x) / Block.width),
+                    (int) ((entity.getPos().y + entity.dim.height + 1) / Block.width), true).isOpaque();
 
             if (!b) entity.jump();
         }
-    }
-
-    @Override
-    protected void reset() {
     }
 }

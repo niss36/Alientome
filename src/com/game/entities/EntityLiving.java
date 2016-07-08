@@ -1,8 +1,9 @@
 package com.game.entities;
 
-import com.game.Block;
-import com.game.Level;
 import com.game.Shield;
+import com.game.blocks.Block;
+import com.game.level.Level;
+import com.util.CollisionPoint;
 import com.util.Side;
 import com.util.visual.SpritesLoader;
 
@@ -31,7 +32,7 @@ public abstract class EntityLiving extends Entity {
      * @param level     the <code>Level</code> this <code>Entity</code> is in
      * @param maxHealth the maximum health this <code>EntityLiving</code> can have
      */
-    EntityLiving(int x, int y, Dimension dim, Level level, int maxHealth) {
+    EntityLiving(double x, double y, Dimension dim, Level level, int maxHealth) {
         super(x, y, dim, level);
 
         health = this.maxHealth = maxHealth;
@@ -53,6 +54,32 @@ public abstract class EntityLiving extends Entity {
     }
 
     @Override
+    public boolean onCollidedWithBlock(Block block, CollisionPoint collisionPoint) {
+
+        double tMotionY = velocity.y;
+
+        if (super.onCollidedWithBlock(block, collisionPoint)) {
+
+            if (collisionPoint.getCollisionSide() == Side.TOP && tMotionY >= 15) {
+
+                float damage = getFallDamage(tMotionY);
+                damageAbsolute(damage);
+
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    protected void notifyCollision(Entity other, Side side) {
+
+        if (other instanceof EntityProjectile) damage(((EntityProjectile) other).damage);
+    }
+
+    @Override
     public void draw(Graphics g, Point min, boolean debug) {
         super.draw(g, min, debug);
         drawStatusBars(g, min);
@@ -60,8 +87,8 @@ public abstract class EntityLiving extends Entity {
 
     private void drawStatusBars(Graphics g, Point min) {
 
-        double x = this.x - min.x;
-        double y = this.y - min.y;
+        double x = pos.x - min.x;
+        double y = pos.y - min.y;
 
         drawHealthBar(g, x, y);
         drawShieldBar(g, x, y - 6);
@@ -104,29 +131,6 @@ public abstract class EntityLiving extends Entity {
         g.fillRect((int) x - 4, (int) y - 9, (int) (shield.percentValue() * 28), 4);
     }
 
-    @Override
-    public boolean onCollidedWithBlock(Block block, Side side) {
-
-        double tMotionY = motionY;
-
-        if (super.onCollidedWithBlock(block, side)) {
-
-            if (side == Side.TOP && tMotionY >= 15) {
-                damage(getFallDamage(tMotionY));
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public void notifyCollision(Entity other, Side side) {
-
-        if (other instanceof EntityProjectile) damage(((EntityProjectile) other).damage);
-    }
-
     /**
      * Removes <code>value</code> health to this <code>EntityLiving</code>'s health
      * if it was not already hurt recently.
@@ -148,7 +152,17 @@ public abstract class EntityLiving extends Entity {
         }
     }
 
-    float getFallDamage(double verticalMotion) {
+    public void heal(float value) {
+        health += value;
+        if (health > maxHealth) health = maxHealth;
+    }
+
+    public void addShield(float value) {
+
+        shield = new Shield(this, value, false, true);
+    }
+
+    final float getFallDamage(double verticalMotion) {
 
         return verticalMotion >= 0 ? (float) verticalMotion / 5 : 0;
     }
