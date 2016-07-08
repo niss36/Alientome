@@ -1,9 +1,8 @@
 package com.game.entities;
 
-import com.game.Level;
 import com.game.Shield;
+import com.game.level.Level;
 import com.util.Side;
-import com.util.visual.AnimationInfo;
 
 /**
  * Similar to the <code>EntityEnemy</code>, but cannot be hurt by projectiles
@@ -12,7 +11,7 @@ import com.util.visual.AnimationInfo;
 public class EntityEnemyShield extends EntityEnemy {
 
     @SuppressWarnings("SameParameterValue")
-    public EntityEnemyShield(int x, int y, Level level, int followRange) {
+    EntityEnemyShield(double x, double y, Level level, int followRange) {
         super(x, y, level, followRange);
 
         shield = new Shield(this, 20, true, false);
@@ -25,24 +24,16 @@ public class EntityEnemyShield extends EntityEnemy {
 
         if (shield.percentValue() <= 0) {
             level.removeEntity(this);
-            EntityEnemy enemy = new EntityEnemy((int) x, (int) y, level, followRange);
+            EntityEnemy enemy = new EntityEnemy(pos.x, pos.y, level, followRange);
             enemy.health = health;
             level.spawnEntity(enemy);
         }
     }
 
     @Override
-    public void notifyCollision(Entity other, Side side) {
+    protected void notifyCollision(Entity other, Side side) {
 
         if (other instanceof EntityProjectile)
             shield.damage(((EntityProjectile) other).damage, side == facing.toSide() || side == Side.TOP);
-    }
-
-    @Override
-    protected AnimationInfo[] createAnimationInfo() {
-        AnimationInfo[] info = new AnimationInfo[1];
-        info[0] = new AnimationInfo("EnemyShield", 1, 10);
-
-        return info;
     }
 }

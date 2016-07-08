@@ -1,9 +1,7 @@
 package com.game.entities;
 
-import com.game.Level;
 import com.game.entities.ai.*;
-import com.util.Direction;
-import com.util.visual.AnimationInfo;
+import com.game.level.Level;
 
 import java.awt.*;
 
@@ -18,7 +16,7 @@ public class EntityEnemyBow extends EntityEnemy {
      * @param level the <code>Level</code> this <code>Entity</code> is in
      */
     @SuppressWarnings("SameParameterValue")
-    public EntityEnemyBow(int x, int y, Level level) {
+    EntityEnemyBow(int x, int y, Level level) {
         super(x, y, level, new Dimension(19, 27), 0, false);
 
         maxVelocity = 4;
@@ -29,7 +27,8 @@ public class EntityEnemyBow extends EntityEnemy {
         if (coolDown == 0) {
 
             fireState = 0;
-            setAnimationInUse(1);
+
+            handler.setAnimationUsed(1);
             coolDown = 33;
         }
     }
@@ -40,38 +39,16 @@ public class EntityEnemyBow extends EntityEnemy {
         if (coolDown > 0) coolDown--;
 
         if (fireState >= 0) {
-            if (fireState < 11) fireState++;
+            if (fireState < 17) fireState++;
             else {
                 level.spawnEntity(new EntityArrow(this, 3, (-level.player.distanceTo(this) + entityRandom.nextInt(50) - 25) / 25));
                 fireState = -1;
-                setAnimationInUse(0);
+
+                handler.setAnimationUsed(0);
             }
         }
 
         super.onUpdate();
-    }
-
-    @Override
-    void draw(Graphics g, int x, int y) {
-        if (fireState == -1 || facing == Direction.RIGHT) super.draw(g, x, y);
-        else {
-
-            int s = (fireState + 1) / 4;
-
-            int x1 = x - (s == 1 ? 4 : s == 2 ? 2 : 0);
-
-            super.draw(g, x1, y);
-
-        }
-    }
-
-    @Override
-    protected AnimationInfo[] createAnimationInfo() {
-        AnimationInfo[] info = new AnimationInfo[2];
-        info[0] = new AnimationInfo("EnemyBow", 1, 10);
-        info[1] = new AnimationInfo("EnemyBow/Fire", 3, 4);
-
-        return info;
     }
 
     @Override

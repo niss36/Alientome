@@ -1,6 +1,8 @@
 package com.game;
 
-import com.gui.Panel;
+import com.game.level.Level;
+import com.gui.Frame;
+import com.gui.PanelGame;
 import com.util.Config;
 import com.util.Direction;
 
@@ -11,77 +13,95 @@ import java.util.ArrayList;
 /**
  * <code>Runnable</code> object used to perform game updates.
  */
-public class Game implements Runnable {
+public final class Game implements Runnable {
 
+    private static final Game ourInstance = new Game();
     public final ArrayList<Integer> pressedKeys = new ArrayList<>();
-    private final Panel panel;
-    public State state = State.RUNNING;
-    private KeyEventDispatcher ked;
-
+    public State state;
+    private PanelGame panelGame;
     private boolean run = true;
 
-    /**
-     * Initialize the <code>Game</code>
-     *
-     * @param p the <code>Panel</code> to update
-     */
-    public Game(Panel p) {
+    private Game() {
 
-        panel = p;
+        KeyEventDispatcher ked = e -> {
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(ked);
-        pressedKeys.clear();
-
-        ked = new KeyEventDispatcher() {
-            @Override
-            public boolean dispatchKeyEvent(KeyEvent e) {
-
-                if (e.getKeyCode() == Config.getInstance().getKey("Key.Pause") && e.getID() == KeyEvent.KEY_PRESSED) {
-                    if (state == State.PAUSED) {
-                        resume();
-                        return true;
-                    }
-
-                    if (state == State.RUNNING) {
-                        pause();
-                        return true;
-                    }
-                }
-
-                if (state != State.RUNNING) return false;
-
-                if (e.getKeyCode() == Config.getInstance().getKey("Key.Debug") && e.getID() == KeyEvent.KEY_PRESSED) {
-                    panel.switchDebug();
+            if (e.getKeyCode() == Config.getInstance().getInt("Key.Pause") && e.getID() == KeyEvent.KEY_PRESSED) {
+                if (state == State.PAUSED) {
+                    resume();
                     return true;
                 }
 
-                if (e.getKeyCode() == Config.getInstance().getKey("Key.Fire")) {
-                    if (e.getID() == KeyEvent.KEY_PRESSED) Level.getInstance().player.startCharging();
-                    else if (e.getID() == KeyEvent.KEY_RELEASED) Level.getInstance().player.stopCharging();
+                if (state == State.RUNNING) {
+                    pause();
                     return true;
                 }
-
-                if (e.getID() == KeyEvent.KEY_PRESSED && !pressedKeys.contains(e.getKeyCode()))
-                    pressedKeys.add(e.getKeyCode());
-                else if (e.getID() == KeyEvent.KEY_RELEASED)
-                    pressedKeys.remove((Integer) e.getKeyCode());
-
-                return e.getKeyCode() != Config.getInstance().getKey("Key.Jump") || Direction.toDirection(e.getKeyCode()) != null;
             }
+
+            if (state != State.RUNNING) return false;
+
+            if (e.getKeyCode() == Config.getInstance().getInt("Key.Debug") && e.getID() == KeyEvent.KEY_PRESSED) {
+                panelGame.switchDebug();
+                return true;
+            }
+
+            if (e.getKeyCode() == Config.getInstance().getInt("Key.Fire")) {
+                if (e.getID() == KeyEvent.KEY_PRESSED) Level.getInstance().player.startCharging();
+                else if (e.getID() == KeyEvent.KEY_RELEASED) Level.getInstance().player.stopCharging();
+                return true;
+            }
+
+            if (e.getID() == KeyEvent.KEY_PRESSED && !pressedKeys.contains(e.getKeyCode()))
+                pressedKeys.add(e.getKeyCode());
+            else if (e.getID() == KeyEvent.KEY_RELEASED)
+                pressedKeys.remove((Integer) e.getKeyCode());
+
+            return e.getKeyCode() != Config.getInstance().getInt("Key.Jump") || Direction.toDirection(e.getKeyCode()) != null;
         };
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ked);
+    }
+
+    public static Game getInstance() {
+        return ourInstance;
+    }
+
+    public void init(PanelGame panel) {
+
+        state = null;
+
+        panelGame = panel;
+    }
+
+    public void start() {
+
+        state = State.RUNNING;
+
+        run = true;
+
+        pressedKeys.clear();
 
         Level.getInstance().reset();
+
+        new Thread(this, "Thread-Game").start();
+    }
+
+    public void exit() {
+
+        Level.getInstance().save();
+        Frame.getInstance().showCard(Frame.MENU);
+
+        state = null;
+
+        run = false;
     }
 
     public void pause() {
-        if (state == State.RUNNING) panel.showCard(Panel.MENU);
+        if (state == State.RUNNING) panelGame.showCard(PanelGame.MENU);
     }
 
     public void resume() {
 
-        panel.showCard(Panel.BLANK);
+        panelGame.showCard(PanelGame.BLANK);
         pressedKeys.clear();
     }
 
@@ -91,15 +111,8 @@ public class Game implements Runnable {
         Level.getInstance().reset();
     }
 
-    public void quit() {
-
-        resume();
-        run = false;
-        System.exit(0);
-    }
-
     public void playerDeath() {
-        panel.showCard(Panel.DEATH);
+        panelGame.showCard(PanelGame.DEATH);
     }
 
     @Override
@@ -113,7 +126,7 @@ public class Game implements Runnable {
                 e.printStackTrace();
             }
 
-            if (state == State.RUNNING) Level.getInstance().update(this, panel);
+            if (state == State.RUNNING) Level.getInstance().update(this, panelGame);
         }
     }
 
@@ -121,6 +134,7 @@ public class Game implements Runnable {
 
         RUNNING,
         PAUSED,
+        PAUSED_CONTROLS,
         PAUSED_OPTIONS,
         DEATH
     }

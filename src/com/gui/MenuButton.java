@@ -1,18 +1,23 @@
 package com.gui;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
-class MenuButton extends MenuItem implements MouseListener{
+class MenuButton extends MenuItem implements MouseListener {
 
     private final ArrayList<ActionListener> listeners = new ArrayList<>();
-    private final Font font = new Font("Serif", Font.BOLD, 30);
-    private final FontMetrics metrics = getFontMetrics(font);
     private boolean focused;
 
-    public MenuButton(Component parent, String text, Dimension dimension, int xCenterOffset, int yCenterOffset) {
-        super(parent, text, dimension, xCenterOffset, yCenterOffset);
+    public MenuButton(String text, Dimension dimension) {
+        this(text, dimension, null);
+    }
+
+    public MenuButton(String text, Dimension dimension, Font font) {
+        super(text, dimension, font);
 
         enableInputMethods(true);
         addMouseListener(this);
@@ -23,7 +28,9 @@ class MenuButton extends MenuItem implements MouseListener{
 
         super.paintComponent(g);
 
-        g.setColor(focused ? new Color(128, 128, 128, 128) : new Color(64, 64, 64, 64));
+        int i = focused ? 128 : 64;
+
+        g.setColor(new Color(i, i, i, i));
         g.fillRect(0, 0, getWidth(), getHeight());
 
         g.setColor(Color.black);
@@ -44,17 +51,15 @@ class MenuButton extends MenuItem implements MouseListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        notifyListeners();
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-
+        notifyListeners();
     }
 
     @Override
@@ -74,6 +79,8 @@ class MenuButton extends MenuItem implements MouseListener{
     }
 
     private void notifyListeners() {
+
+        if (!isEnabled()) return;
 
         ActionEvent ae = new ActionEvent(this, 1001, "");
 

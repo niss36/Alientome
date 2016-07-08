@@ -8,12 +8,8 @@ class MenuLabel extends MenuItem {
 
     private final int alignment;
 
-    private final Font font = new Font("Serif", Font.BOLD, 30);
-    private final FontMetrics metrics = getFontMetrics(font);
-
-    public MenuLabel(Component parent, String text, Dimension dimension, int xCenterOffset, int yCenterOffset, int alignment) {
-
-        super(parent, text, dimension, xCenterOffset, yCenterOffset);
+    public MenuLabel(String text, Dimension dimension, int alignment, Font font) {
+        super(text, dimension, font);
 
         this.alignment = alignment;
     }
@@ -38,8 +34,6 @@ class MenuLabel extends MenuItem {
             case RIGHT:
                 x = getWidth() - metrics.stringWidth(getText());
                 break;
-
-            case LEFT:
 
             default:
                 x = 10;

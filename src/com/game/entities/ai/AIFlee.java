@@ -1,7 +1,8 @@
 package com.game.entities.ai;
 
-import com.game.Block;
+import com.game.blocks.Block;
 import com.game.entities.Entity;
+import com.game.level.LevelMap;
 import com.util.Direction;
 
 public class AIFlee extends AI {
@@ -33,28 +34,28 @@ public class AIFlee extends AI {
 
             else if (entity.distanceTo(fleeing) <= fleeRange) {
 
-                if (fleeing.getX() > entity.getX()) entity.move(Direction.LEFT);
-                else if (fleeing.getX() < entity.getX()) entity.move(Direction.RIGHT);
+                if (fleeing.getPos().x > entity.getPos().x) entity.move(Direction.LEFT);
+                else if (fleeing.getPos().x < entity.getPos().x) entity.move(Direction.RIGHT);
 
-                if (fleeing.getX() != entity.getX()) avoidObstacles();
+                if (fleeing.getPos().x != entity.getPos().x) avoidObstacles();
             } else succeed();
         }
+    }
+
+    @Override
+    protected void reset() {
     }
 
     private void avoidObstacles() {
 
         if (entity.collidedX && entity.lastCollidedWith != fleeing) entity.jump();
 
-        else if (fleeing.getY() <= entity.getY()) {
+        else if (fleeing.getPos().y <= entity.getPos().y) {
 
-            boolean b = new Block((int) ((entity.getX() + entity.dim.width / 2 + entity.getMotionX()) / Block.width),
-                    (int) ((entity.getY() + entity.dim.height + 1) / Block.width)).isOpaque();
+            boolean b = LevelMap.getInstance().getBlock((int) ((entity.getPos().x + entity.dim.width / 2 + entity.getVelocity().x) / Block.width),
+                    (int) ((entity.getPos().y + entity.dim.height + 1) / Block.width), true).isOpaque();
 
             if (!b) entity.jump();
         }
-    }
-
-    @Override
-    protected void reset() {
     }
 }

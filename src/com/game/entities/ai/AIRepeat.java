@@ -34,17 +34,6 @@ public class AIRepeat extends AI {
     }
 
     @Override
-    public void start() {
-        super.start();
-        ai.start();
-    }
-
-    @Override
-    protected void reset() {
-        times = originalTimes;
-    }
-
-    @Override
     public void act() {
         if (ai.isFailure()) fail();
         else if (ai.isSuccess()) {
@@ -55,5 +44,16 @@ public class AIRepeat extends AI {
                 ai.start();
             }
         } else ai.act();
+    }
+
+    @Override
+    protected void reset() {
+        times = originalTimes;
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        ai.start();
     }
 }

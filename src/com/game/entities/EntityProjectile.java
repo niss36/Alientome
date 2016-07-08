@@ -1,6 +1,7 @@
 package com.game.entities;
 
-import com.game.Block;
+import com.game.blocks.Block;
+import com.util.CollisionPoint;
 import com.util.Side;
 
 import java.awt.*;
@@ -21,7 +22,7 @@ public abstract class EntityProjectile extends Entity {
      */
     EntityProjectile(Entity thrower, Dimension dim, int damage) {
 
-        super(thrower.x + thrower.dim.width / 2, thrower.y, dim, thrower.level);
+        super(thrower.getPos().x + thrower.dim.width / 2, thrower.getPos().y, dim, thrower.level);
 
         this.thrower = thrower;
 
@@ -31,8 +32,8 @@ public abstract class EntityProjectile extends Entity {
     }
 
     @Override
-    public boolean onCollidedWithBlock(Block block, Side side) {
-        if (super.onCollidedWithBlock(block, side)) {
+    public boolean onCollidedWithBlock(Block block, CollisionPoint collisionPoint) {
+        if (super.onCollidedWithBlock(block, collisionPoint)) {
 
             setDead();
 

@@ -6,4 +6,5 @@ public interface EntityConstants {
     int ENEMY = 1;
     int ENEMY_SHIELD = 2;
     int ENEMY_BOW = 3;
+    int ENEMY_WIZARD = 4;
 }

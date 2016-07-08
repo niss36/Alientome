@@ -2,7 +2,6 @@ package com.game.entities;
 
 import com.util.Direction;
 import com.util.Side;
-import com.util.visual.AnimationInfo;
 
 import java.awt.*;
 
@@ -15,15 +14,15 @@ public class EntityArrow extends EntityProjectile {
     EntityArrow(Entity thrower, int damage, double verticalMotion) {
         super(thrower, new Dimension(10, 3), damage);
 
-        y = Math.min(y + 10 - verticalMotion, y + thrower.dim.height - 3);
+        pos.y = Math.min(pos.y + 10 - verticalMotion, pos.y + thrower.dim.height - 3);
 
-        x = facing == Direction.LEFT ? thrower.x : thrower.x + thrower.dim.width;
+        pos.x = facing == Direction.LEFT ? thrower.getPos().x : thrower.getPos().x + thrower.dim.width;
 
         maxVelocity = 15;
 
-        motionY = verticalMotion;
+        velocity.y = verticalMotion;
 
-        motionX = facing == Direction.LEFT ? -maxVelocity : maxVelocity;
+        velocity.x = facing == Direction.LEFT ? -maxVelocity : maxVelocity;
     }
 
     @Override
@@ -37,13 +36,5 @@ public class EntityArrow extends EntityProjectile {
     @Override
     protected void notifyCollision(Entity other, Side side) {
 
-    }
-
-    @Override
-    protected AnimationInfo[] createAnimationInfo() {
-        AnimationInfo[] info = new AnimationInfo[1];
-        info[0] = new AnimationInfo("Arrow", 1, 10);
-
-        return info;
     }
 }

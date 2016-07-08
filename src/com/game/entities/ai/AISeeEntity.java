@@ -1,6 +1,7 @@
 package com.game.entities.ai;
 
 import com.game.entities.Entity;
+import com.game.level.LevelUtils;
 
 /**
  * <code>AI</code> to determines whether the target <code>Entity</code> can see an other <code>Entity</code>.
@@ -31,7 +32,8 @@ public class AISeeEntity extends AITest {
 
         else if (entity.distanceTo(lookingFor) > range) fail();
 
-        else if (entity.level.canSeeEntity(entity, lookingFor)) succeed();
+        else if (/*entity.level.canSeeEntity(entity, lookingFor)*/LevelUtils.canSeeEntity(entity, lookingFor))
+            succeed();
         else fail();
     }
 

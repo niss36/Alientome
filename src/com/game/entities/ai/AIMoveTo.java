@@ -23,10 +23,6 @@ public class AIMoveTo extends AI {
     }
 
     @Override
-    protected void reset() {
-    }
-
-    @Override
     public void act() {
         if (isRunning()) {
             if (entity.isDead()) fail();
@@ -34,23 +30,27 @@ public class AIMoveTo extends AI {
         }
     }
 
+    @Override
+    protected void reset() {
+    }
+
     /**
      * Private method to update the target <code>Entity</code>'s position each tick.
      */
     private void move() {
 
-        if (destX != (int) entity.getX()) {
+        if (destX != (int) entity.getPos().x) {
 
-            int predictedX = (int) (entity.getX() +
-                    Math.signum(entity.getMotionX()) * entity.getMotionX() * entity.getMotionX() +
-                    entity.getMotionX() / 2);
+            int predictedX = (int) (entity.getPos().x +
+                    Math.signum(entity.getVelocity().x) * entity.getVelocity().x * entity.getVelocity().x +
+                    entity.getVelocity().x / 2);
 
-            if ((entity.getX() <= destX && predictedX >= destX) || (entity.getX() >= destX && predictedX <= destX)) {
+            if ((entity.getPos().x <= destX && predictedX >= destX) || (entity.getPos().x >= destX && predictedX <= destX)) {
                 succeed();
                 return;
             }
 
-            entity.move(destX > entity.getX() ? Direction.RIGHT : Direction.LEFT);
+            entity.move(destX > entity.getPos().x ? Direction.RIGHT : Direction.LEFT);
         }
         if (isAtDestination()) succeed();
         else if (entity.collidedX) fail();
@@ -60,6 +60,6 @@ public class AIMoveTo extends AI {
      * @return whether the target <code>Entity</code> is at the destination X
      */
     private boolean isAtDestination() {
-        return destX == entity.getX();
+        return destX == entity.getPos().x;
     }
 }

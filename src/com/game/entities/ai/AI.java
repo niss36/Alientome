@@ -9,7 +9,7 @@ import java.util.Random;
  */
 public abstract class AI {
 
-    final Random aIRandom = new Random();
+    final static Random aIRandom = new Random();
     final Entity entity;
     State state;
 

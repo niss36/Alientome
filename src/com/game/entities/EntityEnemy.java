@@ -1,9 +1,9 @@
 package com.game.entities;
 
-import com.game.Level;
+import com.game.entities.actions.Action;
 import com.game.entities.ai.*;
+import com.game.level.Level;
 import com.util.Side;
-import com.util.visual.AnimationInfo;
 
 import java.awt.*;
 
@@ -14,8 +14,11 @@ import java.awt.*;
 public class EntityEnemy extends EntityLiving {
 
     final int followRange;
+    final Action[] actions;
     private final boolean damagePlayer;
     private final AI ai;
+    private int coolDown = 0;
+    private int attackState = -1;
 
     /**
      * @param x           the x coordinate
@@ -24,7 +27,7 @@ public class EntityEnemy extends EntityLiving {
      * @param followRange the range at which the <code>EntityEnemy</code>
      *                    will follow the <code>EntityPlayer</code>
      */
-    public EntityEnemy(int x, int y, Level level, int followRange) {
+    EntityEnemy(double x, double y, Level level, int followRange) {
         this(x, y, level, new Dimension(20, 27), followRange, true);
     }
 
@@ -37,18 +40,28 @@ public class EntityEnemy extends EntityLiving {
      * @param damagePlayer whether this <code>EntityEnemy</code> should damage
      *                     the <code>EntityPlayer</code> on contact
      */
-    EntityEnemy(int x, int y, Level level, Dimension dim, int followRange, boolean damagePlayer) {
+    EntityEnemy(double x, double y, Level level, Dimension dim, int followRange, boolean damagePlayer) {
 
         super(x, y, dim, level, 10);
 
         maxVelocity = 3;
 
-        this.followRange = entityRandom.nextInt(50) + followRange - 25;
-
+        this.followRange = (entityRandom.nextInt(50) + followRange - 25) * 2;
+        actions = createActions();
         ai = createAI();
 
         this.damagePlayer = damagePlayer;
 
+    }
+
+    private void attack() {
+        if (coolDown == 0) {
+            attackState = 0;
+
+            handler.setAnimationUsed(1);
+
+            coolDown = 7;
+        }
     }
 
     @Override
@@ -57,21 +70,36 @@ public class EntityEnemy extends EntityLiving {
         if (ai.getState() == null) ai.start();
         ai.act();
 
+        if (coolDown > 0) coolDown--;
+
+        if (attackState >= 0) {
+
+            if (attackState < 6) attackState++;
+            else {
+                attackState = -1;
+
+                handler.setAnimationUsed(0);
+            }
+        }
+
         super.onUpdate();
     }
 
     @Override
     public boolean onCollidedWithEntity(Entity other, Side side) {
 
-        double tMotionY = other.motionY;
+        double tMotionY = other.velocity.y;
 
         if (super.onCollidedWithEntity(other, side)) {
 
             if (other instanceof EntityPlayer) {
                 if (side == Side.BOTTOM) {
-                    damage(((EntityPlayer) other).getFallDamage(tMotionY) * 2);
-                    if (onGround) other.motionY = tMotionY - 11;
-                } else if (damagePlayer) ((EntityPlayer) other).damage(1);
+                    damageAbsolute(((EntityPlayer) other).getFallDamage(tMotionY) * 2);
+                    if (onGround) other.velocity.y = tMotionY - 11;
+                } else if (damagePlayer) {
+                    if (attackState == 5) ((EntityPlayer) other).damage(3);
+                    else attack();
+                }
             }
 
             return true;
@@ -80,18 +108,10 @@ public class EntityEnemy extends EntityLiving {
         return false;
     }
 
-    @Override
-    protected AnimationInfo[] createAnimationInfo() {
-        AnimationInfo[] info = new AnimationInfo[1];
-        info[0] = new AnimationInfo("Enemy", 1, 10);
-
-        return info;
-    }
-
     AI createAI() {
 
-        AITest[] tests = {new AIEntityAbove(this, level.player), new AISeeEntity(this, level.player, followRange)};
-        AI[] actions = {new AIFlee(this, level.player, 150), new AIFollow(this, level.player, false)};
+        AITest[] tests = {new AIEntityAbove(this, level.player, 10 * 2), new AIEntityAbove(this, level.player, 15 * 2), new AISeeEntity(this, level.player, followRange)};
+        AI[] actions = {new AIFlee(this, level.player, 150 * 2), new AIIdle(this, -1), new AIFollow(this, level.player, false)};
 
         return new AIRepeat(
                 new AITestAction(
@@ -100,5 +120,9 @@ public class EntityEnemy extends EntityLiving {
                         new AIWander(this)
                 )
         );
+    }
+
+    Action[] createActions() {
+        return new Action[0];
     }
 }
