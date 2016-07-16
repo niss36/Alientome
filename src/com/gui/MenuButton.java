@@ -28,13 +28,14 @@ class MenuButton extends MenuItem implements MouseListener {
 
         super.paintComponent(g);
 
-        int i = focused ? 128 : 64;
+        int i = focused ? 192 : 128;
+        int j = 16;
 
         g.setColor(new Color(i, i, i, i));
-        g.fillRect(0, 0, getWidth(), getHeight());
+        g.fillRoundRect(0, 0, getWidth(), getHeight(), j, j);
 
         g.setColor(Color.black);
-        g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+        g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, j, j);
 
         g.setColor(getForeground());
         g.setFont(font);

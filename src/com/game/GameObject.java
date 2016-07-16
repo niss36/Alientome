@@ -21,7 +21,6 @@ public abstract class GameObject {
      * @param y the y coordinate
      */
     protected GameObject(double x, double y) {
-
         pos = new Vec2(x, y);
     }
 
@@ -41,7 +40,7 @@ public abstract class GameObject {
      * @param min   the relative origin
      * @param debug whether debug info should be drawn
      */
-    public void draw(Graphics g, Point min, boolean debug) {
+    public final void draw(Graphics g, Point min, boolean debug) {
 
         int x = (int) pos.x - min.x;
         int y = (int) pos.y - min.y;
@@ -87,7 +86,7 @@ public abstract class GameObject {
 
     //GETTERS & SETTERS
 
-    public Vec2 getPos() {
+    public final Vec2 getPos() {
         return pos;
     }
 

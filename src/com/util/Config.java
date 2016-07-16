@@ -13,8 +13,7 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import static com.util.Util.closeSilently;
-import static com.util.Util.log;
+import static com.util.Util.*;
 
 public final class Config {
     private static final Config ourInstance = new Config();
@@ -130,8 +129,7 @@ public final class Config {
             Object obj;
             String property = properties.getProperty(name);
 
-            if (name.indexOf("Key.") == 0) {
-
+            if (name.startsWith("Key.")) {
                 obj = keyValue(property, def ? -1 : getInt(name));
             } else if (property.equalsIgnoreCase("true")) obj = true;
             else if (property.equalsIgnoreCase("false")) obj = false;
@@ -187,7 +185,7 @@ public final class Config {
         return properties;
     }
 
-    private int keyValue(String name, int defaultValue) {
+    private Integer keyValue(String name, int defaultValue) {
 
         name = "VK_" + name;
 

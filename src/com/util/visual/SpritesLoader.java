@@ -9,7 +9,6 @@ import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,12 +42,12 @@ public final class SpritesLoader {
         BufferedImage sprite = null;
 
         try (InputStream stream = ClassLoader.getSystemResourceAsStream(path + ".png")) {
-            BufferedImage image = ImageIO.read(stream);
-            if (path.contains("Entity")) {
+            /*BufferedImage image*/sprite = ImageIO.read(stream);
+            /*if (path.contains("Entity")) {
                 sprite = new BufferedImage(image.getWidth() * 2, image.getHeight() * 2, BufferedImage.TYPE_INT_ARGB);
                 Graphics g = sprite.createGraphics();
                 g.drawImage(image, 0, 0, image.getWidth() * 2, image.getHeight() * 2, null);
-            } else sprite = image;
+            } else sprite = image;*/
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -84,31 +83,21 @@ public final class SpritesLoader {
      */
     private static void init(Class<?> caller, AnimationInfo[] info) {
 
-        if (!animations.containsKey(caller)) {
+        Animation[] animations = null;
 
-            Animation[] animations = null;
+        if (info.length > 0) {
 
-            if (info != null && info.length > 0) {
+            animations = new Animation[info.length];
 
-                animations = new Animation[info.length];
+            for (int i = 0; i < info.length; i++) {
 
-                for (int i = 0; i < info.length; i++) {
+                BufferedImage[] sprites = getSpritesAnimated(info[i].directory, info[i].spritesCount);
 
-                    Animation animation = null;
-
-                    if (info[i] != null) {
-
-                        BufferedImage[] sprites = getSpritesAnimated(info[i].directory, info[i].spritesCount);
-
-                        animation = new Animation(sprites, info[i]);
-                    }
-
-                    animations[i] = animation;
-                }
+                animations[i] = new Animation(sprites, info[i]);
             }
-
-            SpritesLoader.animations.put(caller, animations);
         }
+
+        SpritesLoader.animations.put(caller, animations);
     }
 
     /**
