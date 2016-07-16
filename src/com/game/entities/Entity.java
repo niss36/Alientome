@@ -46,9 +46,9 @@ public abstract class Entity extends GameObject implements EntityConstants {
 
         super(x, y);
 
-        this.dim = dim;
+        this.dim = dim;/*
         this.dim.width *= 2;
-        this.dim.height *= 2;
+        this.dim.height *= 2;*/
         this.level = level;
 
         actualizeBoundingBox();

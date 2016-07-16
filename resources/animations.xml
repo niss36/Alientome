@@ -3,7 +3,7 @@
     <!--Entities-->
     <package name="com.game.entities." directory="Entity/">
         <class name="EntityPlayer" subDirectory="Alientome/">
-            <animation path="" spritesCount="2" delay="10"/>
+            <animation path="" spritesCount="2" delay="10" offset="" offsetX="" offsetY=""/>
             <animation path="Charge/" spritesCount="5" delay="10"/>
             <animation path="Charged/" spritesCount="2" delay="10"/>
         </class>

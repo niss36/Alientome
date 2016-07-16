@@ -44,8 +44,8 @@ public class AnimationInfo {
             for (int i = 0; i < spritesCount; i++) {
                 Element sprite = (Element) sprites.item(i);
 
-                offsetsX[i] = getAttributeOrDefault(sprite, "offsetX", offsetXGlobal) * 2;
-                offsetsY[i] = getAttributeOrDefault(sprite, "offsetY", offsetYGlobal) * 2;
+                offsetsX[i] = getAttributeOrDefault(sprite, "offsetX", offsetXGlobal)/* * 2*/;
+                offsetsY[i] = getAttributeOrDefault(sprite, "offsetY", offsetYGlobal)/* * 2*/;
             }
         } else {
             spritesCount = Integer.parseInt(animationNode.getAttribute("spritesCount"));
@@ -55,8 +55,8 @@ public class AnimationInfo {
 
             for (int i = 0; i < spritesCount; i++) {
 
-                offsetsX[i] = offsetXGlobal * 2;
-                offsetsY[i] = offsetYGlobal * 2;
+                offsetsX[i] = offsetXGlobal/* * 2*/;
+                offsetsY[i] = offsetYGlobal/* * 2*/;
             }
         }
 
@@ -66,6 +66,6 @@ public class AnimationInfo {
     private static int getAttributeOrDefault(Element element, String attributeName, int defaultValue) {
 
         String attributeValue = element.getAttribute(attributeName);
-        return !attributeValue.isEmpty() ? Integer.parseInt(attributeValue) : defaultValue;
+        return attributeValue.isEmpty() ? defaultValue : Integer.parseInt(attributeValue);
     }
 }

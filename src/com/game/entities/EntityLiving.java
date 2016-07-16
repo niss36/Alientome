@@ -80,15 +80,13 @@ public abstract class EntityLiving extends Entity {
     }
 
     @Override
-    public void draw(Graphics g, Point min, boolean debug) {
-        super.draw(g, min, debug);
-        drawStatusBars(g, min);
+    protected void draw(Graphics g, int x, int y) {
+        super.draw(g, x, y);
+
+        drawStatusBars(g, x, y);
     }
 
-    private void drawStatusBars(Graphics g, Point min) {
-
-        double x = pos.x - min.x;
-        double y = pos.y - min.y;
+    private void drawStatusBars(Graphics g, int x, int y) {
 
         drawHealthBar(g, x, y);
         drawShieldBar(g, x, y - 6);
@@ -99,14 +97,14 @@ public abstract class EntityLiving extends Entity {
      *
      * @param g the <code>Graphics</code> to draw with
      */
-    private void drawHealthBar(Graphics g, double x, double y) {
+    private void drawHealthBar(Graphics g, int x, int y) {
 
         if (health <= 0) return;
 
         g.setColor(Color.black);
-        g.fillRect((int) x - 5, (int) y - 10, 30, 6);
+        g.fillRect(x - 5, y - 10, 30, 6);
 
-        g.drawImage(iconHealth, (int) x - 11, (int) y - 10, null);
+        g.drawImage(iconHealth, x - 11, y - 10, null);
 
         float percentHP = health / maxHealth;
 
@@ -115,20 +113,20 @@ public abstract class EntityLiving extends Entity {
         else if (percentHP >= 0.5) g.setColor(Color.yellow);
         else if (percentHP >= 0) g.setColor(Color.red);
 
-        g.fillRect((int) x - 4, (int) y - 9, (int) (percentHP * 28), 4);
+        g.fillRect(x - 4, y - 9, (int) (percentHP * 28), 4);
     }
 
-    private void drawShieldBar(Graphics g, double x, double y) {
+    private void drawShieldBar(Graphics g, int x, int y) {
 
         if (shield == null || shield.percentValue() <= 0) return;
 
         g.setColor(Color.black);
-        g.fillRect((int) x - 5, (int) y - 10, 30, 6);
+        g.fillRect(x - 5, y - 10, 30, 6);
 
-        g.drawImage(iconShield, (int) x - 11, (int) y - 10, null);
+        g.drawImage(iconShield, x - 11, y - 10, null);
 
         g.setColor(Color.blue);
-        g.fillRect((int) x - 4, (int) y - 9, (int) (shield.percentValue() * 28), 4);
+        g.fillRect(x - 4, y - 9, (int) (shield.percentValue() * 28), 4);
     }
 
     /**
