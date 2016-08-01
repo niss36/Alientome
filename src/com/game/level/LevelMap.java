@@ -50,6 +50,14 @@ public final class LevelMap {
         return (!checkBounds || checkBounds(x, y)) ? blocks[x][y] : Block.create(x, y, Block.VOID);
     }
 
+    public Block getBlock(int x, int y) {
+        return getBlock(x, y, true);
+    }
+
+    public Block getBlockAbsCoordinates(double x, double y) {
+        return getBlock((int) (x / Block.width), (int) (y / Block.width));
+    }
+
     /**
      * @param x the x coordinate
      * @param y the y coordinate

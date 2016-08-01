@@ -8,14 +8,16 @@ import com.util.listeners.SaveListener;
 import javax.swing.*;
 import java.awt.*;
 
-public class MenuSavePanel extends JPanel implements SaveListener {
+import static com.util.Util.log;
+
+class MenuSavePanel extends JPanel implements SaveListener {
 
     private final int saveIndex;
     private final MenuButton buttonSave;
     private final MenuButton buttonDelete;
     private int prevLevelID = -1;
 
-    public MenuSavePanel(Dimension buttonSaveDimension, Dimension buttonDeleteDimension, Font font, int saveIndex) {
+    MenuSavePanel(Dimension buttonSaveDimension, Dimension buttonDeleteDimension, Font font, int saveIndex) {
 
         this.saveIndex = saveIndex;
 
@@ -34,7 +36,9 @@ public class MenuSavePanel extends JPanel implements SaveListener {
         buttonDelete = new MenuButton("X", buttonDeleteDimension, font);
         buttonDelete.addActionListener(e -> {
             int action = new ConfirmDialog(Frame.getInstance(), "Delete this save ?").showDialog();
-            if (action == ConfirmDialog.ACCEPT) LevelSaveManager.getInstance().deleteSaveFile(saveIndex);
+            if (action == ConfirmDialog.ACCEPT)
+                if (!LevelSaveManager.getInstance().deleteSaveFile(saveIndex))
+                    log("An error occurred while deleting this save", 2);
         });
 
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));

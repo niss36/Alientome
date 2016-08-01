@@ -3,6 +3,7 @@ package com.util;
 import javax.swing.*;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -25,34 +26,57 @@ public final class Util {
         String msgLevel = "[" + messageLevel[level] + "]";
         String thread = "[" + Thread.currentThread().getName() + "]";
 
+        PrintStream stream = level >= 2 ? System.err : System.out;
+
+        stream.println(timestamp + thread + msgLevel + message);
+
         if (level >= 2) {
-            System.err.println(timestamp + thread + msgLevel + message);
             JOptionPane.showMessageDialog(null, message, msgLevel, JOptionPane.ERROR_MESSAGE);
 
             if (level == 3) System.exit(-1);
 
-        } else System.out.println(timestamp + thread + msgLevel + message);
+        }
     }
 
-    public static void closeSilently(Closeable stream) {
+    public static void closeSilently(Closeable closeable) {
 
         try {
-            stream.close();
+            closeable.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static double combineVelocities(double velocityA, double velocityB) {
+    /**
+     * Method used to decrease velocity, that is, make it closer to zero.
+     *
+     * @param toDecrease the number to be decreased.
+     * @param value      the amount to decrease.
+     * @return If <code>toDecrease==0</code> 0 else <code>toDecrease</code> closer to 0 by <code>value</code>.
+     */
+    public static double decrease(double toDecrease, double value) {
+        return toDecrease < 0 ? toDecrease + value : toDecrease > 0 ? toDecrease - value : 0;
+    }
 
-        int sigA = (int) Math.signum(velocityA);
-        int sigB = (int) Math.signum(velocityB);
+    /**
+     * Method used to decrease a vector representing velocity.
+     *
+     * @param vec   the <code>Vec2</code> to be decreased.
+     * @param value the amount to decrease.
+     */
+    public static void decrease(Vec2 vec, double value) {
 
-        if (sigA != 0 && sigB != 0 && sigA != sigB) return velocityA + velocityB;
+        vec.x = decrease(vec.x, value);
+        vec.y = decrease(vec.y, value);
+    }
 
-        double absA = Math.abs(velocityA);
-        double absB = Math.abs(velocityB);
+    public static int center(double length1, double length2) {
 
-        return Math.max(absA, absB);
+        return (int) (length1 / 2 - length2 / 2);
+    }
+
+    public static double clamp(double value, double minVal, double maxVal) {
+
+        return value < minVal ? minVal : value > maxVal ? maxVal : value;
     }
 }

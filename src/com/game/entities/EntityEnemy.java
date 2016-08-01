@@ -46,7 +46,7 @@ public class EntityEnemy extends EntityLiving {
 
         maxVelocity = 3;
 
-        this.followRange = (entityRandom.nextInt(50) + followRange - 25)/* * 2*/;
+        this.followRange = (entityRandom.nextInt(50) + followRange - 25);
         actions = createActions();
         ai = createAI();
 
@@ -110,8 +110,8 @@ public class EntityEnemy extends EntityLiving {
 
     AI createAI() {
 
-        AITest[] tests = {new AIEntityAbove(this, level.player, 10/* * 2*/), new AIEntityAbove(this, level.player, 15/* * 2*/), new AISeeEntity(this, level.player, followRange)};
-        AI[] actions = {new AIFlee(this, level.player, 150/* * 2*/), new AIIdle(this, -1), new AIFollow(this, level.player, false)};
+        AITest[] tests = {new AIEntityAbove(this, level.player, 10), new AIEntityAbove(this, level.player, 15), new AISeeEntity(this, level.player, followRange)};
+        AI[] actions = {new AIFlee(this, level.player, 150), new AIIdle(this, -1), new AIFollow(this, level.player, false)};
 
         return new AIRepeat(
                 new AITestAction(

@@ -11,7 +11,7 @@ import com.game.level.LevelUtils;
 public class AISeeEntity extends AITest {
 
     private final Entity lookingFor;
-    private final int range;
+    private final int rangeSq;
 
     /**
      * @param entity     the target <code>Entity</code>
@@ -22,7 +22,7 @@ public class AISeeEntity extends AITest {
         super(entity);
 
         this.lookingFor = lookingFor;
-        this.range = range;
+        this.rangeSq = range * range;
     }
 
     @Override
@@ -30,10 +30,9 @@ public class AISeeEntity extends AITest {
         if (entity.isDead()) fail();
         else if (lookingFor.isDead()) fail();
 
-        else if (entity.distanceTo(lookingFor) > range) fail();
+        else if (entity.distanceSqTo(lookingFor) > rangeSq) fail();
 
-        else if (/*entity.level.canSeeEntity(entity, lookingFor)*/LevelUtils.canSeeEntity(entity, lookingFor))
-            succeed();
+        else if (LevelUtils.canSeeEntity(entity, lookingFor)) succeed();
         else fail();
     }
 

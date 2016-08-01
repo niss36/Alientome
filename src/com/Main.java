@@ -17,8 +17,6 @@ public class Main {
 
         Frame.getInstance().setVisible(true);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Config.getInstance().save();
-        }, "main"));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> Config.getInstance().save(), "main"));
     }
 }

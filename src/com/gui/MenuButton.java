@@ -12,14 +12,13 @@ class MenuButton extends MenuItem implements MouseListener {
     private final ArrayList<ActionListener> listeners = new ArrayList<>();
     private boolean focused;
 
-    public MenuButton(String text, Dimension dimension) {
+    MenuButton(String text, Dimension dimension) {
         this(text, dimension, null);
     }
 
-    public MenuButton(String text, Dimension dimension, Font font) {
+    MenuButton(String text, Dimension dimension, Font font) {
         super(text, dimension, font);
 
-        enableInputMethods(true);
         addMouseListener(this);
     }
 
@@ -28,17 +27,18 @@ class MenuButton extends MenuItem implements MouseListener {
 
         super.paintComponent(g);
 
-        int i = focused ? 192 : 128;
-        int j = 16;
+        FontMetrics metrics = g.getFontMetrics();
 
-        g.setColor(new Color(i, i, i, i));
-        g.fillRoundRect(0, 0, getWidth(), getHeight(), j, j);
+        int bgColor = focused ? 192 : 128;
+        int borderRadius = 16;
+
+        g.setColor(new Color(bgColor, bgColor, bgColor, bgColor));
+        g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, borderRadius, borderRadius);
 
         g.setColor(Color.black);
-        g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, j, j);
+        g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, borderRadius, borderRadius);
 
         g.setColor(getForeground());
-        g.setFont(font);
 
         int x = (getWidth() - metrics.stringWidth(getText())) / 2;
         int y = (getHeight() - metrics.getHeight()) / 2 + metrics.getAscent();
@@ -46,7 +46,7 @@ class MenuButton extends MenuItem implements MouseListener {
         g.drawString(getText(), x, y);
     }
 
-    public void doClick() {
+    void doClick() {
         notifyListeners();
     }
 
@@ -75,7 +75,7 @@ class MenuButton extends MenuItem implements MouseListener {
         repaint();
     }
 
-    public void addActionListener(ActionListener listener) {
+    void addActionListener(ActionListener listener) {
         listeners.add(listener);
     }
 

@@ -42,12 +42,7 @@ public final class SpritesLoader {
         BufferedImage sprite = null;
 
         try (InputStream stream = ClassLoader.getSystemResourceAsStream(path + ".png")) {
-            /*BufferedImage image*/sprite = ImageIO.read(stream);
-            /*if (path.contains("Entity")) {
-                sprite = new BufferedImage(image.getWidth() * 2, image.getHeight() * 2, BufferedImage.TYPE_INT_ARGB);
-                Graphics g = sprite.createGraphics();
-                g.drawImage(image, 0, 0, image.getWidth() * 2, image.getHeight() * 2, null);
-            } else sprite = image;*/
+            sprite = ImageIO.read(stream);
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
         }

@@ -111,35 +111,34 @@ public abstract class Block extends GameObject implements BlockConstants {
      */
     public abstract byte getIndex();
 
-    /**
-     * Abstract method to create the info necessary to animation loading.
-     *
-     * @return an <code>AnimationInfo</code> containing the info for this <code>Block</code>'s animation
-     */
-//    protected abstract AnimationInfo createAnimationInfo();
+    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     protected AxisAlignedBB boundingBox() {
-        return new AxisAlignedBB(pos.x, pos.y, pos.x + width, pos.y + width);
+        return new AxisAlignedBB(pos, width, width);
+    }
+
+    @Override
+    public boolean canBeCollidedWith() {
+        return isOpaque();
     }
 
     @Override
     protected void draw(Graphics g, int x, int y) {
 
-        /*animation.draw(g, x, y);*/
         handler.draw(g, x, y);
     }
 
     @Override
-    protected void drawDebug(Graphics g, Point min) {
+    protected void drawDebug(Graphics g, Point origin) {
 
-        int x = (int) pos.x - min.x;
-        int y = (int) pos.y - min.y;
+        int x = (int) pos.x - origin.x;
+        int y = (int) pos.y - origin.y;
 
         g.setColor(Color.red);
 
         g.drawString("" + getIndex(), x + 2, y + 12);
 
-        boundingBox.draw(g, min);
+        boundingBox.draw(g, origin);
     }
 
     @Override
@@ -149,10 +148,10 @@ public abstract class Block extends GameObject implements BlockConstants {
     }
 
     @Override
-    protected void drawSpecial(Graphics g, Point min) {
+    protected void drawSpecial(Graphics g, Point origin) {
         if (!isTransparent()) {
             g.setColor(Color.black);
-            boundingBox.fill(g, min);
+            boundingBox.fill(g, origin);
         }
     }
 }

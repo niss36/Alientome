@@ -107,6 +107,8 @@ class Cell {
             // Fix 'ghost' dead entity
             if (entity0.isDead()) {
                 objects.remove(entity0);
+                // Since an object was removed, next element is at index i (Instead of i + 1)
+                i--;
                 continue;
             }
 

@@ -34,21 +34,26 @@ public abstract class GameObject {
     protected abstract AxisAlignedBB boundingBox();
 
     /**
+     * @return whether this <code>GameObject</code> should collide with other objects when they intersect
+     */
+    public abstract boolean canBeCollidedWith();
+
+    /**
      * Draw this <code>GameObject</code> using the supplied <code>Graphics</code>
      *
-     * @param g     the <code>Graphics</code> to draw with
-     * @param min   the relative origin
-     * @param debug whether debug info should be drawn
+     * @param g      the <code>Graphics</code> to draw with
+     * @param origin the relative origin
+     * @param debug  whether debug info should be drawn
      */
-    public final void draw(Graphics g, Point min, boolean debug) {
+    public final void draw(Graphics g, Point origin, boolean debug) {
 
-        int x = (int) pos.x - min.x;
-        int y = (int) pos.y - min.y;
+        int x = (int) pos.x - origin.x;
+        int y = (int) pos.y - origin.y;
 
         if (drawCondition()) draw(g, x, y);
-        else drawSpecial(g, min);
+        else drawSpecial(g, origin);
 
-        if (debug) drawDebug(g, min);
+        if (debug) drawDebug(g, origin);
     }
 
     /**
@@ -63,10 +68,10 @@ public abstract class GameObject {
     /**
      * Draws this <code>GameObject</code>'s debug info. Called only in debug mode.
      *
-     * @param g   the <code>Graphics</code> to draw with
-     * @param min the relative origin
+     * @param g      the <code>Graphics</code> to draw with
+     * @param origin the relative origin
      */
-    protected abstract void drawDebug(Graphics g, Point min);
+    protected abstract void drawDebug(Graphics g, Point origin);
 
     /**
      * @return whether the normal drawing process should happen.
@@ -79,12 +84,12 @@ public abstract class GameObject {
      * Draw this <code>GameObject</code> using the supplied <code>Graphics</code>,
      * in the case it cannot be drawn normally
      *
-     * @param g   the <code>Graphics</code> to draw with
-     * @param min the relative origin
+     * @param g      the <code>Graphics</code> to draw with
+     * @param origin the relative origin
      */
-    protected abstract void drawSpecial(Graphics g, Point min);
+    protected abstract void drawSpecial(Graphics g, Point origin);
 
-    //GETTERS & SETTERS
+    //GETTERS
 
     public final Vec2 getPos() {
         return pos;
@@ -92,13 +97,5 @@ public abstract class GameObject {
 
     public final AxisAlignedBB getBoundingBox() {
         return boundingBox;
-    }
-
-    /**
-     * @return a new <code>Vec2d</code> containing this <code>GameObject</code>'s coordinates
-     */
-    public final Vec2 getPosVec() {
-
-        return new Vec2(pos);
     }
 }

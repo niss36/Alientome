@@ -54,6 +54,13 @@ public abstract class EntityLiving extends Entity {
     }
 
     @Override
+    protected void draw(Graphics g, int x, int y) {
+        super.draw(g, x, y);
+
+        drawStatusBars(g, x, y);
+    }
+
+    @Override
     public boolean onCollidedWithBlock(Block block, CollisionPoint collisionPoint) {
 
         double tMotionY = velocity.y;
@@ -77,13 +84,6 @@ public abstract class EntityLiving extends Entity {
     protected void notifyCollision(Entity other, Side side) {
 
         if (other instanceof EntityProjectile) damage(((EntityProjectile) other).damage);
-    }
-
-    @Override
-    protected void draw(Graphics g, int x, int y) {
-        super.draw(g, x, y);
-
-        drawStatusBars(g, x, y);
     }
 
     private void drawStatusBars(Graphics g, int x, int y) {

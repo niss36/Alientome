@@ -13,7 +13,8 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import static com.util.Util.*;
+import static com.util.Util.closeSilently;
+import static com.util.Util.log;
 
 public final class Config {
     private static final Config ourInstance = new Config();

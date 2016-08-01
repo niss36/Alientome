@@ -3,7 +3,7 @@ package com.util.visual;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class AnimationInfo {
+class AnimationInfo {
 
     final String directory;
     final int spritesCount;
@@ -44,8 +44,8 @@ public class AnimationInfo {
             for (int i = 0; i < spritesCount; i++) {
                 Element sprite = (Element) sprites.item(i);
 
-                offsetsX[i] = getAttributeOrDefault(sprite, "offsetX", offsetXGlobal)/* * 2*/;
-                offsetsY[i] = getAttributeOrDefault(sprite, "offsetY", offsetYGlobal)/* * 2*/;
+                offsetsX[i] = getAttributeOrDefault(sprite, "offsetX", offsetXGlobal);
+                offsetsY[i] = getAttributeOrDefault(sprite, "offsetY", offsetYGlobal);
             }
         } else {
             spritesCount = Integer.parseInt(animationNode.getAttribute("spritesCount"));
@@ -55,8 +55,8 @@ public class AnimationInfo {
 
             for (int i = 0; i < spritesCount; i++) {
 
-                offsetsX[i] = offsetXGlobal/* * 2*/;
-                offsetsY[i] = offsetYGlobal/* * 2*/;
+                offsetsX[i] = offsetXGlobal;
+                offsetsY[i] = offsetYGlobal;
             }
         }
 

@@ -15,7 +15,6 @@ public class ConfirmDialog extends JDialog {
         setSize(480, 200);
         setLocationRelativeTo(owner);
         setResizable(false);
-//        setUndecorated(true);
 
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
@@ -46,10 +45,7 @@ public class ConfirmDialog extends JDialog {
         content.add(choices);
         content.add(Box.createVerticalGlue());
 
-        setContentPane(content);/*
-        getRootPane().setOpaque(false);
-        getContentPane().setBackground (new Color (0, 0, 0, 0));
-        setBackground(new Color (0, 0, 0, 0));*/
+        setContentPane(content);
     }
 
     public int showDialog() {

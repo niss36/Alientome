@@ -19,8 +19,7 @@ class MenuLabel extends MenuItem {
 
         super.paintComponent(g);
 
-        g.setColor(getForeground());
-        g.setFont(font);
+        FontMetrics metrics = g.getFontMetrics();
 
         int x;
         int y = (getHeight() - metrics.getHeight()) / 2 + metrics.getAscent();
