@@ -1,6 +1,5 @@
 package com.game.entities.ai;
 
-import com.game.blocks.Block;
 import com.game.entities.Entity;
 import com.game.level.LevelMap;
 import com.util.Direction;
@@ -9,7 +8,7 @@ public class AIFlee extends AI {
 
     private final Entity fleeing;
 
-    private final int fleeRange;
+    private final int fleeRangeSq;
 
     /**
      * @param entity    the target <code>Entity</code>
@@ -20,7 +19,7 @@ public class AIFlee extends AI {
         super(entity);
 
         this.fleeing = fleeing;
-        this.fleeRange = fleeRange;
+        this.fleeRangeSq = fleeRange * fleeRange;
     }
 
     @Override
@@ -32,7 +31,7 @@ public class AIFlee extends AI {
 
             else if (fleeing.isDead()) succeed();
 
-            else if (entity.distanceTo(fleeing) <= fleeRange) {
+            else if (entity.distanceSqTo(fleeing) <= fleeRangeSq) {
 
                 if (fleeing.getPos().x > entity.getPos().x) entity.move(Direction.LEFT);
                 else if (fleeing.getPos().x < entity.getPos().x) entity.move(Direction.RIGHT);
@@ -48,12 +47,15 @@ public class AIFlee extends AI {
 
     private void avoidObstacles() {
 
+        //TODO deal with duplicated code
+
         if (entity.collidedX && entity.lastCollidedWith != fleeing) entity.jump();
 
         else if (fleeing.getPos().y <= entity.getPos().y) {
 
-            boolean b = LevelMap.getInstance().getBlock((int) ((entity.getPos().x + entity.dim.width / 2 + entity.getVelocity().x) / Block.width),
-                    (int) ((entity.getPos().y + entity.dim.height + 1) / Block.width), true).isOpaque();
+            boolean b = LevelMap.getInstance().getBlockAbsCoordinates(
+                    entity.getPos().x + entity.dim.width / 2 + entity.getVelocity().x,
+                    entity.getPos().y + entity.dim.height + 1).isOpaque();
 
             if (!b) entity.jump();
         }

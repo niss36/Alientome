@@ -186,7 +186,7 @@ public class Tree {
                             .filter(object ->
                                     type.isInstance(object) &&
                                             !objects.contains(object) &&
-                                            object.getPosVec().distanceSq(x, y) <= rangeSq)
+                                            object.getPos().distanceSq(x, y) <= rangeSq)
                             .forEach(objects::add);
                 }
             }

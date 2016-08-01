@@ -10,28 +10,29 @@ import com.util.visual.AnimationsHandler;
 import java.awt.*;
 import java.util.Random;
 
+import static com.util.Util.clamp;
+import static com.util.Util.decrease;
+
 /**
  * The <code>Entity</code> class is used to represent non-<code>Block</code> objects in the <code>Level</code>.
  */
 public abstract class Entity extends GameObject implements EntityConstants {
 
-    private static int blockWidth;
+    private static final Vec2 gravity = new Vec2(0, 1);
     public final Dimension dim;
     public final Level level;
     final Random entityRandom = new Random();
     final AnimationsHandler handler;
     final Vec2 velocity = new Vec2(0, 0);
+    private final Vec2 acceleration = new Vec2(0, 0);
     public boolean collidedX;
     public boolean collidedY;
     public GameObject lastCollidedWith;
     boolean onGround;
-    Vec2 acceleration = new Vec2(0, 0);
     double maxVelocity = 5d;
     Block blockIn;
-    boolean gravity = true;
     Direction facing = Direction.RIGHT;
     private Vec2 prevPos;
-    private boolean collide = true;
     private boolean dead = false;
 
     /**
@@ -46,14 +47,10 @@ public abstract class Entity extends GameObject implements EntityConstants {
 
         super(x, y);
 
-        this.dim = dim;/*
-        this.dim.width *= 2;
-        this.dim.height *= 2;*/
+        this.dim = dim;
         this.level = level;
 
         actualizeBoundingBox();
-
-        blockWidth = Block.width;
 
         handler = new AnimationsHandler(getClass());
     }
@@ -97,29 +94,12 @@ public abstract class Entity extends GameObject implements EntityConstants {
                 return null;
         }
 
-        double x0 = x * blockWidth + blockWidth / 2 - entity.dim.width / 2;
-        double y0 = y * blockWidth + blockWidth - entity.dim.height;
+        double x0 = x * Block.width + Block.width / 2 - entity.dim.width / 2;
+        double y0 = y * Block.width + Block.width - entity.dim.height;
 
         entity.pos.set(x0, y0);
 
         return entity;
-    }
-
-    /**
-     * Private method used to decrease motion.
-     *
-     * @param d     the number to decrease.
-     * @param value the amount to decrease.
-     * @return If <code>d==0</code> 0 else <code>d</code> closer to 0 by <code>value</code>.
-     */
-    private static double decrease(double d, double value) {
-        return d < 0 ? d + value : d > 0 ? d - value : 0;
-    }
-
-    private static void decrease(Vec2 vec, double value) {
-
-        vec.x = decrease(vec.x, value);
-        vec.y = decrease(vec.y, value);
     }
 
     /**
@@ -132,7 +112,18 @@ public abstract class Entity extends GameObject implements EntityConstants {
 
             if (prevPos == null) prevPos = new Vec2(pos);
 
-            if (collide) {
+            // 1: Apply external forces.
+            velocity.add(acceleration); //Gathered from method move
+            acceleration.set(0, 0);
+
+            decrease(velocity, 0.5d); // Pseudo-friction
+
+            velocity.x = clamp(velocity.x, -maxVelocity, maxVelocity); //Ensure entities don't move too fast due to continuous acceleration
+
+            if (isAffectedByGravity() && !onGround) velocity.add(gravity); // Gravity
+
+            // 2: Resolve collisions
+            if (canBeCollidedWith()) {
 
                 collidedY = false;
                 collidedX = false;
@@ -145,7 +136,7 @@ public abstract class Entity extends GameObject implements EntityConstants {
 
                     for (int j = -1; j < 2; j++) {
 
-                        Block b = LevelMap.getInstance().getBlock(blockIn.blockX + i, blockIn.blockY + j, true);
+                        Block b = LevelMap.getInstance().getBlock(blockIn.blockX + i, blockIn.blockY + j);
 
                         CollisionPoint cp = b.getBoundingBox().processCollision(getNextBoundingBox());
 
@@ -157,28 +148,21 @@ public abstract class Entity extends GameObject implements EntityConstants {
                     }
                 }
 
-                if (gravity) {
+                if (isAffectedByGravity()) {
                     onGround = false;
 
                     for (int i = 0; i < 2; i++) {
 
-                        Block b = LevelMap.getInstance().getBlock((int) (pos.x / blockWidth) + i, (int) (pos.y + dim.height) / blockWidth, true);
+                        Block b = LevelMap.getInstance().getBlock((int) (pos.x / Block.width) + i, (int) (pos.y + dim.height) / Block.width);
 
                         onGround = b.isOpaque() && b.getBoundingBox().intersects(boundingBox.offset(0, 1)) || onGround;
                     }
                 }
 
-                if (!collidedX) pos.x += velocity.x;
-                if (!collidedY) pos.y += velocity.y;
-
-            } else {
-
-                pos.add(velocity);
             }
 
-            if (gravity && !onGround) move(Direction.DOWN);
-
-            decrease(velocity, 0.5d);
+            // 3: Integrate velocity into position
+            pos.add(velocity);
 
             blockIn = blockIn();
             actualizeBoundingBox();
@@ -194,27 +178,29 @@ public abstract class Entity extends GameObject implements EntityConstants {
      * @return the current <code>Block</code> this <code>Entity</code> is in.
      */
     private Block blockIn() {
-
-        return LevelMap.getInstance().getBlock((int) ((pos.x + dim.width / 2) / blockWidth), (int) ((pos.y + dim.height / 2) / blockWidth), true);
+        return LevelMap.getInstance().getBlockAbsCoordinates(pos.x + dim.width / 2, pos.y + dim.height / 2);
     }
 
     @Override
     protected AxisAlignedBB boundingBox() {
+        return new AxisAlignedBB(pos, dim.width, dim.height);
+    }
 
-        return new AxisAlignedBB(pos.x, pos.y, pos.x + dim.width, pos.y + dim.height);
+    @Override
+    public boolean canBeCollidedWith() {
+        return true;
     }
 
     protected void draw(Graphics g, int x, int y) {
-
         handler.draw(g, x, y, facing);
     }
 
     @Override
-    protected void drawDebug(Graphics g, Point min) {
+    protected void drawDebug(Graphics g, Point origin) {
 
         g.setColor(Color.red);
 
-        boundingBox.draw(g, min);
+        boundingBox.draw(g, origin);
     }
 
     @Override
@@ -223,17 +209,21 @@ public abstract class Entity extends GameObject implements EntityConstants {
     }
 
     @Override
-    protected void drawSpecial(Graphics g, Point min) {
+    protected void drawSpecial(Graphics g, Point origin) {
 
         g.setColor(Color.black);
 
-        boundingBox.fill(g, min);
+        boundingBox.fill(g, origin);
+    }
+
+    boolean isAffectedByGravity() {
+        return true;
     }
 
     /**
      * Set this <code>Entity</code> dead. It will be deleted next call to <code>onUpdate()</code>.
      */
-    void setDead() {
+    final void setDead() {
         dead = true;
     }
 
@@ -253,7 +243,9 @@ public abstract class Entity extends GameObject implements EntityConstants {
      */
     boolean onCollidedWithBlock(Block block, CollisionPoint collisionPoint) {
 
-        if (collisionPoint != null && block.isOpaque()) {
+        assert canBeCollidedWith();
+
+        if (collisionPoint != null && block.canBeCollidedWith()) {
 
             switch (collisionPoint.getCollisionSide()) {
 
@@ -299,7 +291,7 @@ public abstract class Entity extends GameObject implements EntityConstants {
      */
     public boolean onCollidedWithEntity(Entity other, Side side) {
 
-        if (collide && other.collide && side != null && !(other instanceof EntityProjectile)) {
+        if (canBeCollidedWith() && other.canBeCollidedWith() && side != null && !(other instanceof EntityProjectile)) {
             //side is relative to other entity
             switch (side) {
                 case TOP: //On the top of the other entity
@@ -339,7 +331,7 @@ public abstract class Entity extends GameObject implements EntityConstants {
      *
      * @param other the <code>Entity</code> collided with
      * @param side  the <code>Side</code> of the collision
-     * @see this.onCollidedWithEntity
+     * @see #onCollidedWithEntity(Entity, Side)
      */
     protected abstract void notifyCollision(Entity other, Side side);
 
@@ -367,16 +359,14 @@ public abstract class Entity extends GameObject implements EntityConstants {
                 if (!onGround) velocity.y += value;
                 break;
             case RIGHT:
-                velocity.x += value;
+                acceleration.x += value;
                 facing = direction;
                 break;
             case LEFT:
-                velocity.x -= value;
+                acceleration.x -= value;
                 facing = direction;
                 break;
         }
-
-        velocity.x = velocity.x < -maxVelocity ? -maxVelocity : velocity.x > maxVelocity ? maxVelocity : velocity.x;
     }
 
     /**
@@ -387,19 +377,19 @@ public abstract class Entity extends GameObject implements EntityConstants {
     }
 
     /**
-     * Abstract method to create the info necessary to animations loading.
-     *
-     * @return an <code>AnimationInfo</code> array containing one element per distinct animation
-     * for this <code>Entity</code>
-     */
-//    protected abstract AnimationInfo[] createAnimationInfo();
-
-    /**
      * @param other the <code>Entity</code> to get the distance to
      * @return the euclidean distance from this to the other <code>Entity</code>
      */
     public final double distanceTo(Entity other) {
-        return getPosVec().distance(other.getPosVec());
+        return getPos().distance(other.getPos());
+    }
+
+    /**
+     * @param other the <code>Entity</code> to get the distance to
+     * @return the squared euclidean distance from this <code>Entity</code> to the other <code>Entity</code>
+     */
+    public final double distanceSqTo(Entity other) {
+        return getPos().distanceSq(other.getPos());
     }
 
     /**

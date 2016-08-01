@@ -41,14 +41,14 @@ public class EntityPlayer extends EntityLiving {
     }
 
     @Override
-    protected void drawDebug(Graphics g, Point min) {
-        super.drawDebug(g, min);
+    protected void drawDebug(Graphics g, Point origin) {
+        super.drawDebug(g, origin);
 
-        if (Config.getInstance().getBoolean("Debug.ShowBlockIn")) {
+        if (Config.getInstance().getBoolean("Debug.ShowBlockIn") && blockIn != null) {
 
             Color c = g.getColor();
             g.setColor(new Color(255, 0, 0, 100));
-            blockIn.getBoundingBox().fill(g, min);
+            blockIn.getBoundingBox().fill(g, origin);
             g.setColor(c);
         }
     }

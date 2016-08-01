@@ -24,8 +24,6 @@ public class EntityGhostBall extends EntityProjectile {
 
         maxVelocity = big ? 7 : 10;
 
-        gravity = false;
-
         if (big) handler.setAnimationUsed(1);
         else handler.setAnimationUsed(0);
     }
@@ -41,6 +39,11 @@ public class EntityGhostBall extends EntityProjectile {
     @Override
     protected void draw(Graphics g, int x, int y) {
         super.draw(g, x - (facing == Direction.LEFT ? 0 : dim.width), y);
+    }
+
+    @Override
+    boolean isAffectedByGravity() {
+        return false;
     }
 
     @Override

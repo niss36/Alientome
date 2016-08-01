@@ -2,10 +2,8 @@ package com.game.level;
 
 import com.game.blocks.Block;
 import com.game.entities.Entity;
-import com.gui.Frame;
 import com.util.Line;
 
-import java.awt.*;
 import java.awt.geom.Point2D;
 
 /**
@@ -28,12 +26,12 @@ public final class LevelUtils {
      */
     public static boolean canSeeEntity(Entity entity, Entity other) {
 
-        Point2D.Double point = new Point2D.Double(entity.getPos().x + entity.dim.width / 2, entity.getPos().y);
-        Point2D.Double point1 = new Point2D.Double(other.getPos().x + other.dim.width / 2, other.getPos().y);
+        Point2D.Double point = new Point2D.Double(entity.getPos().x + entity.dim.getWidth() / 2, entity.getPos().y);
+        Point2D.Double point1 = new Point2D.Double(other.getPos().x + other.dim.getWidth() / 2, other.getPos().y);
 
         Line line = new Line(point, point1);
 
-        Frame.getInstance().panelGame.add(line);
+        Level.getInstance().addLine(line);
 
         Block[] blocksLine = line(point, point1);
 
@@ -54,8 +52,8 @@ public final class LevelUtils {
     }
 
     //Linear interpolation for Points
-    private static Point lERPPoint(Point2D.Double point, Point2D.Double point1, double t) {
-        return new Point((int) lERP(point.x, point1.x, t), (int) lERP(point.y, point1.y, t));
+    private static Point2D.Double lERPPoint(Point2D.Double point, Point2D.Double point1, double t) {
+        return new Point2D.Double(lERP(point.x, point1.x, t), lERP(point.y, point1.y, t));
     }
 
     /**
@@ -84,9 +82,9 @@ public final class LevelUtils {
         for (int i = 0; i < n; i++) {
             double t = (double) i / n;
 
-            Point p = lERPPoint(point, point1, t);
+            Point2D.Double p = lERPPoint(point, point1, t);
 
-            tiles[i] = LevelMap.getInstance().getBlock(p.x / Block.width, p.y / Block.width, true);
+            tiles[i] = LevelMap.getInstance().getBlockAbsCoordinates(p.x, p.y);
         }
         return tiles;
     }

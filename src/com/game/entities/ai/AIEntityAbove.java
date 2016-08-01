@@ -30,7 +30,7 @@ public class AIEntityAbove extends AITest {
             else if (other.isDead()) fail();
 
             else if (entity.getPos().y + entity.dim.height > other.getPos().y + other.dim.height
-                    && Math.abs(entity.getPos().x - other.getPos().x) <= 40/* * 2*/
+                    && Math.abs(entity.getPos().x - other.getPos().x) <= 40
                     && LevelUtils.canSeeEntity(entity, other)) {
 
                 AxisAlignedBB expanded = other.getNextBoundingBox().expand(horizontalTolerance, 300);

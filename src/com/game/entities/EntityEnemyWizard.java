@@ -17,16 +17,6 @@ class EntityEnemyWizard extends EntityEnemy {
         super(x, y, level, new Dimension(19, 28), followRange, false);
     }
 
-    /*@Override
-    protected AnimationInfo[] createAnimationInfo() {
-        AnimationInfo[] info = new AnimationInfo[3];
-        info[0] = new AnimationInfo("Entity/EnemyWizard", 10, 5);
-        info[2] = new AnimationInfo("Entity/EnemyWizard/Attack", 6, 7);
-        info[1] = new AnimationInfo("Entity/EnemyWizard/Heal", 6, 7);
-
-        return info;
-    }*/
-
     @Override
     AI createAI() {
 
@@ -100,17 +90,18 @@ class EntityEnemyWizard extends EntityEnemy {
                         this),
                 EntityEnemy.class, 300);*/
 
-        actions[1] = new ActionTargeted(new Action() {
-            @Override
-            public boolean shouldAct() {
-                return false;
-            }
+        actions[1] =
+                new ActionTargeted(new Action() {
+                    @Override
+                    public boolean shouldAct() {
+                        return false;
+                    }
 
-            @Override
-            public void act(GameObject object) {
-                ((EntityLiving) object).addShield(10);
-            }
-        }, this);
+                    @Override
+                    public void act(GameObject object) {
+                        ((EntityLiving) object).addShield(10);
+                    }
+                }, this);
 
         return actions;
     }

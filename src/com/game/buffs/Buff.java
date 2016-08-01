@@ -3,7 +3,6 @@ package com.game.buffs;
 import com.game.GameObject;
 import com.game.blocks.Block;
 import com.game.entities.Entity;
-import com.game.level.Level;
 import com.util.AxisAlignedBB;
 import com.util.visual.AnimationsHandler;
 
@@ -11,7 +10,6 @@ import java.awt.*;
 
 public abstract class Buff extends GameObject implements BuffConstants {
 
-    private final Level level;
     private final Dimension dim;
 
     private final AnimationsHandler handler;
@@ -22,29 +20,27 @@ public abstract class Buff extends GameObject implements BuffConstants {
      * @param x     the x coordinate
      * @param y     the y coordinate
      * @param dim   this <code>Buff</code>'s dimension
-     * @param level the <code>Level</code> this <code>Buff</code> is in
      */
-    Buff(int x, int y, Dimension dim, Level level) {
+    Buff(int x, int y, Dimension dim) {
         super(x * Block.width, y * Block.width);
 
         this.dim = dim;
-        this.level = level;
 
         handler = new AnimationsHandler(getClass());
     }
 
-    public static Buff createFromBlockPos(int type, int x, int y, Level level) {
+    static Buff createFromBlockPos(int type, int x, int y) {
 
         Buff buff;
 
         switch (type) {
 
             case HEAL:
-                buff = new BuffHeal(0, 0, level, 10);
+                buff = new BuffHeal(0, 0, 10);
                 break;
 
             case SHIELD:
-                buff = new BuffShield(0, 0, level, 10);
+                buff = new BuffShield(0, 0, 10);
                 break;
 
             default:
@@ -63,18 +59,14 @@ public abstract class Buff extends GameObject implements BuffConstants {
 
     public abstract void entityEntered(Entity entity);
 
-    /**
-     * Sets the current animation.
-     *
-     * @param index the index of the <code>Animation</code> in this <code>Entity</code>'s animations.
-     */
-    void setAnimationInUse(int index) {
-        handler.setAnimationUsed(index);
+    @Override
+    protected AxisAlignedBB boundingBox() {
+        return new AxisAlignedBB(pos, dim.width, dim.height);
     }
 
     @Override
-    protected AxisAlignedBB boundingBox() {
-        return new AxisAlignedBB(pos.x, pos.y, pos.x + dim.width, pos.y + dim.height);
+    public boolean canBeCollidedWith() {
+        return false;
     }
 
     @Override
@@ -84,11 +76,11 @@ public abstract class Buff extends GameObject implements BuffConstants {
     }
 
     @Override
-    protected void drawDebug(Graphics g, Point min) {
+    protected void drawDebug(Graphics g, Point origin) {
 
         g.setColor(Color.red);
 
-        boundingBox.draw(g, min);
+        boundingBox.draw(g, origin);
     }
 
     @Override
@@ -98,10 +90,10 @@ public abstract class Buff extends GameObject implements BuffConstants {
     }
 
     @Override
-    protected void drawSpecial(Graphics g, Point min) {
+    protected void drawSpecial(Graphics g, Point origin) {
 
         g.setColor(Color.black);
 
-        boundingBox.fill(g, min);
+        boundingBox.fill(g, origin);
     }
 }

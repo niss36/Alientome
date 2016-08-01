@@ -1,6 +1,5 @@
 package com.game.level;
 
-import com.game.Game;
 import com.game.GameObject;
 import com.game.blocks.Block;
 import com.game.buffs.Buff;
@@ -12,6 +11,7 @@ import com.game.partitioning.Tree;
 import com.gui.PanelGame;
 import com.util.Config;
 import com.util.Direction;
+import com.util.Line;
 import com.util.Vec2;
 import com.util.visual.SpritesLoader;
 import org.w3c.dom.Document;
@@ -21,9 +21,12 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
 
+import static com.util.Util.center;
 import static com.util.Util.log;
 
 /**
@@ -34,10 +37,12 @@ import static com.util.Util.log;
 public final class Level {
 
     private static final Level instance = new Level();
-    private final ArrayList<EntityBuilder> spawnList = new ArrayList<>();
-    private final ArrayList<Entity> entities = new ArrayList<>();
-    private final ArrayList<BuffBuilder> buffSpawnList = new ArrayList<>();
-    private final ArrayList<Buff> buffs = new ArrayList<>();
+    private final List<EntityBuilder> spawnList = new ArrayList<>();
+    private final List<BuffBuilder> buffSpawnList = new ArrayList<>();
+    private final List<Entity> entities = new ArrayList<>();
+    private final List<Buff> buffs = new ArrayList<>();
+    private final List<Line> lines = new ArrayList<>();
+    private final Point origin = new Point(0, 0);
     public EntityPlayer player;
     private int levelID;
     private Tree tree;
@@ -130,7 +135,7 @@ public final class Level {
                         if (buffs.item(j).getNodeType() == Node.ELEMENT_NODE) {
                             Element buff = (Element) buffs.item(j);
 
-                            buffSpawnList.add(BuffBuilder.parse(buff, this));
+                            buffSpawnList.add(BuffBuilder.parse(buff));
                         }
                     }
                 }
@@ -142,10 +147,6 @@ public final class Level {
         log("Saving level " + levelID, 0);
         LevelSaveManager.getInstance().save(levelID);
         log("Saved level", 0);
-    }
-
-    public BufferedImage getBackground() {
-        return background;
     }
 
     /**
@@ -163,8 +164,6 @@ public final class Level {
         for (EntityBuilder builder : spawnList) spawnEntity(builder.create());
 
         for (BuffBuilder builder : buffSpawnList) spawnBuff(builder.create());
-
-        tree.add(player);
     }
 
     /**
@@ -173,6 +172,7 @@ public final class Level {
     private void spawnPlayer() {
 
         player = (EntityPlayer) Entity.createFromBlockPos(Entity.PLAYER, spawnX, spawnY, this);
+        tree.add(player);
     }
 
     /**
@@ -210,7 +210,7 @@ public final class Level {
         tree.move(prevPos, object);
     }
 
-    public int updateTree() {
+    private int updateTree() {
 
         return tree.updateCells();
     }
@@ -225,26 +225,73 @@ public final class Level {
         return tree.getObjectsInRange(type, x, y, range, excluded);
     }
 
+    void addLine(Line line) {
+
+        if (Config.getInstance().getBoolean("Debug.ShowSightLines")) lines.add(line);
+    }
+
     /**
      * Called on each game update.
      *
-     * @param game  the <code>Game</code> object to update
-     * @param panel the <code>PanelGame</code> to update
+     * @param pressedKeys a list containing the keys currently pressed in order to apply movement to the player
+     * @param panel       the <code>PanelGame</code> to update
      */
-    public void update(Game game, PanelGame panel) {
+    public void update(List<Integer> pressedKeys, PanelGame panel) {
 
-        for (int i = 0; i < game.pressedKeys.size(); i++) {
+        for (Integer pressedKey : pressedKeys) {
 
-            int key = game.pressedKeys.get(i);
-
-            if (key == Config.getInstance().getInt("Key.Jump")) player.jump();
+            if (pressedKey == Config.getInstance().getInt("Key.Jump")) player.jump();
             else {
-                Direction d = Direction.toDirection(key);
+                Direction d = Direction.toDirection(pressedKey);
 
                 if (d != null) player.move(d);
             }
         }
 
-        panel.update(player, entities, buffs);
+        lines.clear();
+
+        int newX = (int) player.getPos().x - panel.getWidth() / 2;
+        int newY = (int) player.getPos().y - panel.getHeight() / 2;
+
+        int maxX = LevelMap.getInstance().getWidth() * Block.width;
+
+        if (newX < 0) newX = 0;
+        else if (newX + panel.getWidth() > maxX) newX = maxX - panel.getWidth();
+
+        int maxY = LevelMap.getInstance().getHeight() * Block.width;
+
+        if (newY < 0) newY = 0;
+        else if (newY + panel.getHeight() > maxY) newY = maxY - panel.getHeight();
+
+        origin.move(newX, newY);
+
+        player.onUpdate();
+
+        //noinspection ForLoopReplaceableByForEach
+        for (int i = 0; i < entities.size(); i++) entities.get(i).onUpdate();
+
+        panel.update(updateTree());
+    }
+
+    public void draw(Graphics g, boolean debug) {
+
+        if (background != null)
+            g.drawImage(background,
+                    center(g.getClipBounds().getWidth(), background.getWidth()),
+                    center(g.getClipBounds().getHeight(), background.getHeight()),
+                    null);
+
+        for (int x = origin.x / Block.width - 1; x < (origin.x + g.getClipBounds().width) / Block.width + 1; x++)
+            for (int y = origin.y / Block.width - 1; y < (origin.y + g.getClipBounds().height) / Block.width + 1; y++)
+                if (LevelMap.getInstance().checkBounds(x, y))
+                    LevelMap.getInstance().getBlock(x, y, false).draw(g, origin, debug);
+
+        for (Buff buff : buffs) buff.draw(g, origin, debug);
+
+        for (Entity entity : entities) entity.draw(g, origin, debug);
+
+        if (player != null) player.draw(g, origin, debug);
+
+        if (debug) for (Line line : lines) line.draw(g, origin);
     }
 }

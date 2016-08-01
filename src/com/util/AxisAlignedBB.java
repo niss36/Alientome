@@ -24,6 +24,11 @@ public class AxisAlignedBB {
         maxY = max(y1, y2);
     }
 
+    public AxisAlignedBB(Vec2 pos, double width, double height) {
+
+        this(pos.x, pos.y, pos.x + width, pos.y + height);
+    }
+
     public void add(AxisAlignedBB sub) {
 
         if (!hasChildren) {

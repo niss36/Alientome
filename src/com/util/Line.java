@@ -16,18 +16,18 @@ public class Line {
         this.point2 = point2;
     }
 
-    public Double getPoint1() {
+    Double getPoint1() {
         return point1;
     }
 
-    public Double getPoint2() {
+    Double getPoint2() {
         return point2;
     }
 
-    public void draw(Graphics g, Point min) {
+    public void draw(Graphics g, Point origin) {
 
         if (see) g.setColor(Color.green);
         else g.setColor(Color.red);
-        g.drawLine((int) point1.x - min.x, (int) point1.y - min.y, (int) point2.x - min.x, (int) point2.y - min.y);
+        g.drawLine((int) point1.x - origin.x, (int) point1.y - origin.y, (int) point2.x - origin.x, (int) point2.y - origin.y);
     }
 }

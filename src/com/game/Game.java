@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public final class Game implements Runnable {
 
     private static final Game ourInstance = new Game();
-    public final ArrayList<Integer> pressedKeys = new ArrayList<>();
+    private final ArrayList<Integer> pressedKeys = new ArrayList<>();
     public State state;
     private PanelGame panelGame;
     private boolean run = true;
@@ -51,9 +51,13 @@ public final class Game implements Runnable {
             }
 
             if (e.getID() == KeyEvent.KEY_PRESSED && !pressedKeys.contains(e.getKeyCode()))
-                pressedKeys.add(e.getKeyCode());
+                synchronized (pressedKeys) {
+                    pressedKeys.add(e.getKeyCode());
+                }
             else if (e.getID() == KeyEvent.KEY_RELEASED)
-                pressedKeys.remove((Integer) e.getKeyCode());
+                synchronized (pressedKeys) {
+                    pressedKeys.remove((Integer) e.getKeyCode());
+                }
 
             return e.getKeyCode() != Config.getInstance().getInt("Key.Jump") || Direction.toDirection(e.getKeyCode()) != null;
         };
@@ -126,7 +130,10 @@ public final class Game implements Runnable {
                 e.printStackTrace();
             }
 
-            if (state == State.RUNNING) Level.getInstance().update(this, panelGame);
+            if (state == State.RUNNING)
+                synchronized (pressedKeys) { //Prevent concurrent modification exception
+                    Level.getInstance().update(pressedKeys, panelGame);
+                }
         }
     }
 
