@@ -3,8 +3,9 @@ package com.game.entities;
 import com.game.Shield;
 import com.game.blocks.Block;
 import com.game.level.Level;
-import com.util.CollisionPoint;
-import com.util.Side;
+import com.util.Vec2;
+import com.util.collisions.Contact;
+import com.util.visual.GameGraphics;
 import com.util.visual.SpritesLoader;
 
 import java.awt.*;
@@ -26,25 +27,22 @@ public abstract class EntityLiving extends Entity {
     private int damageCoolDown = 0;
 
     /**
-     * @param x         the x coordinate
-     * @param y         the y coordinate
-     * @param dim       the <code>Dimension</code> of this <code>Entity</code> (width, height)
+     * @param pos this <code>Entity</code>'s position
+     * @param dimension the <code>Dimension</code> of this <code>Entity</code> (width, height)
      * @param level     the <code>Level</code> this <code>Entity</code> is in
      * @param maxHealth the maximum health this <code>EntityLiving</code> can have
      */
-    EntityLiving(double x, double y, Dimension dim, Level level, int maxHealth) {
-        super(x, y, dim, level);
+    EntityLiving(Vec2 pos, Dimension dimension, Level level, int maxHealth) {
+        super(pos, dimension, level);
 
         health = this.maxHealth = maxHealth;
 
-        if (iconHealth == null) iconHealth = SpritesLoader.getSprite("Misc/iconHealth");
-        if (iconShield == null) iconShield = SpritesLoader.getSprite("Misc/iconShield");
+        if (iconHealth == null) iconHealth = SpritesLoader.getSprite("UI/iconHealth");
+        if (iconShield == null) iconShield = SpritesLoader.getSprite("UI/iconShield");
     }
 
     @Override
-    public void onUpdate() {
-
-        super.onUpdate();
+    void postUpdateInternal() {
 
         if (damageCoolDown > 0) damageCoolDown--;
 
@@ -54,20 +52,20 @@ public abstract class EntityLiving extends Entity {
     }
 
     @Override
-    protected void draw(Graphics g, int x, int y) {
+    protected void draw(GameGraphics g, int x, int y) {
         super.draw(g, x, y);
 
-        drawStatusBars(g, x, y);
+        drawStatusBars(g.graphics, x, y);
     }
 
     @Override
-    public boolean onCollidedWithBlock(Block block, CollisionPoint collisionPoint) {
+    public boolean onCollidedWithBlock(Block block, Contact contact) {
 
         double tMotionY = velocity.y;
 
-        if (super.onCollidedWithBlock(block, collisionPoint)) {
+        if (super.onCollidedWithBlock(block, contact)) {
 
-            if (collisionPoint.getCollisionSide() == Side.TOP && tMotionY >= 15) {
+            if (contact.normal == Vec2.UNIT_MINUS_Y && tMotionY >= 15) {
 
                 float damage = getFallDamage(tMotionY);
                 damageAbsolute(damage);
@@ -81,12 +79,14 @@ public abstract class EntityLiving extends Entity {
     }
 
     @Override
-    protected void notifyCollision(Entity other, Side side) {
+    protected void notifyCollision(Entity other, Contact contact) {
 
         if (other instanceof EntityProjectile) damage(((EntityProjectile) other).damage);
     }
 
     private void drawStatusBars(Graphics g, int x, int y) {
+
+        x += dimension.width / 2 - 15;
 
         drawHealthBar(g, x, y);
         drawShieldBar(g, x, y - 6);
@@ -102,9 +102,9 @@ public abstract class EntityLiving extends Entity {
         if (health <= 0) return;
 
         g.setColor(Color.black);
-        g.fillRect(x - 5, y - 10, 30, 6);
+        g.fillRect(x - 1, y - 10, 30, 6);
 
-        g.drawImage(iconHealth, x - 11, y - 10, null);
+        g.drawImage(iconHealth, x - 7, y - 10, null);
 
         float percentHP = health / maxHealth;
 
@@ -113,7 +113,7 @@ public abstract class EntityLiving extends Entity {
         else if (percentHP >= 0.5) g.setColor(Color.yellow);
         else if (percentHP >= 0) g.setColor(Color.red);
 
-        g.fillRect(x - 4, y - 9, (int) (percentHP * 28), 4);
+        g.fillRect(x, y - 9, (int) (percentHP * 28), 4);
     }
 
     private void drawShieldBar(Graphics g, int x, int y) {
@@ -121,12 +121,12 @@ public abstract class EntityLiving extends Entity {
         if (shield == null || shield.percentValue() <= 0) return;
 
         g.setColor(Color.black);
-        g.fillRect(x - 5, y - 10, 30, 6);
+        g.fillRect(x - 1, y - 10, 30, 6);
 
-        g.drawImage(iconShield, x - 11, y - 10, null);
+        g.drawImage(iconShield, x - 7, y - 10, null);
 
         g.setColor(Color.blue);
-        g.fillRect(x - 4, y - 9, (int) (shield.percentValue() * 28), 4);
+        g.fillRect(x, y - 9, (int) (shield.percentValue() * 28), 4);
     }
 
     /**
@@ -163,5 +163,9 @@ public abstract class EntityLiving extends Entity {
     final float getFallDamage(double verticalMotion) {
 
         return verticalMotion >= 0 ? (float) verticalMotion / 5 : 0;
+    }
+
+    public float getHealth() {
+        return health;
     }
 }

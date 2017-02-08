@@ -1,6 +1,5 @@
 package com.game.buffs;
 
-import com.game.level.Level;
 import org.w3c.dom.Element;
 
 public class BuffBuilder {
@@ -16,7 +15,7 @@ public class BuffBuilder {
         this.y = y;
     }
 
-    public static BuffBuilder parse(Element buffNode) {
+    public static BuffBuilder parseXML(Element buffNode) {
 
         int type = Integer.parseInt(buffNode.getAttribute("type"));
         int x = Integer.parseInt(buffNode.getAttribute("spawnX"));

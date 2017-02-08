@@ -1,9 +1,9 @@
 package com.game.blocks;
 
-public class BlockVoid extends Block {
+class BlockVoid extends Block {
 
-    public BlockVoid(int x, int y) {
-        super(x, y);
+    BlockVoid(int x, int y, byte metadata) {
+        super(x, y, VOID, metadata);
     }
 
     @Override
@@ -14,10 +14,5 @@ public class BlockVoid extends Block {
     @Override
     public boolean isTransparent() {
         return true;
-    }
-
-    @Override
-    public byte getIndex() {
-        return VOID;
     }
 }

@@ -1,7 +1,8 @@
 package com.game;
 
-import com.util.AxisAlignedBB;
 import com.util.Vec2;
+import com.util.collisions.AxisAlignedBoundingBox;
+import com.util.visual.GameGraphics;
 
 import java.awt.*;
 
@@ -12,7 +13,7 @@ import java.awt.*;
 public abstract class GameObject {
 
     protected final Vec2 pos;
-    protected AxisAlignedBB boundingBox;
+    protected AxisAlignedBoundingBox boundingBox;
 
     /**
      * Constructs the <code>GameObject</code> from it's x and y coordinates.
@@ -21,7 +22,11 @@ public abstract class GameObject {
      * @param y the y coordinate
      */
     protected GameObject(double x, double y) {
-        pos = new Vec2(x, y);
+        this(new Vec2(x, y));
+    }
+
+    protected GameObject(Vec2 pos) {
+        this.pos = pos;
     }
 
     protected final void actualizeBoundingBox() {
@@ -29,9 +34,9 @@ public abstract class GameObject {
     }
 
     /**
-     * @return the dynamically-calculated <code>AxisAlignedBB</code> for this object
+     * @return the dynamically-calculated <code>StaticBoundingBox</code> for this object
      */
-    protected abstract AxisAlignedBB boundingBox();
+    protected abstract AxisAlignedBoundingBox boundingBox();
 
     /**
      * @return whether this <code>GameObject</code> should collide with other objects when they intersect
@@ -41,19 +46,20 @@ public abstract class GameObject {
     /**
      * Draw this <code>GameObject</code> using the supplied <code>Graphics</code>
      *
-     * @param g      the <code>Graphics</code> to draw with
-     * @param origin the relative origin
-     * @param debug  whether debug info should be drawn
+     * @param g     the <code>Graphics</code> to draw with
+     * @param debug whether debug info should be drawn
      */
-    public final void draw(Graphics g, Point origin, boolean debug) {
+    public final void draw(GameGraphics g, boolean debug) {
 
-        int x = (int) pos.x - origin.x;
-        int y = (int) pos.y - origin.y;
+        int x = getInterpolatedX(g.interpolation) - g.origin.x;
+        int y = getInterpolatedY(g.interpolation) - g.origin.y;
 
         if (drawCondition()) draw(g, x, y);
-        else drawSpecial(g, origin);
+        else drawSpecial(g);
 
-        if (debug) drawDebug(g, origin);
+        if (debug) drawDebug(g);
+
+        g.graphics.setColor(Color.black);
     }
 
     /**
@@ -63,20 +69,19 @@ public abstract class GameObject {
      * @param x the x coordinate scaled to the drawing surface
      * @param y the y coordinate scaled to the drawing surface
      */
-    protected abstract void draw(Graphics g, int x, int y);
+    protected abstract void draw(GameGraphics g, int x, int y);
 
     /**
      * Draws this <code>GameObject</code>'s debug info. Called only in debug mode.
      *
-     * @param g      the <code>Graphics</code> to draw with
-     * @param origin the relative origin
+     * @param g the <code>Graphics</code> to draw with
      */
-    protected abstract void drawDebug(Graphics g, Point origin);
+    protected abstract void drawDebug(GameGraphics g);
 
     /**
      * @return whether the normal drawing process should happen.
      * Else, invoke <code>drawSpecial</code>.
-     * @see #drawSpecial(Graphics, Point)
+     * @see #drawSpecial(GameGraphics)
      */
     protected abstract boolean drawCondition();
 
@@ -84,10 +89,25 @@ public abstract class GameObject {
      * Draw this <code>GameObject</code> using the supplied <code>Graphics</code>,
      * in the case it cannot be drawn normally
      *
-     * @param g      the <code>Graphics</code> to draw with
-     * @param origin the relative origin
+     * @param g the <code>Graphics</code> to draw with
      */
-    protected abstract void drawSpecial(Graphics g, Point origin);
+    protected abstract void drawSpecial(GameGraphics g);
+
+    protected final int getScaledX(Point origin) {
+        return (int) pos.x - origin.x;
+    }
+
+    protected final int getScaledY(Point origin) {
+        return (int) pos.y - origin.y;
+    }
+
+    public int getInterpolatedX(double partialTick) {
+        return (int) pos.x;
+    }
+
+    public int getInterpolatedY(double partialTick) {
+        return (int) pos.y;
+    }
 
     //GETTERS
 
@@ -95,7 +115,7 @@ public abstract class GameObject {
         return pos;
     }
 
-    public final AxisAlignedBB getBoundingBox() {
+    public final AxisAlignedBoundingBox getBoundingBox() {
         return boundingBox;
     }
 }

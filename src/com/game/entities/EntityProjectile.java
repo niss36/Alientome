@@ -1,8 +1,8 @@
 package com.game.entities;
 
 import com.game.blocks.Block;
-import com.util.CollisionPoint;
-import com.util.Side;
+import com.util.Vec2;
+import com.util.collisions.Contact;
 
 import java.awt.*;
 
@@ -12,17 +12,17 @@ import java.awt.*;
  */
 public abstract class EntityProjectile extends Entity {
 
-    final int damage;
+    final float damage;
     private final Entity thrower;
 
     /**
-     * @param thrower the <code>Entity</code> this was thrown by. Will be ignored in collision checks.
-     * @param dim     the <code>Dimension</code> of this <code>Entity</code> (width, height)
-     * @param damage  the amount to damage <code>Entity</code>s on collision
+     * @param thrower   the <code>Entity</code> this was thrown by. Will be ignored in collision checks.
+     * @param dimension the <code>Dimension</code> of this <code>Entity</code> (width, height)
+     * @param damage    the amount to damage <code>Entity</code>s on collision
      */
-    EntityProjectile(Entity thrower, Dimension dim, int damage) {
+    EntityProjectile(Entity thrower, Dimension dimension, float damage) {
 
-        super(thrower.getPos().x + thrower.dim.width / 2, thrower.getPos().y, dim, thrower.level);
+        super(new Vec2(thrower.getPos().x + thrower.dimension.width / 2, thrower.getPos().y), dimension, thrower.level);
 
         this.thrower = thrower;
 
@@ -32,8 +32,8 @@ public abstract class EntityProjectile extends Entity {
     }
 
     @Override
-    public boolean onCollidedWithBlock(Block block, CollisionPoint collisionPoint) {
-        if (super.onCollidedWithBlock(block, collisionPoint)) {
+    public boolean onCollidedWithBlock(Block block, Contact contact) {
+        if (super.onCollidedWithBlock(block, contact)) {
 
             setDead();
 
@@ -44,11 +44,11 @@ public abstract class EntityProjectile extends Entity {
     }
 
     @Override
-    public boolean onCollidedWithEntity(Entity other, Side side) {
+    public boolean onCollidedWithEntity(Entity other, Contact contact) {
 
         if (other != thrower && !(other instanceof EntityProjectile)) {
 
-            other.notifyCollision(this, side);
+            other.notifyCollision(this, contact);
 
             setDead();
 

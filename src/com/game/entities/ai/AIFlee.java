@@ -1,7 +1,6 @@
 package com.game.entities.ai;
 
 import com.game.entities.Entity;
-import com.game.level.LevelMap;
 import com.util.Direction;
 
 public class AIFlee extends AI {
@@ -53,9 +52,9 @@ public class AIFlee extends AI {
 
         else if (fleeing.getPos().y <= entity.getPos().y) {
 
-            boolean b = LevelMap.getInstance().getBlockAbsCoordinates(
-                    entity.getPos().x + entity.dim.width / 2 + entity.getVelocity().x,
-                    entity.getPos().y + entity.dim.height + 1).isOpaque();
+            boolean b = entity.level.map.getBlockAbsCoordinates(
+                    entity.getPos().x + entity.dimension.width / 2 + entity.getVelocity().x,
+                    entity.getPos().y + entity.dimension.height + 1).isOpaque();
 
             if (!b) entity.jump();
         }

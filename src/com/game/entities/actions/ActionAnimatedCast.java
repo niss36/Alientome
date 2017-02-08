@@ -1,6 +1,7 @@
 package com.game.entities.actions;
 
 import com.game.GameObject;
+import com.game.level.Level;
 import com.util.visual.AnimationsHandler;
 
 public class ActionAnimatedCast implements Action {
@@ -22,10 +23,10 @@ public class ActionAnimatedCast implements Action {
     @Override
     public boolean shouldAct() {
 
-        if (state == castTime && action.shouldAct()) {
+        if (state >= castTime && action.shouldAct()) {
 
             state = 0;
-            handler.setAnimationUsed(0);
+            handler.setAnimationEndListener(() -> handler.setAnimationUsed(0));
             return true;
         }
 
@@ -36,6 +37,20 @@ public class ActionAnimatedCast implements Action {
     }
 
     @Override
+    public void interrupt() {
+
+        state = 0;
+        handler.setAnimationUsed(0);
+
+        action.interrupt();
+    }
+
+    @Override
+    public void update() {
+        action.update();
+    }
+
+    @Override
     public void act() {
         action.act();
     }
@@ -43,6 +58,11 @@ public class ActionAnimatedCast implements Action {
     @Override
     public void act(GameObject object) {
         action.act(object);
+    }
+
+    @Override
+    public Level getLevel() {
+        return action.getLevel();
     }
 
     @Override

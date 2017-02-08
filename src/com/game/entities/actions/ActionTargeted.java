@@ -1,6 +1,7 @@
 package com.game.entities.actions;
 
 import com.game.GameObject;
+import com.game.level.Level;
 
 public class ActionTargeted implements Action {
 
@@ -19,6 +20,16 @@ public class ActionTargeted implements Action {
     }
 
     @Override
+    public void interrupt() {
+        action.interrupt();
+    }
+
+    @Override
+    public void update() {
+        action.update();
+    }
+
+    @Override
     public void act() {
         act(target);
     }
@@ -26,6 +37,11 @@ public class ActionTargeted implements Action {
     @Override
     public void act(GameObject object) {
         action.act(object);
+    }
+
+    @Override
+    public Level getLevel() {
+        return action.getLevel();
     }
 
     @Override

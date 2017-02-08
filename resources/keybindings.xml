@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<contexts>
+    <context id="global">
+        <binding id="profileDump" mappable="false"/>
+        <binding id="screenshot" mappable="true"/>
+        <context id="running">
+            <binding id="pause" mappable="false"/>
+            <binding id="debug" mappable="true"/>
+            <binding id="moveLeft" mappable="true"/>
+            <binding id="moveRight" mappable="true"/>
+            <binding id="jump" mappable="true"/>
+            <binding id="special1" mappable="true"/>
+            <binding id="special2" mappable="true"/>
+            <binding id="special3" mappable="true"/>
+            <binding id="chat" mappable="false"/>
+        </context>
+        <context id="chat">
+            <binding id="escape" mappable="false"/>
+            <binding id="send" mappable="false"/>
+            <binding id="deleteBefore" mappable="false"/>
+            <binding id="deleteAfter" mappable="false"/>
+            <binding id="moveCaretLeft" mappable="false"/>
+            <binding id="moveCaretRight" mappable="false"/>
+            <binding id="historyBefore" mappable="false"/>
+            <binding id="historyAfter" mappable="false"/>
+        </context>
+        <context id="menu.main">
+            <binding id="back" mappable="false"/>
+        </context>
+        <context id="menu.pause">
+            <binding id="back" mappable="false"/>
+        </context>
+        <context id="menu.death">
+            <binding id="respawn" mappable="false"/>
+            <binding id="exit" mappable="false"/>
+        </context>
+    </context>
+    <context id="keySelect"/>
+</contexts>

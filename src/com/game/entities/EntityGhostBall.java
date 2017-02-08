@@ -1,7 +1,8 @@
 package com.game.entities;
 
 import com.util.Direction;
-import com.util.Side;
+import com.util.collisions.Contact;
+import com.util.visual.GameGraphics;
 
 import java.awt.*;
 
@@ -26,28 +27,22 @@ public class EntityGhostBall extends EntityProjectile {
 
         if (big) handler.setAnimationUsed(1);
         else handler.setAnimationUsed(0);
+
+        affectedByGravity = false;
     }
 
     @Override
-    public void onUpdate() {
-
+    void preUpdateInternal() {
         move(facing, 5);
-
-        super.onUpdate();
     }
 
     @Override
-    protected void draw(Graphics g, int x, int y) {
-        super.draw(g, x - (facing == Direction.LEFT ? 0 : dim.width), y);
+    protected void draw(GameGraphics g, int x, int y) {
+        super.draw(g, x - (facing == Direction.LEFT ? 0 : dimension.width), y);
     }
 
     @Override
-    boolean isAffectedByGravity() {
-        return false;
-    }
-
-    @Override
-    public void notifyCollision(Entity other, Side side) {
+    public void notifyCollision(Entity other, Contact contact) {
 
     }
 }

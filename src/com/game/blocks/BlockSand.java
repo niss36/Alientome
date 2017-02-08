@@ -1,23 +1,24 @@
 package com.game.blocks;
 
-public class BlockSand extends Block {
+class BlockSand extends Block {
 
-    public BlockSand(int x, int y) {
-        super(x, y);
+    private final boolean isBackground;
+
+    BlockSand(int x, int y, byte metadata) {
+        super(x, y, SAND, metadata);
+
+        isBackground = (metadata & 0x01) == 1;
+
+        handler.setAnimationUsed(isBackground ? 1 : 0);
     }
 
     @Override
     public boolean isOpaque() {
-        return true;
+        return !isBackground;
     }
 
     @Override
     public boolean isTransparent() {
-        return false;
-    }
-
-    @Override
-    public byte getIndex() {
-        return SAND;
+        return isBackground;
     }
 }

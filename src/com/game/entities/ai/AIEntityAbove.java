@@ -2,7 +2,7 @@ package com.game.entities.ai;
 
 import com.game.entities.Entity;
 import com.game.level.LevelUtils;
-import com.util.AxisAlignedBB;
+import com.util.collisions.AxisAlignedBoundingBox;
 
 public class AIEntityAbove extends AITest {
 
@@ -29,11 +29,11 @@ public class AIEntityAbove extends AITest {
 
             else if (other.isDead()) fail();
 
-            else if (entity.getPos().y + entity.dim.height > other.getPos().y + other.dim.height
+            else if (entity.getPos().y + entity.dimension.height > other.getPos().y + other.dimension.height
                     && Math.abs(entity.getPos().x - other.getPos().x) <= 40
                     && LevelUtils.canSeeEntity(entity, other)) {
 
-                AxisAlignedBB expanded = other.getNextBoundingBox().expand(horizontalTolerance, 300);
+                AxisAlignedBoundingBox expanded = other.getNextBoundingBox().expand(horizontalTolerance, 300);
 
                 if (expanded.intersects(entity.getNextBoundingBox())) succeed();
                 else fail();

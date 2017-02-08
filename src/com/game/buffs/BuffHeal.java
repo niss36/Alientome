@@ -2,6 +2,7 @@ package com.game.buffs;
 
 import com.game.entities.Entity;
 import com.game.entities.EntityPlayer;
+import com.util.Vec2;
 
 import java.awt.*;
 
@@ -12,19 +13,18 @@ class BuffHeal extends Buff {
     /**
      * Initialize the <code>Buff</code>.
      *
-     * @param x          the x coordinate
-     * @param y          the y coordinate
+     * @param pos this <code>Buff</code>'s position
      * @param healAmount the amount this <code>Buff</code> heals
      */
     @SuppressWarnings("SameParameterValue")
-    BuffHeal(int x, int y, int healAmount) {
-        super(x, y, new Dimension(32, 41));
+    BuffHeal(Vec2 pos, int healAmount) {
+        super(pos, new Dimension(32, 41));
 
         this.healAmount = healAmount;
     }
 
     @Override
-    public void entityEntered(Entity entity) {
+    public void onEntityEntered(Entity entity) {
         if (entity instanceof EntityPlayer) {
             ((EntityPlayer) entity).heal(healAmount);
         }

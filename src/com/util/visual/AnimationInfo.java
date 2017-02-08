@@ -44,8 +44,8 @@ class AnimationInfo {
             for (int i = 0; i < spritesCount; i++) {
                 Element sprite = (Element) sprites.item(i);
 
-                offsetsX[i] = getAttributeOrDefault(sprite, "offsetX", offsetXGlobal);
-                offsetsY[i] = getAttributeOrDefault(sprite, "offsetY", offsetYGlobal);
+                offsetsX[i] = getAttributeOrDefault(sprite, "offsetX", offsetXGlobal) * 2;
+                offsetsY[i] = getAttributeOrDefault(sprite, "offsetY", offsetYGlobal) * 2;
             }
         } else {
             spritesCount = Integer.parseInt(animationNode.getAttribute("spritesCount"));
@@ -55,8 +55,8 @@ class AnimationInfo {
 
             for (int i = 0; i < spritesCount; i++) {
 
-                offsetsX[i] = offsetXGlobal;
-                offsetsY[i] = offsetYGlobal;
+                offsetsX[i] = offsetXGlobal * 2;
+                offsetsY[i] = offsetYGlobal * 2;
             }
         }
 

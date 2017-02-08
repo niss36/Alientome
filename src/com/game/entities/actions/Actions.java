@@ -1,29 +1,40 @@
 package com.game.entities.actions;
 
+import com.game.GameObject;
 import com.game.entities.EntityLiving;
+import com.game.level.Level;
 
-public final class Actions {
+public class Actions {
 
-    public static Action createHeal(float amount) {
+    public static Action createHeal(Level level, float amount) {
 
-        return object -> {
-            if (object instanceof EntityLiving)
-                ((EntityLiving) object).heal(amount);
+        return new Action() {
+            @Override
+            public void act(GameObject object) {
+                if (object instanceof EntityLiving)
+                    ((EntityLiving) object).heal(amount);
+            }
+
+            @Override
+            public Level getLevel() {
+                return level;
+            }
         };
     }
 
-    public static Action createCoolDownCastTime(Action action, int coolDown, int castTime) {
+    public static Action createShield(Level level, float amount) {
 
-        if (castTime > 0) {
+        return new Action() {
+            @Override
+            public void act(GameObject object) {
+                if (object instanceof EntityLiving)
+                    ((EntityLiving) object).addShield(amount);
+            }
 
-            action = new ActionCastTime(action, castTime);
-        }
-
-        if (coolDown > 0) {
-
-            action = new ActionCoolDown(action, coolDown);
-        }
-
-        return action;
+            @Override
+            public Level getLevel() {
+                return level;
+            }
+        };
     }
 }

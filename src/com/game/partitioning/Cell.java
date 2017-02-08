@@ -4,11 +4,12 @@ import com.game.GameObject;
 import com.game.blocks.Block;
 import com.game.buffs.Buff;
 import com.game.entities.Entity;
-import com.game.entities.EntityPlayer;
-import com.util.AxisAlignedBB;
-import com.util.Couple;
+import com.util.collisions.AxisAlignedBoundingBox;
+import com.util.collisions.Contact;
+import com.util.collisions.StaticBoundingBox;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Part of a <code>Tree</code>. Represents a single space partition in the <code>Level</code>.
@@ -18,8 +19,8 @@ class Cell {
     private final int x;
     private final int y;
 
-    ArrayList<GameObject> objects;
-    private AxisAlignedBB boundingBox;
+    List<GameObject> objects;
+    private AxisAlignedBoundingBox boundingBox;
 
     /**
      * Constructs the <code>Cell</code>.
@@ -83,7 +84,7 @@ class Cell {
     boolean canContain(GameObject object) {
 
         if (boundingBox == null)
-            boundingBox = new AxisAlignedBB(x * Block.width, y * Block.width, (x + 1) * Block.width, (y + 1) * Block.width);
+            boundingBox = new StaticBoundingBox(x * Block.WIDTH, y * Block.WIDTH, (x + 1) * Block.WIDTH, (y + 1) * Block.WIDTH);
 
         return boundingBox.intersects(object.getBoundingBox());
     }
@@ -95,77 +96,45 @@ class Cell {
     void update() {
         assert hasObjects();
 
-        ArrayList<Couple<Entity>> checked = new ArrayList<>();
-
         for (int i = 0; i < objects.size(); i++) {
-            GameObject object0 = objects.get(i);
 
-            if (object0 instanceof Buff) continue;
+            GameObject objectI = objects.get(i);
 
-            Entity entity0 = (Entity) object0;
+            for (int j = i + 1; j < objects.size(); j++) {
 
-            // Fix 'ghost' dead entity
-            if (entity0.isDead()) {
-                objects.remove(entity0);
-                // Since an object was removed, next element is at index i (Instead of i + 1)
-                i--;
-                continue;
+                GameObject objectJ = objects.get(j);
+
+                processCollision(objectI, objectJ);
             }
-
-            @SuppressWarnings("unchecked")
-            ArrayList<GameObject> arrayList = (ArrayList<GameObject>) objects.clone();
-
-            arrayList.remove(object0);
-
-            for (GameObject object1 : arrayList) {
-
-                if (object1 instanceof Entity) processEntityEntityCollision(entity0, (Entity) object1, checked);
-
-                else if (object1 instanceof Buff) processEntityBuffCollision(entity0, (Buff) object1);
-            }
-        }
-
-        Tree.updated++;
-    }
-
-    /**
-     * Resolves the collisions between the given entities, and ensure that they will not be tested again.
-     *
-     * @param entity0 an <code>Entity</code>
-     * @param entity1 an other <code>Entity</code>
-     * @param checked a list of <code>Couple</code>s of entities which already have been tested.
-     */
-    private void processEntityEntityCollision(Entity entity0, Entity entity1, ArrayList<Couple<Entity>> checked) {
-
-        //Player must be the first element of collisions to avoid bugs
-        if (entity1 instanceof EntityPlayer) processEntityEntityCollision(entity1, entity0, checked);
-
-        else {
-
-            Couple<Entity> couple = new Couple<>(entity0, entity1);
-
-            if (checked.contains(couple)) return;
-
-            checked.add(couple);
-
-            if (entity1.getNextBoundingBox()
-                    .intersects(entity0.getNextBoundingBox()))
-
-                entity1.onCollidedWithEntity(
-                        entity0,
-                        entity0.getNextBoundingBox()
-                                .intersectionSideWith(entity1.getNextBoundingBox()));
         }
     }
 
-    /**
-     * Resolves the overlap between the given entity and the given buff.
-     *
-     * @param entity the <code>Entity</code> to check
-     * @param buff   the <code>Buff</code> to check
-     */
-    private void processEntityBuffCollision(Entity entity, Buff buff) {
+    private void processCollision(GameObject object0, GameObject object1) {
 
-        if (entity.getNextBoundingBox().intersects(buff.getBoundingBox())) buff.entityEntered(entity);
+        if (object0 instanceof Entity)
+            if (object1 instanceof Entity)
+                processCollision((Entity) object0, (Entity) object1);
+            else //Object1 is a Buff
+                processCollision((Entity) object0, (Buff) object1);
+        else //Object0 is a Buff
+            if (object1 instanceof Entity)
+                processCollision((Entity) object1, (Buff) object0);
+        //No-op on Buff/Buff
+    }
+
+    private void processCollision(Entity entity0, Entity entity1) {
+
+        if (entity0.canBeCollidedWith() && entity1.canBeCollidedWith()) {
+
+            Contact contact = entity0.getNextBoundingBox().processCollisionWith(entity1.getNextBoundingBox(), entity0.getVelocity(), entity1.getVelocity());
+
+            if (contact != null) entity1.onCollidedWithEntity(entity0, contact);
+        }
+    }
+
+    private void processCollision(Entity entity, Buff buff) {
+
+        if (entity.getNextBoundingBox().intersects(buff.getBoundingBox()))
+            buff.onEntityEntered(entity);
     }
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+    <setting id="version" type="String" editable="false"/>
+    <setting id="language" type="String" editable="true">
+        <valueFilter>
+            <list>
+                <entry value="en"/>
+                <entry value="fr"/>
+            </list>
+        </valueFilter>
+    </setting>
+    <setting id="pauseOnLostFocus" type="Boolean" editable="true"/>
+    <setting id="showBlockIn" type="Boolean" editable="true"/>
+    <setting id="showSightLines" type="Boolean" editable="true"/>
+    <setting id="volume" type="Integer" editable="true">
+        <valueFilter>
+            <range min="0" max="100"/>
+        </valueFilter>
+    </setting>
+</settings>

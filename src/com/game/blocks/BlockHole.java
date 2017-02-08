@@ -1,9 +1,9 @@
 package com.game.blocks;
 
-public class BlockHole extends Block {
+class BlockHole extends Block {
 
-    public BlockHole(int x, int y) {
-        super(x, y);
+    BlockHole(int x, int y, byte metadata) {
+        super(x, y, HOLE, metadata);
     }
 
     @Override
@@ -14,10 +14,5 @@ public class BlockHole extends Block {
     @Override
     public boolean isTransparent() {
         return false;
-    }
-
-    @Override
-    public byte getIndex() {
-        return HOLE;
     }
 }

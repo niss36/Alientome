@@ -2,6 +2,7 @@ package com.game.entities.actions;
 
 import com.game.GameObject;
 import com.game.entities.Entity;
+import com.game.level.Level;
 
 public class ActionSelfCast implements Action {
 
@@ -20,6 +21,16 @@ public class ActionSelfCast implements Action {
     }
 
     @Override
+    public void interrupt() {
+        action.interrupt();
+    }
+
+    @Override
+    public void update() {
+        action.update();
+    }
+
+    @Override
     public void act() {
         action.act();
     }
@@ -27,6 +38,11 @@ public class ActionSelfCast implements Action {
     @Override
     public void act(GameObject object) {
         action.act(object);
+    }
+
+    @Override
+    public Level getLevel() {
+        return action.getLevel();
     }
 
     @Override

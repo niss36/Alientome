@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <level>
-    <block width="64"/>
     <player spawnX="1" spawnY="7"/>
     <entities>
         <entity type="2" spawnX="8" spawnY="9"/>
         <entity type="4" spawnX="13" spawnY="9"/>
         <entity type="3" spawnX="17" spawnY="9"/>
         <entity type="1" spawnX="6" spawnY="9"/>
+        <!--<entity type="5" spawnX="12" spawnY="0"/>-->
+        <!--<entity type="5" spawnX="12" spawnY="0"/>
+        <entity type="5" spawnX="12" spawnY="1"/>
+        <entity type="5" spawnX="12" spawnY="2"/>
+        <entity type="5" spawnX="12" spawnY="3"/>
+        <entity type="5" spawnX="12" spawnY="4"/>
+        <entity type="5" spawnX="12" spawnY="5"/>
+        <entity type="5" spawnX="12" spawnY="6"/>
+        <entity type="5" spawnX="12" spawnY="7"/>
+        <entity type="5" spawnX="12" spawnY="8"/>
+        <entity type="5" spawnX="12" spawnY="9"/>-->
     </entities>
     <buffs>
-        <buff type="0" spawnX="7" spawnY="9"/>
-        <buff type="1" spawnX="9" spawnY="9"/>
+        <!--<buff type="0" spawnX="7" spawnY="9"/>
+        <buff type="1" spawnX="9" spawnY="9"/>-->
     </buffs>
+    <camera target="@p"/>
+    <controller target="@p"/>
 </level>

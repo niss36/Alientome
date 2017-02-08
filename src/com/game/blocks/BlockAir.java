@@ -1,9 +1,9 @@
 package com.game.blocks;
 
-public class BlockAir extends Block {
+class BlockAir extends Block {
 
-    public BlockAir(int x, int y) {
-        super(x, y);
+    BlockAir(int x, int y, byte metadata) {
+        super(x, y, AIR, metadata);
     }
 
     @Override
@@ -14,10 +14,5 @@ public class BlockAir extends Block {
     @Override
     public boolean isTransparent() {
         return true;
-    }
-
-    @Override
-    public byte getIndex() {
-        return AIR;
     }
 }

@@ -1,34 +1,55 @@
 package com.util.visual;
 
-import org.w3c.dom.Document;
+import com.util.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-import static com.util.Util.log;
+import static com.util.Util.parseXML;
 
 /**
  * This static class contains the logic to load and store sprites.
  */
-public final class SpritesLoader {
+public class SpritesLoader {
 
     private static final HashMap<Class<?>, Animation[]> animations = new HashMap<>();
-
+    private static final Logger log = Logger.get();
+    private static final Object loadLock = new Object();
     private static boolean loaded = false;
 
     /**
      * Not instantiable
      */
     private SpritesLoader() {
+    }
+
+    /**
+     * Gets a .png image from the specified path, relative to system resources root
+     *
+     * @param path the path to the image, in the resources folder
+     * @return the <code>BufferedImage</code> read, or null if an <code>IOException</code> occurs
+     * (Typically, if the image doesn't exist)
+     */
+    public static BufferedImage readImage(String path) {
+
+        BufferedImage image = null;
+
+        try (InputStream stream = ClassLoader.getSystemResourceAsStream(path + ".png")) {
+            image = ImageIO.read(stream);
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Could not read image at path '" + path + ".png' : ");
+            e.printStackTrace();
+        }
+
+        return image;
     }
 
     /**
@@ -39,12 +60,17 @@ public final class SpritesLoader {
      */
     public static BufferedImage getSprite(String path) {
 
-        BufferedImage sprite = null;
+        BufferedImage sprite = readImage(path);
 
-        try (InputStream stream = ClassLoader.getSystemResourceAsStream(path + ".png")) {
-            sprite = ImageIO.read(stream);
-        } catch (IOException | IllegalArgumentException e) {
-            e.printStackTrace();
+        if (path.contains("Entity") && sprite != null) {
+            int newWidth = sprite.getWidth() * 2;
+            int newHeight = sprite.getHeight() * 2;
+            if (newWidth > 0 && newHeight > 0) {
+                BufferedImage newSprite = new BufferedImage(newWidth, newHeight, sprite.getType());
+                Graphics g = newSprite.createGraphics();
+                g.drawImage(sprite, 0, 0, newWidth, newHeight, null);
+                sprite = newSprite;
+            }
         }
 
         return sprite;
@@ -63,7 +89,7 @@ public final class SpritesLoader {
         BufferedImage[] sprites = new BufferedImage[spritesCount];
 
         for (int i = 0; i < spritesCount; i++) {
-            sprites[i] = getSprite(dirPath + i);
+            sprites[i] = getSprite(dirPath + "/" + i);
         }
 
         return sprites;
@@ -109,31 +135,27 @@ public final class SpritesLoader {
     public static void load() {
 
         new Thread(() -> {
-            log("Loading animations", 0);
+            log.i("Loading animations");
             long start = System.nanoTime();
 
             try {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
 
-                Document document = builder.parse(ClassLoader.getSystemResourceAsStream("animations.xml"));
-
-                Element root = document.getDocumentElement();
+                Element root = parseXML("animations");
 
                 NodeList packages = root.getElementsByTagName("package");
                 for (int i = 0; i < packages.getLength(); i++) {
                     Element packageNode = (Element) packages.item(i);
 
                     String packageName = packageNode.getAttribute("name");
-                    String packageDirectory = packageNode.getAttribute("directory");
+                    String packageDirectory = "Sprites/" + packageNode.getAttribute("directory");
 
                     NodeList classes = packageNode.getElementsByTagName("class");
 
                     for (int j = 0; j < classes.getLength(); j++) {
                         Element classNode = (Element) classes.item(j);
 
-                        String className = packageName + classNode.getAttribute("name");
-                        String classDirectory = packageDirectory + classNode.getAttribute("subDirectory");
+                        String className = packageName + "." + classNode.getAttribute("name");
+                        String classDirectory = packageDirectory + "/" + classNode.getAttribute("subDirectory");
 
                         NodeList animations = classNode.getElementsByTagName("animation");
 
@@ -142,7 +164,10 @@ public final class SpritesLoader {
                         for (int k = 0; k < animations.getLength(); k++) {
                             Element animationNode = (Element) animations.item(k);
 
-                            String animationPath = classDirectory + animationNode.getAttribute("path");
+                            String animationRelPath = animationNode.getAttribute("path");
+                            if (!animationRelPath.isEmpty())
+                                animationRelPath = "/" + animationRelPath;
+                            String animationPath = classDirectory + animationRelPath;
 
                             info[k] = AnimationInfo.parse(animationPath, animationNode);
                         }
@@ -150,6 +175,7 @@ public final class SpritesLoader {
                         try {
                             init(Class.forName(className), info);
                         } catch (ClassNotFoundException e) {
+                            System.err.println("Class '" + className + "' could not be found :");
                             e.printStackTrace();
                         }
                     }
@@ -158,14 +184,21 @@ public final class SpritesLoader {
                 e.printStackTrace();
             }
 
-            loaded = true;
+            synchronized (loadLock) {
+                loaded = true;
+                loadLock.notify();
+            }
 
             long elapsed = (System.nanoTime() - start) / 1_000_000;
-            log("Loaded animations in " + elapsed + "ms", 0);
+            log.i("Loaded animations in " + elapsed + "ms");
         }, "Thread-AnimationLoad").start();
     }
 
-    public static boolean hasLoaded() {
-        return loaded;
+    public static void waitUntilLoaded() throws InterruptedException {
+
+        synchronized (loadLock) {
+            if (!loaded)
+                loadLock.wait();
+        }
     }
 }
