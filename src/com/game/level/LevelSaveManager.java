@@ -1,7 +1,7 @@
 package com.game.level;
 
 import com.util.FileManager;
-import com.util.Util;
+import com.util.Logger;
 import com.util.listeners.SaveListener;
 
 import javax.swing.*;
@@ -9,33 +9,27 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 
-public final class LevelSaveManager {
+public class LevelSaveManager {
 
     private static final LevelSaveManager ourInstance = new LevelSaveManager();
+    private static final Logger log = Logger.get();
     private final Random random = new Random();
     private final ArrayList<SaveListener> listeners = new ArrayList<>();
-    private int saveIndex;
 
-    /**
-     * Not instantiable
-     */
     private LevelSaveManager() {
-
     }
 
     public static LevelSaveManager getInstance() {
         return ourInstance;
     }
 
-    int init(int index) {
-
-        saveIndex = index;
+    int init(int saveIndex) {
 
         File saveFile = FileManager.getInstance().getSave(saveIndex);
 
         if (!saveFile.exists()) {
-            createSaveFile(saveFile);
-            Util.log("Created save file " + index + ".", 0);
+            createSaveFile(saveFile, saveIndex);
+            log.i("Created save file " + saveIndex);
         }
 
         return read(saveFile);
@@ -53,15 +47,15 @@ public final class LevelSaveManager {
         return ret;
     }
 
-    private void createSaveFile(File file) {
-        save(file, 1);
+    private void createSaveFile(File file, int saveIndex) {
+        save(file, 1, saveIndex);
     }
 
-    void save(int levelID) {
-        save(FileManager.getInstance().getSave(saveIndex), levelID);
+    void save(int levelID, int saveIndex) {
+        save(FileManager.getInstance().getSave(saveIndex), levelID, saveIndex);
     }
 
-    private void save(File file, int levelID) {
+    private void save(File file, int levelID, int saveIndex) {
 
         try (FileWriter writer = new FileWriter(file.getAbsolutePath())) {
 
@@ -103,7 +97,7 @@ public final class LevelSaveManager {
             e.printStackTrace();
         }
 
-        return 0;
+        return -1;
     }
 
     private String writeBytes(byte[] bytes) {

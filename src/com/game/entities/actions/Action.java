@@ -1,6 +1,7 @@
 package com.game.entities.actions;
 
 import com.game.GameObject;
+import com.game.level.Level;
 
 public interface Action {
 
@@ -8,10 +9,18 @@ public interface Action {
         return true;
     }
 
+    default void interrupt() {
+    }
+
+    default void update() {
+    }
+
     default void act() {
     }
 
     void act(GameObject object);
+
+    Level getLevel();
 
     default double getX() {
         return 0;

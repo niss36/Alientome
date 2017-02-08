@@ -1,36 +1,31 @@
 package com.game.level;
 
 import com.game.blocks.Block;
-import com.game.blocks.BlockConstants;
+import com.game.blocks.BlockBuilder;
+import com.util.collisions.AxisAlignedBoundingBox;
+import com.util.collisions.StaticBoundingBox;
 
 import java.awt.image.BufferedImage;
 
-public final class LevelMap {
-    private static final LevelMap ourInstance = new LevelMap();
+public class LevelMap {
 
-    private Block[][] blocks;
-    private int width;
-    private int height;
+    private final Block[][] blocks;
+    private final AxisAlignedBoundingBox bounds;
+    private final int width;
+    private final int height;
 
-    private LevelMap() {
-    }
+    LevelMap(BufferedImage tileMap) {
 
-    public static LevelMap getInstance() {
-        return ourInstance;
-    }
+        width = tileMap.getWidth();
+        height = tileMap.getHeight();
 
-    void init(BufferedImage mapImage) {
-
-        BlockConstants.init();
-
-        width = mapImage.getWidth();
-        height = mapImage.getHeight();
+        bounds = new StaticBoundingBox(0, 0, width * Block.WIDTH, height * Block.WIDTH);
 
         blocks = new Block[width][height];
 
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
-                blocks[x][y] = Block.create(x, y, Block.parseRGB(mapImage.getRGB(x, y)));
+                blocks[x][y] = BlockBuilder.parseRGBA(x, y, tileMap.getRGB(x, y));
     }
 
     /**
@@ -46,8 +41,8 @@ public final class LevelMap {
      * @throws ArrayIndexOutOfBoundsException if <code>checkBounds</code>
      *                                        is false and the coordinates are out of bounds.
      */
-    public Block getBlock(int x, int y, boolean checkBounds) {
-        return (!checkBounds || checkBounds(x, y)) ? blocks[x][y] : Block.create(x, y, Block.VOID);
+    Block getBlock(int x, int y, boolean checkBounds) {
+        return (!checkBounds || checkBounds(x, y)) ? blocks[x][y] : Block.create(x, y, null);
     }
 
     public Block getBlock(int x, int y) {
@@ -55,7 +50,7 @@ public final class LevelMap {
     }
 
     public Block getBlockAbsCoordinates(double x, double y) {
-        return getBlock((int) (x / Block.width), (int) (y / Block.width));
+        return getBlock((int) (x / Block.WIDTH), (int) (y / Block.WIDTH));
     }
 
     /**
@@ -64,7 +59,7 @@ public final class LevelMap {
      * @return whether the given coordinates are contained in the
      * <code>LevelMap</code>'s <code>Block</code> array.
      */
-    public boolean checkBounds(int x, int y) {
+    boolean checkBounds(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
@@ -74,5 +69,9 @@ public final class LevelMap {
 
     public int getHeight() {
         return height;
+    }
+
+    public AxisAlignedBoundingBox getBounds() {
+        return bounds;
     }
 }

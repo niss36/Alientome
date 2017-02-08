@@ -34,10 +34,4 @@ public class Shield {
     public float percentValue() {
         return value / maxValue;
     }
-
-    /*@Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        System.out.println(this);
-    }*/
 }

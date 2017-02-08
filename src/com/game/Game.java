@@ -1,148 +1,175 @@
 package com.game;
 
+import com.events.GameEventDispatcher;
 import com.game.level.Level;
-import com.gui.Frame;
-import com.gui.PanelGame;
-import com.util.Config;
-import com.util.Direction;
+import com.gui.InfoDialog;
+import com.keybindings.InputManager;
+import com.util.DebugInfo;
+import com.util.Logger;
+import com.util.listeners.InputListener;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
+
+import static com.events.GameEventType.*;
+import static com.util.Util.makeListener;
 
 /**
  * <code>Runnable</code> object used to perform game updates.
  */
-public final class Game implements Runnable {
+public class Game implements Runnable {
 
-    private static final Game ourInstance = new Game();
-    private final ArrayList<Integer> pressedKeys = new ArrayList<>();
-    public State state;
-    private PanelGame panelGame;
-    private boolean run = true;
+    private static final Logger log = Logger.get();
+    private static final int SKIP_TICKS = 30;
+    private static final int MAX_FRAME_SKIP = 5;
+    private final Object waitLock = new Object();
+    private final GameRenderer renderer;
+    private Level level;
+    private boolean updating = false;
+    private State state = null;
+    private boolean run = false;
 
-    private Game() {
+    public Game(GameRenderer renderer) {
 
-        KeyEventDispatcher ked = e -> {
+        this.renderer = renderer;
 
-            if (e.getKeyCode() == Config.getInstance().getInt("Key.Pause") && e.getID() == KeyEvent.KEY_PRESSED) {
-                if (state == State.PAUSED) {
-                    resume();
-                    return true;
-                }
+        GameEventDispatcher dispatcher = GameEventDispatcher.getInstance();
 
-                if (state == State.RUNNING) {
-                    pause();
-                    return true;
-                }
+        dispatcher.register(GAME_START, e -> {
+            dispatcher.submit(null, GAME_RESUME);
+            run = true;
+            level = (Level) e.source;
+            level.reset();
+            new Thread(this, "Thread-Game").start();
+        });
+        dispatcher.register(GAME_EXIT, e -> {
+            setState(null);
+            run = false;
+            synchronized (waitLock) {
+                waitLock.notify();
             }
-
-            if (state != State.RUNNING) return false;
-
-            if (e.getKeyCode() == Config.getInstance().getInt("Key.Debug") && e.getID() == KeyEvent.KEY_PRESSED) {
-                panelGame.switchDebug();
-                return true;
-            }
-
-            if (e.getKeyCode() == Config.getInstance().getInt("Key.Fire")) {
-                if (e.getID() == KeyEvent.KEY_PRESSED) Level.getInstance().player.startCharging();
-                else if (e.getID() == KeyEvent.KEY_RELEASED) Level.getInstance().player.stopCharging();
-                return true;
-            }
-
-            if (e.getID() == KeyEvent.KEY_PRESSED && !pressedKeys.contains(e.getKeyCode()))
-                synchronized (pressedKeys) {
-                    pressedKeys.add(e.getKeyCode());
+        });
+        dispatcher.register(GAME_PAUSE, e -> {
+            setState(State.PAUSED);
+            updating = false;
+        });
+        dispatcher.register(GAME_RESUME, e -> {
+            setState(State.RUNNING);
+            if (!updating)
+                synchronized (waitLock) {
+                    updating = true;
+                    waitLock.notify();
                 }
-            else if (e.getID() == KeyEvent.KEY_RELEASED)
-                synchronized (pressedKeys) {
-                    pressedKeys.remove((Integer) e.getKeyCode());
-                }
+        });
+        dispatcher.register(GAME_RESET, e -> {
+            dispatcher.submit(null, GAME_RESUME);
+            level.reset();
+        });
+        dispatcher.register(GAME_DEATH, e -> setState(State.DEATH));
 
-            return e.getKeyCode() != Config.getInstance().getInt("Key.Jump") || Direction.toDirection(e.getKeyCode()) != null;
-        };
+        InputManager manager = InputManager.getInstance();
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ked);
+        manager.setListener("running", "pause", makeListener(() -> dispatcher.submit(null, GAME_PAUSE)));
+
+        InputListener levelListener = e -> level.submitEvent(e);
+
+        manager.setListener("running", "moveLeft", levelListener);
+        manager.setListener("running", "moveRight", levelListener);
+        manager.setListener("running", "jump", levelListener);
+        manager.setListener("running", "special1", levelListener);
+        manager.setListener("running", "special2", levelListener);
+        manager.setListener("running", "special3", levelListener);
+
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(manager::consumeEvent);
     }
 
-    public static Game getInstance() {
-        return ourInstance;
+    public boolean isRunning() {
+        return state == State.RUNNING;
     }
 
-    public void init(PanelGame panel) {
-
-        state = null;
-
-        panelGame = panel;
+    public boolean isPaused() {
+        return state == State.PAUSED;
     }
 
-    public void start() {
-
-        state = State.RUNNING;
-
-        run = true;
-
-        pressedKeys.clear();
-
-        Level.getInstance().reset();
-
-        new Thread(this, "Thread-Game").start();
+    public Level getLevel() {
+        return level;
     }
 
-    public void exit() {
-
-        Level.getInstance().save();
-        Frame.getInstance().showCard(Frame.MENU);
-
-        state = null;
-
-        run = false;
+    public DebugInfo getDebugInfo() {
+        return level.getDebugInfo();
     }
 
-    public void pause() {
-        if (state == State.RUNNING) panelGame.showCard(PanelGame.MENU);
-    }
-
-    public void resume() {
-
-        panelGame.showCard(PanelGame.BLANK);
-        pressedKeys.clear();
-    }
-
-    public void reset() {
-
-        resume();
-        Level.getInstance().reset();
-    }
-
-    public void playerDeath() {
-        panelGame.showCard(PanelGame.DEATH);
+    private void setState(State newState) {
+        state = newState;
+        if (state != null)
+            InputManager.getInstance().setActiveContext(state.inputContext);
     }
 
     @Override
     public void run() {
 
-        while (run) {
+        try {
 
-            try {
-                Thread.sleep(30);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            long nextTick = System.currentTimeMillis();
+            int loops;
+            double interpolation;
+
+            while (run) {
+
+                if (updating) {
+
+                    loops = 0;
+
+                    while (System.currentTimeMillis() > nextTick && loops < MAX_FRAME_SKIP) {
+
+                        level.update();
+
+                        nextTick += SKIP_TICKS;
+                        loops++;
+                    }
+
+                    interpolation = (double) (System.currentTimeMillis() + SKIP_TICKS - nextTick) / SKIP_TICKS;
+                    renderer.render(interpolation);
+
+                } else {
+
+                    long beforeWait = System.currentTimeMillis();
+
+                    synchronized (waitLock) {
+                        waitLock.wait();
+                    }
+                    long waited = System.currentTimeMillis() - beforeWait;
+                    nextTick += waited;
+                }
             }
 
-            if (state == State.RUNNING)
-                synchronized (pressedKeys) { //Prevent concurrent modification exception
-                    Level.getInstance().update(pressedKeys, panelGame);
-                }
+        } catch (Exception e) {
+            setState(State.ERROR);
+            log.e("An exception has occurred : ");
+            e.printStackTrace();
+            new InfoDialog("game.error.header", e.toString(), "game.error.label").showDialog();
+            GameEventDispatcher.getInstance().submit(null, GAME_EXIT);
+
+        } finally {
+
+            level.save();
+            level = null;
+
+            System.gc();
         }
     }
 
-    public enum State {
+    private enum State {
 
-        RUNNING,
-        PAUSED,
-        PAUSED_CONTROLS,
-        PAUSED_OPTIONS,
-        DEATH
+        RUNNING("running"),
+        PAUSED("menu.pause"),
+        DEATH("menu.death"),
+        ERROR("error");
+
+        private final String inputContext;
+
+        State(String inputContext) {
+
+            this.inputContext = inputContext;
+        }
     }
 }

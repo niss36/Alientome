@@ -1,152 +1,91 @@
 package com.game.level;
 
+import com.events.GameEventDispatcher;
+import com.events.GameEventListener;
+import com.events.GameEventType;
+import com.events.ListenersCache;
+import com.game.camera.Camera;
 import com.game.GameObject;
 import com.game.blocks.Block;
 import com.game.buffs.Buff;
-import com.game.buffs.BuffBuilder;
+import com.game.command.CommandHandler;
+import com.game.command.CommandSender;
+import com.game.control.Controller;
 import com.game.entities.Entity;
-import com.game.entities.EntityBuilder;
 import com.game.entities.EntityPlayer;
 import com.game.partitioning.Tree;
-import com.gui.PanelGame;
-import com.util.Config;
-import com.util.Direction;
-import com.util.Line;
-import com.util.Vec2;
+import com.keybindings.MappedKeyEvent;
+import com.settings.Config;
+import com.util.*;
+import com.util.visual.GameGraphics;
 import com.util.visual.SpritesLoader;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 import static com.util.Util.center;
-import static com.util.Util.log;
+import static com.util.Util.isSelector;
+import static com.util.profile.ExecutionTimeProfiler.theProfiler;
 
 /**
- * This single-instance class holds the list of this world's
+ * This class holds a list of this world's
  * <code>Entity</code>s, <code>Buff</code>s and the <code>EntityPlayer</code>,
  * along with a <code>Tree</code> partitioning the world.
  */
-public final class Level {
+public class Level {
 
-    private static final Level instance = new Level();
-    private final List<EntityBuilder> spawnList = new ArrayList<>();
-    private final List<BuffBuilder> buffSpawnList = new ArrayList<>();
+    private static final Logger log = Logger.get();
+    public final LevelMap map;
     private final List<Entity> entities = new ArrayList<>();
+    private final List<DelayedEntityListModification> delayedModifications = new ArrayList<>();
     private final List<Buff> buffs = new ArrayList<>();
     private final List<Line> lines = new ArrayList<>();
     private final Point origin = new Point(0, 0);
-    public EntityPlayer player;
-    private int levelID;
-    private Tree tree;
-    private int spawnX;
-    private int spawnY;
-    private BufferedImage background;
+    private final Tree tree;
+    private final BufferedImage background;
+    private final LevelSource levelSource;
+    private final DebugInfo debugInfo = new DebugInfo(this);
+    private final CommandHandler commandHandler = new CommandHandler();
+    private EntityPlayer player;
+    private Camera playerCamera;
+    private Controller playerController;
+    private long timeTicks = 0;
 
-    private Level() {
-    }
+    public Level(LevelSource levelSource) {
 
-    public static Level getInstance() {
-        return instance;
-    }
-
-    /**
-     * Initializes the <code>Block</code> array from an image, and spawn points
-     * of <code>EntityPlayer</code> and other <code>Entity</code>s from a text file.
-     */
-    public void init(int saveIndex) {
-
-        while (!SpritesLoader.hasLoaded())
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        spawnList.clear();
-        buffSpawnList.clear();
-
-        levelID = LevelSaveManager.getInstance().init(saveIndex);
-
-        log("Loading level " + levelID, 0);
+        this.levelSource = levelSource;
 
         try {
-            parseLevelXML(levelID);
-        } catch (Exception e) {
+            SpritesLoader.waitUntilLoaded();
+        } catch (InterruptedException e) {
             e.printStackTrace();
-            log("Error loading level : " + e.getMessage(), 3);
         }
 
-        background = SpritesLoader.getSprite("Level/" + levelID + "/background");
+        log.i("Loading level...");
 
-        LevelMap map = LevelMap.getInstance();
+        levelSource.load(this);
 
-        map.init(SpritesLoader.getSprite("Level/" + levelID + "/tilemap"));
+        background = levelSource.getBackground();
 
-        tree = new Tree(map.getWidth(), map.getHeight());
+        map = levelSource.getMap();
 
-        log("Loaded level", 0);
-    }
+        tree = levelSource.getTree();
 
-    private void parseLevelXML(int levelID) throws Exception {
+        GameEventListener listener = e -> playerController.reset();
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
+        ListenersCache.register(this, listener);
+        GameEventDispatcher.getInstance().register(GameEventType.GAME_RESUME, listener);
 
-        Document document = builder.parse(ClassLoader.getSystemResourceAsStream("Level/" + levelID + "/data.xml"));
-
-        Element root = document.getDocumentElement();
-        NodeList rootNodes = root.getChildNodes();
-
-        for (int i = 0; i < rootNodes.getLength(); i++) {
-            if (rootNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                Element node = (Element) rootNodes.item(i);
-
-                if (node.getNodeName().equals("block")) {
-                    Block.init(Integer.parseInt(node.getAttribute("width")));
-                } else if (node.getNodeName().equals("player")) {
-                    spawnX = Integer.parseInt(node.getAttribute("spawnX"));
-                    spawnY = Integer.parseInt(node.getAttribute("spawnY"));
-                } else if (node.getNodeName().equals("entities")) {
-
-                    NodeList entities = node.getElementsByTagName("entity");
-
-                    for (int j = 0; j < entities.getLength(); j++) {
-
-                        if (entities.item(j).getNodeType() == Node.ELEMENT_NODE) {
-                            Element entity = (Element) entities.item(j);
-
-                            spawnList.add(EntityBuilder.parse(entity, this));
-                        }
-                    }
-                } else if (node.getNodeName().equals("buffs")) {
-
-                    NodeList buffs = node.getElementsByTagName("buff");
-
-                    for (int j = 0; j < buffs.getLength(); j++) {
-
-                        if (buffs.item(j).getNodeType() == Node.ELEMENT_NODE) {
-                            Element buff = (Element) buffs.item(j);
-
-                            buffSpawnList.add(BuffBuilder.parse(buff));
-                        }
-                    }
-                }
-            }
-        }
+        log.i("Loaded level");
     }
 
     public void save() {
-        log("Saving level " + levelID, 0);
-        LevelSaveManager.getInstance().save(levelID);
-        log("Saved level", 0);
+        log.i("Saving level...");
+        levelSource.save();
+        ListenersCache.unregister(this);
+        log.i("Saved level");
     }
 
     /**
@@ -157,22 +96,21 @@ public final class Level {
 
         tree.clear();
         entities.clear();
+        delayedModifications.clear();
         buffs.clear();
 
-        spawnPlayer();
+        player = levelSource.newPlayer();
+        tree.add(player);
+        levelSource.reset(entities, buffs);
+        playerCamera = levelSource.newCamera(this);
+        playerController = levelSource.newController(this);
+        playerController.addControlledDeathListener(() -> GameEventDispatcher.getInstance().submit(null, GameEventType.GAME_DEATH));
 
-        for (EntityBuilder builder : spawnList) spawnEntity(builder.create());
-
-        for (BuffBuilder builder : buffSpawnList) spawnBuff(builder.create());
+        timeTicks = 0;
     }
 
-    /**
-     * Spawns the <code>EntityPlayer</code> at the spawn coordinates.
-     */
-    private void spawnPlayer() {
-
-        player = (EntityPlayer) Entity.createFromBlockPos(Entity.PLAYER, spawnX, spawnY, this);
-        tree.add(player);
+    public DebugInfo getDebugInfo() {
+        return debugInfo;
     }
 
     /**
@@ -181,8 +119,8 @@ public final class Level {
      * @param entity the <code>Entity</code> to add
      */
     public void spawnEntity(Entity entity) {
-        entities.add(entity);
-        tree.add(entity);
+        DelayedEntityListModification delayedModification = new DelayedEntityListModification(entity, ModificationType.ADD);
+        delayedModifications.add(delayedModification);
     }
 
     /**
@@ -191,28 +129,23 @@ public final class Level {
      * @param entity the <code>Entity</code> to remove
      */
     public void removeEntity(Entity entity) {
+        DelayedEntityListModification delayedModification = new DelayedEntityListModification(entity, ModificationType.REMOVE);
+        delayedModifications.add(delayedModification);
+    }
+
+    private void spawnEntityInternal(Entity entity) {
+        entities.add(entity);
+        tree.add(entity);
+    }
+
+    private void removeEntityInternal(Entity entity) {
         entities.remove(entity);
         tree.remove(entity);
-    }
-
-    public void spawnBuff(Buff buff) {
-        buffs.add(buff);
-        tree.add(buff);
-    }
-
-    public void removeBuff(Buff buff) {
-        buffs.remove(buff);
-        tree.remove(buff);
     }
 
     public void move(Vec2 prevPos, GameObject object) {
 
         tree.move(prevPos, object);
-    }
-
-    private int updateTree() {
-
-        return tree.updateCells();
     }
 
     public int countObjectsInRange(Class<? extends GameObject> type, double x, double y, double range, GameObject... excluded) {
@@ -227,71 +160,208 @@ public final class Level {
 
     void addLine(Line line) {
 
-        if (Config.getInstance().getBoolean("Debug.ShowSightLines")) lines.add(line);
+        if (Config.getInstance().getBoolean("showSightLines")) lines.add(line);
     }
 
     /**
      * Called on each game update.
-     *
-     * @param pressedKeys a list containing the keys currently pressed in order to apply movement to the player
-     * @param panel       the <code>PanelGame</code> to update
      */
-    public void update(List<Integer> pressedKeys, PanelGame panel) {
+    public void update() {
 
-        for (Integer pressedKey : pressedKeys) {
-
-            if (pressedKey == Config.getInstance().getInt("Key.Jump")) player.jump();
-            else {
-                Direction d = Direction.toDirection(pressedKey);
-
-                if (d != null) player.move(d);
-            }
-        }
+        theProfiler.startSection("Level Update");
 
         lines.clear();
 
-        int newX = (int) player.getPos().x - panel.getWidth() / 2;
-        int newY = (int) player.getPos().y - panel.getHeight() / 2;
+        theProfiler.startSection("Level Update/Commands");
 
-        int maxX = LevelMap.getInstance().getWidth() * Block.width;
+        commandHandler.executeAll();
 
-        if (newX < 0) newX = 0;
-        else if (newX + panel.getWidth() > maxX) newX = maxX - panel.getWidth();
+        theProfiler.endSection("Level Update/Commands");
 
-        int maxY = LevelMap.getInstance().getHeight() * Block.width;
+        theProfiler.startSection("Level Update/Entities Update");
 
-        if (newY < 0) newY = 0;
-        else if (newY + panel.getHeight() > maxY) newY = maxY - panel.getHeight();
+        player.preUpdate();
+        entities.forEach(Entity::preUpdate);
 
-        origin.move(newX, newY);
+        player.doBlockCollisions();
+        entities.forEach(Entity::doBlockCollisions);
 
-        player.onUpdate();
+        theProfiler.startSection("Level Update/Tree Update");
+        int updatedCells = tree.updateCells();
+        theProfiler.endSection("Level Update/Tree Update");
 
-        //noinspection ForLoopReplaceableByForEach
-        for (int i = 0; i < entities.size(); i++) entities.get(i).onUpdate();
+        player.postUpdate();
+        entities.forEach(Entity::postUpdate);
 
-        panel.update(updateTree());
+        theProfiler.endSection("Level Update/Entities Update");
+
+        delayedModifications.forEach(DelayedEntityListModification::doModification);
+        delayedModifications.clear();
+
+        debugInfo.registerUpdate();
+        debugInfo.registerCellUpdates(updatedCells);
+
+        playerCamera.update();
+
+        timeTicks++;
+
+        theProfiler.endSection("Level Update");
     }
 
-    public void draw(Graphics g, boolean debug) {
+    public void draw(Graphics g, boolean debug, double interpolation) {
 
+        theProfiler.startSection("Rendering/Drawing Level");
+
+        theProfiler.startSection("Rendering/Drawing Level/Background");
+        Rectangle clipBounds = g.getClipBounds();
         if (background != null)
             g.drawImage(background,
-                    center(g.getClipBounds().getWidth(), background.getWidth()),
-                    center(g.getClipBounds().getHeight(), background.getHeight()),
+                    center(clipBounds.width, background.getWidth()),
+                    center(clipBounds.height, background.getHeight()),
                     null);
+        theProfiler.endSection("Rendering/Drawing Level/Background");
 
-        for (int x = origin.x / Block.width - 1; x < (origin.x + g.getClipBounds().width) / Block.width + 1; x++)
-            for (int y = origin.y / Block.width - 1; y < (origin.y + g.getClipBounds().height) / Block.width + 1; y++)
-                if (LevelMap.getInstance().checkBounds(x, y))
-                    LevelMap.getInstance().getBlock(x, y, false).draw(g, origin, debug);
+        updateOrigin(clipBounds, interpolation);
 
-        for (Buff buff : buffs) buff.draw(g, origin, debug);
+        GameGraphics graphics = new GameGraphics(g, origin, timeTicks, interpolation);
 
-        for (Entity entity : entities) entity.draw(g, origin, debug);
+        theProfiler.startSection("Rendering/Drawing Level/Drawing Blocks");
+        for (int x = origin.x / Block.WIDTH - 1; x < (origin.x + clipBounds.width) / Block.WIDTH + 1; x++)
+            for (int y = origin.y / Block.WIDTH - 1; y < (origin.y + clipBounds.height) / Block.WIDTH + 1; y++)
+                if (map.checkBounds(x, y))
+                    map.getBlock(x, y, false).draw(graphics, debug);
+        theProfiler.endSection("Rendering/Drawing Level/Drawing Blocks");
 
-        if (player != null) player.draw(g, origin, debug);
+        theProfiler.startSection("Rendering/Drawing Level/Drawing Entities");
 
-        if (debug) for (Line line : lines) line.draw(g, origin);
+        for (Buff buff : buffs) buff.draw(graphics, debug);
+
+        for (Entity entity : entities) entity.draw(graphics, debug);
+
+        player.draw(graphics, debug);
+        theProfiler.endSection("Rendering/Drawing Level/Drawing Entities");
+
+        if (debug) for (Line line : lines) line.draw(graphics);
+
+        theProfiler.endSection("Rendering/Drawing Level");
+    }
+
+    private void updateOrigin(Rectangle clipBounds, double interpolation) {
+
+        theProfiler.startSection("Rendering/Drawing Level/Origin Update");
+
+        playerCamera.transform(origin, interpolation, clipBounds, map.getBounds());
+
+        theProfiler.endSection("Rendering/Drawing Level/Origin Update");
+    }
+
+    public boolean submitEvent(MappedKeyEvent e) {
+        return playerController.submitEvent(e);
+    }
+
+    public long getTimeTicks() {
+        return timeTicks;
+    }
+
+    public EntityPlayer getPlayer() {
+        return player;
+    }
+
+    public Entity getControlled() {
+        return playerController.getControlled();
+    }
+
+    public void setControlled(Entity target) {
+        getControlled().onControlLost();
+        playerController = target.newController();
+    }
+
+    public void setController(Controller controller) {
+
+        getControlled().setController(controller);
+        playerController = controller;
+    }
+
+    public void setCamera(Entity target) {
+        playerCamera = target.newCamera();
+    }
+
+    public List<Entity> parseSelector(String selector) {
+
+        assert isSelector(selector);
+
+        List<Entity> list = new ArrayList<>();
+
+        char type = selector.charAt(1);
+        switch (type) {
+
+            case 'p':
+                list.add(player);
+                break;
+
+            case 'c':
+                list.add(getControlled());
+                break;
+
+            case 'e':
+                String args = selector.substring(3, selector.lastIndexOf(']'));
+                int index = Integer.parseInt(args);
+                list.add(entities.get(index));
+                break;
+
+            case 'a':
+                list.addAll(entities);
+                list.add(player);
+                break;
+        }
+
+        return list;
+    }
+
+    public Entity parseSelectorFirst(String selector) {
+
+        return parseSelector(selector).get(0);
+    }
+
+    public void executeCommand(CommandSender sender, String commandStr) {
+
+        if (commandStr.startsWith("/"))
+            commandStr = commandStr.substring(1);
+
+        String[] commandArgs = commandStr.split(" ");
+        String commandID = commandArgs[0];
+        commandArgs = Arrays.copyOfRange(commandArgs, 1, commandArgs.length);
+
+        commandHandler.queueCommand(commandID, sender, commandArgs);
+    }
+
+    private enum ModificationType {
+        ADD,
+        REMOVE
+    }
+
+    private class DelayedEntityListModification {
+
+        private final Entity entity;
+        private final ModificationType type;
+
+        private DelayedEntityListModification(Entity entity, ModificationType type) {
+            this.entity = entity;
+            this.type = type;
+        }
+
+        private void doModification() {
+
+            switch (type) {
+
+                case ADD:
+                    Level.this.spawnEntityInternal(entity);
+                    break;
+
+                case REMOVE:
+                    Level.this.removeEntityInternal(entity);
+                    break;
+            }
+        }
     }
 }

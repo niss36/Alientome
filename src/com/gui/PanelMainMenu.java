@@ -1,64 +1,72 @@
 package com.gui;
 
-import com.util.Config;
+import com.keybindings.InputManager;
+import com.settings.Config;
+import com.util.GameFont;
+import com.util.I18N;
 
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.io.BufferedInputStream;
+import java.io.IOException;
 
-public class PanelMainMenu extends JPanel {
+import static com.util.Util.makeListener;
 
-    //CardLayout constants
-    private final String[] choices = {"Menu", "MenuSaves"};
-    private final int MENU = 0, MENU_SAVES = 1;
-    private final CardLayout cl = new CardLayout();
-    private final JPanel glass;
-    private final String versionStr;
+class PanelMainMenu extends JPanel implements ComponentListener {
 
-    public PanelMainMenu() {
-        super();
+    private final MenuInterface menuInterface;
+    private final Clip bgMusic;
+    private String versionStr;
 
-        versionStr = "Version " + Config.getInstance().getString("Version");
+    PanelMainMenu() {
 
-        glass = new JPanel();
+        setFont(GameFont.get(2));
 
-        glass.setLayout(cl);
+        setVersion();
+        I18N.addLangChangedListener(this::setVersion);
 
-        glass.setOpaque(false);
+        Dimension d = new Dimension(340, 70);
+        Font f = GameFont.get(5);
 
+        menuInterface = new MenuInterface(d, f, "main");
 
-        Dimension d = new Dimension(300, 80);
-        Font f = new Font("Serif", Font.BOLD, 50);
+        InputManager.getInstance().setListener("menu.main", "back", makeListener(menuInterface::popMenu));
 
-        String[] menuNames = {
-                "Play",
-                "Options",
-                "Quit"};
+        Clip clip = null;
 
-        ActionListener[] menuListeners = {
-                e -> showCard(MENU_SAVES),
-                e -> {
-                },
-                e -> System.exit(0)};
+        try (AudioInputStream inputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(ClassLoader.getSystemResourceAsStream("Audio/main0.wav")))) {
+            clip = AudioSystem.getClip();
+            clip.open(inputStream);
 
-        JPanel menu = MenuUtility.createMenu(d, "Main Menu", f, menuNames, menuListeners);
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 
-        MenuSavePanel[] savePanels = new MenuSavePanel[3];
+            Config.getInstance().addSettingListener("volume", newValue -> setVolume(gainControl, (int) newValue));
+            setVolume(gainControl, Config.getInstance().getInt("volume"));
 
-        Dimension d1 = new Dimension(80, 80);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
 
-        for (int i = 0; i < savePanels.length; i++) {
-
-            savePanels[i] = new MenuSavePanel(d, d1, f, i + 1);
+        } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
+            e.printStackTrace();
         }
 
-        MenuButton savesBack = new MenuButton("Back", d, f);
-        savesBack.addActionListener(e -> showCard(MENU));
+        bgMusic = clip;
 
-        JPanel menuSaves = MenuUtility.createMenu(d, "Saves", f, savePanels, savesBack);
+        addComponentListener(this);
+    }
 
-        glass.add(menu, choices[MENU]);
-        glass.add(menuSaves, choices[MENU_SAVES]);
+    private void setVersion() {
+
+        versionStr = I18N.getStringFormatted("menu.main.version", Config.getInstance().getString("version"));
+        repaint();
+    }
+
+    private void setVolume(FloatControl gainControl, int value) {
+
+        float volume = value / 100f;
+        gainControl.setValue((float) (Math.log(volume) / Math.log(10.0) * 20.0));
     }
 
     @Override
@@ -68,13 +76,34 @@ public class PanelMainMenu extends JPanel {
         g.drawString(versionStr, 5, getHeight() - 5);
     }
 
-    public void showCard(int index) {
-
-        cl.show(glass, choices[index]);
+    void showBaseMenu() {
+        menuInterface.showBase();
     }
 
-    JPanel getGlass() {
+    JComponent getGlass() {
 
-        return glass;
+        return menuInterface;
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+        if (bgMusic != null)
+            bgMusic.loop(Clip.LOOP_CONTINUOUSLY);
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
+        if (bgMusic != null)
+            bgMusic.stop();
     }
 }

@@ -1,8 +1,11 @@
 package com.game.entities;
 
+import com.game.control.Control;
+import com.game.control.Controller;
 import com.game.level.Level;
-import com.gui.Frame;
-import com.util.Config;
+import com.settings.Config;
+import com.util.Vec2;
+import com.util.visual.GameGraphics;
 
 import java.awt.*;
 
@@ -13,15 +16,13 @@ public class EntityPlayer extends EntityLiving {
     private int chargeState = -1;
 
     @SuppressWarnings("SameParameterValue")
-    EntityPlayer(int x, int y, Level level) {
+    EntityPlayer(Vec2 pos, Level level) {
 
-        super(x, y, new Dimension(20, 31), level, 20);
+        super(pos, new Dimension(20, 31), level, 20);
     }
 
     @Override
-    public void onUpdate() {
-
-        super.onUpdate();
+    void preUpdateInternal() {
 
         if (ghostBallCoolDown > 0) ghostBallCoolDown--;
 
@@ -41,22 +42,16 @@ public class EntityPlayer extends EntityLiving {
     }
 
     @Override
-    protected void drawDebug(Graphics g, Point origin) {
-        super.drawDebug(g, origin);
+    protected void drawDebug(GameGraphics g) {
+        super.drawDebug(g);
 
-        if (Config.getInstance().getBoolean("Debug.ShowBlockIn") && blockIn != null) {
+        if (Config.getInstance().getBoolean("showBlockIn") && blockIn != null) {
 
-            Color c = g.getColor();
-            g.setColor(new Color(255, 0, 0, 100));
-            blockIn.getBoundingBox().fill(g, origin);
-            g.setColor(c);
+            Color c = g.graphics.getColor();
+            g.graphics.setColor(new Color(255, 0, 0, 100));
+            blockIn.getBoundingBox().fill(g);
+            g.graphics.setColor(c);
         }
-    }
-
-    @Override
-    public void onDeath() {
-
-        Frame.getInstance().panelGame.game.playerDeath();
     }
 
     private void throwGhostBall() {
@@ -79,5 +74,15 @@ public class EntityPlayer extends EntityLiving {
             throwGhostBall();
             chargeState = -1;
         }
+    }
+
+    @Override
+    public Controller newController() {
+        Controller controller = super.newController();
+        controller.addControl(Control.createChargeControl(this, "special1",
+                entity -> ((EntityPlayer) entity).startCharging(),
+                entity -> ((EntityPlayer) entity).stopCharging()));
+
+        return controller;
     }
 }

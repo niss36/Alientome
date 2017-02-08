@@ -3,8 +3,11 @@ package com.game.buffs;
 import com.game.GameObject;
 import com.game.blocks.Block;
 import com.game.entities.Entity;
-import com.util.AxisAlignedBB;
+import com.util.Vec2;
+import com.util.collisions.AxisAlignedBoundingBox;
+import com.util.collisions.StaticBoundingBox;
 import com.util.visual.AnimationsHandler;
+import com.util.visual.GameGraphics;
 
 import java.awt.*;
 
@@ -17,12 +20,11 @@ public abstract class Buff extends GameObject implements BuffConstants {
     /**
      * Initialize the <code>Buff</code>.
      *
-     * @param x     the x coordinate
-     * @param y     the y coordinate
-     * @param dim   this <code>Buff</code>'s dimension
+     * @param pos this <code>Buff</code>'s position
+     * @param dim this <code>Buff</code>'s dimension
      */
-    Buff(int x, int y, Dimension dim) {
-        super(x * Block.width, y * Block.width);
+    Buff(Vec2 pos, Dimension dim) {
+        super(pos);
 
         this.dim = dim;
 
@@ -32,36 +34,35 @@ public abstract class Buff extends GameObject implements BuffConstants {
     static Buff createFromBlockPos(int type, int x, int y) {
 
         Buff buff;
+        Vec2 pos = new Vec2();
 
         switch (type) {
 
             case HEAL:
-                buff = new BuffHeal(0, 0, 10);
+                buff = new BuffHeal(pos, 10);
                 break;
 
             case SHIELD:
-                buff = new BuffShield(0, 0, 10);
+                buff = new BuffShield(pos, 10);
                 break;
 
             default:
-                return null;
+                throw new IllegalArgumentException("Unknown type : " + type);
         }
 
-        double x0 = x * Block.width + Block.width / 2 - buff.dim.width / 2;
-        double y0 = y * Block.width + Block.width - buff.dim.height;
-
-        buff.pos.set(x0, y0);
+        pos.x = x * Block.WIDTH + Block.WIDTH / 2 - buff.dim.width / 2;
+        pos.y = y * Block.WIDTH + Block.WIDTH - buff.dim.height;
 
         buff.actualizeBoundingBox();
 
         return buff;
     }
 
-    public abstract void entityEntered(Entity entity);
+    public abstract void onEntityEntered(Entity entity);
 
     @Override
-    protected AxisAlignedBB boundingBox() {
-        return new AxisAlignedBB(pos, dim.width, dim.height);
+    protected AxisAlignedBoundingBox boundingBox() {
+        return new StaticBoundingBox(pos, dim.width, dim.height);
     }
 
     @Override
@@ -70,30 +71,25 @@ public abstract class Buff extends GameObject implements BuffConstants {
     }
 
     @Override
-    protected void draw(Graphics g, int x, int y) {
-
+    protected void draw(GameGraphics g, int x, int y) {
         handler.draw(g, x, y);
     }
 
     @Override
-    protected void drawDebug(Graphics g, Point origin) {
+    protected void drawDebug(GameGraphics g) {
 
-        g.setColor(Color.red);
+        g.graphics.setColor(Color.red);
 
-        boundingBox.draw(g, origin);
+        boundingBox.draw(g);
     }
 
     @Override
     protected boolean drawCondition() {
-
         return handler.canDraw();
     }
 
     @Override
-    protected void drawSpecial(Graphics g, Point origin) {
-
-        g.setColor(Color.black);
-
-        boundingBox.fill(g, origin);
+    protected void drawSpecial(GameGraphics g) {
+        boundingBox.fill(g);
     }
 }

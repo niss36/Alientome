@@ -24,7 +24,7 @@ public class AITestAction extends AI {
         super(defaultAction.entity);
 
         if (tests.length != actions.length)
-            throw new IllegalArgumentException("Tests and actions arrays do not have the same length.");
+            throw new IllegalArgumentException("Tests and actions arrays do not have the same length");
 
         aiTests.addAll(Arrays.asList(tests));
         ais.addAll(Arrays.asList(actions));

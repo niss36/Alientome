@@ -25,7 +25,7 @@ public class AIFire extends AI {
         if (target.getPos().x < entity.getPos().x) entity.move(Direction.LEFT, 0);
         else if (target.getPos().x > entity.getPos().x) entity.move(Direction.RIGHT, 0);
 
-        ((EntityEnemyBow) entity).fire();
+        ((EntityEnemyBow) entity).startCharging();
     }
 
     @Override

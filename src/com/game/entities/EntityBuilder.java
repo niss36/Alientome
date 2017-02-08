@@ -10,14 +10,14 @@ public class EntityBuilder {
     private final int y;
     private final Level level;
 
-    private EntityBuilder(int type, int x, int y, Level level) {
+    public EntityBuilder(int type, int x, int y, Level level) {
         this.type = type;
         this.x = x;
         this.y = y;
         this.level = level;
     }
 
-    public static EntityBuilder parse(Element entityNode, Level level) {
+    public static EntityBuilder parseXML(Element entityNode, Level level) {
 
         int type = Integer.parseInt(entityNode.getAttribute("type"));
         int x = Integer.parseInt(entityNode.getAttribute("spawnX"));

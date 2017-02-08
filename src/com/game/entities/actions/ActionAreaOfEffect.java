@@ -24,15 +24,29 @@ public class ActionAreaOfEffect implements Action {
     }
 
     @Override
+    public void interrupt() {
+        action.interrupt();
+    }
+
+    @Override
+    public void update() {
+        action.update();
+    }
+
+    @Override
     public void act() {
 
-        Level.getInstance().getObjectsInRange(affected, getX(), getY(), range, excluded)
-                .forEach(this::act);
+        getLevel().getObjectsInRange(affected, getX(), getY(), range, excluded).forEach(this::act);
     }
 
     @Override
     public void act(GameObject object) {
         action.act(object);
+    }
+
+    @Override
+    public Level getLevel() {
+        return action.getLevel();
     }
 
     @Override

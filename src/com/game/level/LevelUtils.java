@@ -3,13 +3,14 @@ package com.game.level;
 import com.game.blocks.Block;
 import com.game.entities.Entity;
 import com.util.Line;
+import com.util.Vec2;
 
-import java.awt.geom.Point2D;
+import static com.util.profile.ExecutionTimeProfiler.theProfiler;
 
 /**
  * Static util class for operations related to the <code>Level</code>
  */
-public final class LevelUtils {
+public class LevelUtils {
 
     /**
      * Not instantiable
@@ -26,23 +27,26 @@ public final class LevelUtils {
      */
     public static boolean canSeeEntity(Entity entity, Entity other) {
 
-        Point2D.Double point = new Point2D.Double(entity.getPos().x + entity.dim.getWidth() / 2, entity.getPos().y);
-        Point2D.Double point1 = new Point2D.Double(other.getPos().x + other.dim.getWidth() / 2, other.getPos().y);
+        theProfiler.startSection("Sight Test");
+        Vec2 pos = new Vec2(entity.getPos().x + entity.dimension.getWidth() / 2, entity.getPos().y);
+        Vec2 pos1 = new Vec2(other.getPos().x + other.dimension.getWidth() / 2, other.getPos().y);
 
-        Line line = new Line(point, point1);
+        Line line = new Line(pos, pos1);
 
-        Level.getInstance().addLine(line);
+        entity.level.addLine(line);
 
-        Block[] blocksLine = line(point, point1);
+        Block[] blocksLine = line(pos, pos1, entity.level.map);
 
         for (Block block : blocksLine)
             if (block.isOpaque() && block.getBoundingBox().intersects(line)) {
                 line.see = false;
+                theProfiler.endSection("Sight Test");
                 return false;
             }
 
         line.see = true;
 
+        theProfiler.endSection("Sight Test");
         return true;
     }
 
@@ -51,40 +55,40 @@ public final class LevelUtils {
         return start + t * (end - start);
     }
 
-    //Linear interpolation for Points
-    private static Point2D.Double lERPPoint(Point2D.Double point, Point2D.Double point1, double t) {
-        return new Point2D.Double(lERP(point.x, point1.x, t), lERP(point.y, point1.y, t));
+    //Linear interpolation for Vec2s
+    private static Vec2 lERPVec2(Vec2 pos, Vec2 pos1, double t) {
+        return new Vec2(lERP(pos.x, pos1.x, t), lERP(pos.y, pos1.y, t));
     }
 
     /**
-     * @param point  a <code>Point</code>
-     * @param point1 an other <code>Point</code>
-     * @return the diagonal distance between <code>point</code> and <code>point1</code>
+     * @param pos  a <code>Point</code>
+     * @param pos1 an other <code>Point</code>
+     * @return the diagonal distance between <code>pos</code> and <code>pos1</code>
      */
-    private static int diagonalDistance(Point2D.Double point, Point2D.Double point1) {
-        double dx = point1.x - point.x, dy = point1.y - point.y;
+    private static int diagonalDistance(Vec2 pos, Vec2 pos1) {
+        double dx = pos1.x - pos.x, dy = pos1.y - pos.y;
         return (int) Math.max(Math.abs(dx), Math.abs(dy));
     }
 
     /**
-     * Get the <code>Block</code>s forming the line from <code>point</code> to <code>point1</code>
+     * Get the <code>Block</code>s forming the line from <code>pos</code> to <code>pos1</code>
      *
-     * @param point  a <code>Point</code>
-     * @param point1 an other <code>Point</code>
+     * @param pos  a <code>Point</code>
+     * @param pos1 an other <code>Point</code>
      * @return an array of <code>Block</code>s corresponding to
-     * the line between <code>point</code> and <code>point1</code>
+     * the line between <code>pos</code> and <code>pos1</code>
      */
-    private static Block[] line(Point2D.Double point, Point2D.Double point1) {
-        int n = diagonalDistance(point, point1) / Block.width + 2;
+    private static Block[] line(Vec2 pos, Vec2 pos1, LevelMap map) {
+        int n = diagonalDistance(pos, pos1) / Block.WIDTH + 2;
 
         Block[] tiles = new Block[n];
 
         for (int i = 0; i < n; i++) {
             double t = (double) i / n;
 
-            Point2D.Double p = lERPPoint(point, point1, t);
+            Vec2 p = lERPVec2(pos, pos1, t);
 
-            tiles[i] = LevelMap.getInstance().getBlockAbsCoordinates(p.x, p.y);
+            tiles[i] = map.getBlockAbsCoordinates(p.x, p.y);
         }
         return tiles;
     }

@@ -1,7 +1,10 @@
 package com.game.entities;
 
+import com.game.control.Control;
+import com.game.control.Controller;
 import com.game.entities.ai.*;
 import com.game.level.Level;
+import com.util.Vec2;
 
 import java.awt.*;
 
@@ -11,51 +14,65 @@ public class EntityEnemyBow extends EntityEnemy {
     private int fireState = -1;
 
     /**
-     * @param x     the x coordinate
-     * @param y     the y coordinate
+     * @param pos this <code>Entity</code>'s position
      * @param level the <code>Level</code> this <code>Entity</code> is in
      */
     @SuppressWarnings("SameParameterValue")
-    EntityEnemyBow(int x, int y, Level level) {
-        super(x, y, level, new Dimension(19, 27), 0, false);
+    EntityEnemyBow(Vec2 pos, Level level) {
+        super(pos, new Dimension(19, 27), level, 10, 0, false);
 
         maxVelocity = 4;
+    }
+
+    public void startCharging() {
+
+        if (coolDown == 0 && fireState < 0) fireState = 0;
+    }
+
+    public void stopCharging() {
+
+        if (fireState >= 0) {
+
+            fire();
+            fireState = -1;
+        }
     }
 
     public void fire() {
 
         if (coolDown == 0) {
 
-            fireState = 0;
+            float chargeRatio = fireState / 17f;
 
-            handler.setAnimationUsed(1);
+            level.spawnEntity(new EntityArrow(this, chargeRatio * 3, chargeRatio * (-level.getPlayer().distanceTo(this) + entityRandom.nextInt(50) - 25) / 25));
             coolDown = 33;
         }
     }
 
     @Override
-    public void onUpdate() {
+    void preUpdateInternal() {
 
         if (coolDown > 0) coolDown--;
 
         if (fireState >= 0) {
-            if (fireState < 17) fireState++;
+            if (fireState >= 17) stopCharging();
             else {
-                level.spawnEntity(new EntityArrow(this, 3, (-level.player.distanceTo(this) + entityRandom.nextInt(50) - 25) / 25));
-                fireState = -1;
-
-                handler.setAnimationUsed(0);
+                handler.setAnimationUsed(1);
+                fireState++;
             }
-        }
+        } else
+            handler.setAnimationUsed(0);
 
-        super.onUpdate();
+        super.preUpdateInternal();
     }
 
     @Override
     AI createAI() {
 
-        AITest[] tests = {new AISeeEntity(this, level.player, 150), new AISeeEntity(this, level.player, 400)};
-        AI[] actions = {new AIFlee(this, level.player, 150), new AIFire(this, level.player)};
+        Entity player = level.getPlayer();
+
+        AITest[] tests = {new AISeeEntity(this, player, 150), new AISeeEntity(this, player, 400)};
+        AI[] actions = {new AIFlee(this, player, 150), new AIFire(this, player)};
 
         return new AIRepeat(
                 new AITestAction(
@@ -64,5 +81,15 @@ public class EntityEnemyBow extends EntityEnemy {
                         new AIWander(this)
                 )
         );
+    }
+
+    @Override
+    public Controller newController() {
+        Controller controller = super.newController();
+        controller.addControl(Control.createChargeControl(this, "special1",
+                entity -> ((EntityEnemyBow) entity).startCharging(),
+                entity -> ((EntityEnemyBow) entity).stopCharging()));
+
+        return controller;
     }
 }

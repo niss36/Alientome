@@ -1,34 +1,44 @@
 package com.gui;
 
 import com.game.Game;
-import com.game.Game.State;
-import com.game.level.Level;
-import com.util.Config;
+import com.events.GameEventDispatcher;
+import com.game.GameRenderer;
+import com.keybindings.InputManager;
+import com.util.GameFont;
+import com.util.Util;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 
-public class PanelGame extends JPanel {
+import static com.events.GameEventType.*;
+import static com.util.Util.deepCopy;
+import static com.util.Util.makeListener;
+import static com.util.profile.ExecutionTimeProfiler.theProfiler;
 
-    //CardLayout constants
-    private static final String[] choices = {"Blank", "Menu", "MenuControls", "MenuOptions", "Death"};
-    public static final int BLANK = 0, MENU = 1, MENU_CONTROLS = 2, MENU_OPTIONS = 3, DEATH = 4;
-    public final Game game = Game.getInstance();
+public class PanelGame extends JPanel implements GameRenderer {
+
     private final CardLayout cl = new CardLayout();
     private final JPanel glass;
+    private final MenuInterface menuInterface;
+    private final Font debugFont = GameFont.get(2);
+    private final Font defaultFont = GameFont.get(1);
+    private final Game game;
     private boolean debug = false;
-    private long prevTime;
-    private int fps;
-    private int tempFPS;
-    private int updatedCells;
+    private BufferedImage frontBuffer;
+    private BufferedImage backBuffer;
+    private boolean takeScreenshot;
 
     PanelGame() {
-        super();
 
-        game.init(this);
+        game = new Game(this);
+
+        GameEventDispatcher dispatcher = GameEventDispatcher.getInstance();
+        InputManager manager = InputManager.getInstance();
+
+        manager.setListener("running", "debug", makeListener(() -> debug = !debug));
+        manager.setListener("global", "profileDump", makeListener(theProfiler::dumpProfileData));
+        manager.setListener("global", "screenshot", makeListener(this::tryTakeScreenshot));
 
         glass = new JPanel();
 
@@ -39,131 +49,96 @@ public class PanelGame extends JPanel {
         JPanel blank = new JPanel(null);
         blank.setOpaque(false);
 
+        JPanel chat = new JPanel();
+        chat.setLayout(new BoxLayout(chat, BoxLayout.X_AXIS));
+        chat.setOpaque(false);
 
-        Dimension d = new Dimension(200, 40);
+        JPanel chatInner = new JPanel();
+        chatInner.setLayout(new BoxLayout(chatInner, BoxLayout.Y_AXIS));
+        chatInner.setOpaque(false);
 
-        String[] menuNames = {
-                "Controls",
-                "Options",
-                "Resume",
-                "Reset Level",
-                "Exit to Menu"};
+        chatInner.add(Box.createVerticalGlue());
+        chatInner.add(new ChatInterface(game::getLevel));
+        chatInner.add(Box.createRigidArea(new Dimension(0, 200)));
 
-        ActionListener[] menuListeners = {
-                e -> showCard(MENU_CONTROLS),
-                e -> showCard(MENU_OPTIONS),
-                e -> game.resume(),
-                e -> game.reset(),
-                e -> game.exit()};
+        chat.add(chatInner);
+        chat.add(Box.createHorizontalGlue());
 
-        JPanel menu = MenuUtility.createMenu(d, "Pause menu", menuNames, menuListeners);
+        Dimension d = new Dimension(200, 44);
 
+        menuInterface = new MenuInterface(d, null, "pause");
 
-        String[] controlsLabels = {"Jump : ", "Move Left : ", "Move Right : ", "Fire : ", "Debug : "};
+        manager.setListener("menu.pause", "back", makeListener(menuInterface::popMenu));
 
-        MenuButton[] controlsButtons = new MenuButton[controlsLabels.length];
+        menuInterface.addBaseMenuPoppedListener(() -> dispatcher.submit(null, GAME_RESUME));
 
-        for (int i = 0; i < controlsButtons.length; i++) {
-            MenuKeyButton button = new MenuKeyButton(d, i);
-            controlsButtons[i] = button;
+        MenuInterface deathInterface = new MenuInterface(d, null, "death");
+
+        manager.setListener("menu.death", "respawn", makeListener(() -> dispatcher.submit(null, GAME_RESET)));
+        manager.setListener("menu.death", "exit", makeListener(() -> dispatcher.submit(null, GAME_EXIT)));
+        manager.setListener("running", "chat", makeListener(() -> {
+            cl.show(glass, "chat");
+            InputManager.getInstance().setActiveContext("chat");
+        }));
+        manager.setListener("chat", "escape", makeListener(() -> {
+            cl.show(glass, "blank");
+            InputManager.getInstance().setActiveContext("running");
+        }));
+
+        dispatcher.register(GAME_EXIT, e -> manager.setActiveContext("menu.main"));
+        dispatcher.register(GAME_PAUSE, e -> cl.show(glass, "menu"));
+        dispatcher.register(GAME_RESUME, e -> cl.show(glass, "blank"));
+        dispatcher.register(GAME_DEATH, e -> cl.show(glass, "death"));
+
+        glass.add(blank, "blank");
+        glass.add(chat, "chat");
+        glass.add(menuInterface, "menu");
+        glass.add(deathInterface, "death");
+    }
+
+    @Override
+    public void render(double interpolation) {
+
+        theProfiler.startSection("Rendering");
+
+        theProfiler.startSection("Rendering/Updating Graphics");
+
+        if (backBuffer == null) {
+            System.out.println("Creating buffer");
+            backBuffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
         }
 
-        MenuButton buttonReset = new MenuButton("Reset controls", d);
-        buttonReset.addActionListener(e -> Config.getInstance().resetKeys());
+        Graphics graphics = backBuffer.createGraphics();
+        graphics.setClip(getBounds());
+        graphics.setFont(defaultFont);
 
-        MenuButton buttonBack = new MenuButton("Done", d);
-        buttonBack.addActionListener(e -> showCard(MENU));
+        theProfiler.endSection("Rendering/Updating Graphics");
 
-        JPanel menuControls = MenuUtility.createLabelledMenu(d, "Controls", controlsLabels, controlsButtons, buttonReset, buttonBack);
-
-        menuControls.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == Config.getInstance().getInt("Key.Pause") && !MenuKeyButton.inUse)
-                    buttonBack.doClick();
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
-
-
-        String[] optionsLabels = {"Pause on lost focus : ", "Show block in : ", "Show lines of sight : "};
-
-        MenuButton[] optionsButtons = new MenuButton[optionsLabels.length];
-
-        for (int i = 0; i < optionsButtons.length; i++) {
-
-            MenuSwitchButton button = new MenuSwitchButton(d, i);
-            Config.getInstance().addConfigListener(button);
-            optionsButtons[i] = button;
+        if (takeScreenshot) {
+            theProfiler.startSection("Rendering/Taking Screenshot");
+            takeScreenshot = false;
+            BufferedImage bufferCopy = deepCopy(frontBuffer);
+            saveScreenshot(bufferCopy);
+            theProfiler.endSection("Rendering/Taking Screenshot");
         }
 
-        MenuButton buttonReset0 = new MenuButton("Reset options", d);
-        buttonReset0.addActionListener(e -> Config.getInstance().reset());
+        game.getLevel().draw(graphics, debug, interpolation);
 
-        MenuButton buttonBack0 = new MenuButton("Done", d);
-        buttonBack0.addActionListener(e -> showCard(MENU));
+        theProfiler.startSection("Rendering/Syncing");
+        Toolkit.getDefaultToolkit().sync();
+        theProfiler.endSection("Rendering/Syncing");
 
-        JPanel menuOptions = MenuUtility.createLabelledMenu(new Dimension(300, 40), "Options", optionsLabels, optionsButtons, buttonReset0, buttonBack0);
+        BufferedImage swap = frontBuffer;
 
-        menuOptions.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
+        frontBuffer = backBuffer;
 
-            }
+        backBuffer = swap;
 
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == Config.getInstance().getInt("Key.Pause")) buttonBack0.doClick();
-            }
+        game.getDebugInfo().registerFrame();
 
-            @Override
-            public void keyReleased(KeyEvent e) {
+        repaint();
 
-            }
-        });
-
-
-        MenuButton respawn = new MenuButton("Respawn", d);
-        respawn.addActionListener(e -> game.reset());
-
-        MenuButton quit = new MenuButton("Exit to Menu", d);
-        quit.addActionListener(e -> game.exit());
-
-        JPanel death = MenuUtility.createChoiceMenu(d, "You died", 40, respawn, quit);
-
-        death.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) respawn.doClick();
-
-                else if (e.getKeyCode() == Config.getInstance().getInt("Key.Pause")) quit.doClick();
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
-
-        glass.add(blank, choices[BLANK]);
-        glass.add(menu, choices[MENU]);
-        glass.add(menuControls, choices[MENU_CONTROLS]);
-        glass.add(menuOptions, choices[MENU_OPTIONS]);
-        glass.add(death, choices[DEATH]);
+        theProfiler.endSection("Rendering");
     }
 
     @Override
@@ -171,53 +146,41 @@ public class PanelGame extends JPanel {
 
         super.paintComponent(g);
 
-        Level.getInstance().draw(g, debug);
+        g.drawImage(frontBuffer, 0, 0, this);
 
         if (debug) {
-            Font f = new Font(null, Font.PLAIN, 20);
-            g.setFont(f);
-            g.setColor(Color.red);
-            g.drawString(tempFPS + "FPS", 0, 16);
-            g.drawString(updatedCells + " cell updates", 0, 40);
+
+            g.setColor(new Color(96, 96, 96, 128));
+            g.fillRect(0, 0, 200, 200);
+            g.setFont(debugFont);
+            g.setColor(Color.white);
+            game.getDebugInfo().draw(g);
         }
 
-        if (game != null && game.state != State.RUNNING) {
+        if (!game.isRunning()) {
             g.setColor(new Color(0, 0, 0, 128));
             g.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 
-    public void switchDebug() {
-        debug = !debug;
+    void showBaseMenu() {
+        menuInterface.showBase();
     }
 
-    public void showCard(int index) {
-
-        for (State state : State.values()) if (state.ordinal() == index) game.state = state;
-
-        cl.show(glass, choices[index]);
-
-        if (index == BLANK) Frame.getInstance().requestFocus();
-
-        else glass.getComponents()[index].requestFocus();
-    }
-
-    JPanel getGlass() {
+    JComponent getGlass() {
         return glass;
     }
 
-    public void update(int updatedCells) {
+    private void tryTakeScreenshot() {
 
-        if (System.currentTimeMillis() - prevTime >= 1000) {
-            prevTime = System.currentTimeMillis();
-            tempFPS = fps;
-            fps = 0;
-        } else {
-            fps++;
-        }
+        // Soft alternative to synchronisation in order to prevent the buffer from being copied while rendering
+        if (game.isPaused()) saveScreenshot(frontBuffer);
+        // If the game is actively rendering, the next rendering pass will take the screenshot
+        else takeScreenshot = true;
+    }
 
-        this.updatedCells = updatedCells;
+    private void saveScreenshot(BufferedImage image) {
 
-        repaint();
+        new Thread(() -> Util.saveScreenshot(image), "Thread-Screenshot").start();
     }
 }

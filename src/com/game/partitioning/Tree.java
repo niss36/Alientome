@@ -2,12 +2,11 @@ package com.game.partitioning;
 
 import com.game.GameObject;
 import com.game.blocks.Block;
+import com.util.Logger;
 import com.util.Vec2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import static com.util.Util.log;
 
 /**
  * Holds a 2d array of <code>Cell</code>s dividing the <code>Level</code>
@@ -15,8 +14,9 @@ import static com.util.Util.log;
  */
 public class Tree {
 
-    static int updated = 0;
+    private static final Logger log = Logger.get();
     private final Cell[][] cells;
+    private int updated = 0;
 
     /**
      * Constructs an empty <code>Tree</code>.
@@ -26,7 +26,7 @@ public class Tree {
      */
     public Tree(int x, int y) {
 
-        log("Initializing cells", 0);
+        log.i("Initializing cells");
 
         long time = System.currentTimeMillis();
 
@@ -36,7 +36,7 @@ public class Tree {
             for (int j = 0; j < cells[i].length; j++)
                 cells[i][j] = new Cell(i, j);
 
-        log("Initialized " + x * y + " cells in " + (System.currentTimeMillis() - time) + " ms", 0);
+        log.i("Initialized " + x * y + " cells in " + (System.currentTimeMillis() - time) + " ms");
     }
 
     /**
@@ -64,8 +64,8 @@ public class Tree {
      */
     public void add(GameObject object) {
 
-        int x = (int) (object.getPos().x / Block.width);
-        int y = (int) (object.getPos().y / Block.width);
+        int x = (int) (object.getPos().x / Block.WIDTH);
+        int y = (int) (object.getPos().y / Block.WIDTH);
 
         for (int i = x; i <= x + 1; i++) {
 
@@ -90,8 +90,8 @@ public class Tree {
      */
     public void remove(GameObject object) {
 
-        int x = (int) (object.getPos().x / Block.width);
-        int y = (int) (object.getPos().y / Block.width);
+        int x = (int) (object.getPos().x / Block.WIDTH);
+        int y = (int) (object.getPos().y / Block.WIDTH);
 
         removeObjectFromSquare(object, x, y);
     }
@@ -104,8 +104,8 @@ public class Tree {
      */
     public void move(Vec2 prevPos, GameObject object) {
 
-        int oldX = (int) (prevPos.x / Block.width);
-        int oldY = (int) (prevPos.y / Block.width);
+        int oldX = (int) (prevPos.x / Block.WIDTH);
+        int oldY = (int) (prevPos.y / Block.WIDTH);
 
         removeObjectFromSquare(object, oldX, oldY);
 
@@ -113,6 +113,7 @@ public class Tree {
     }
 
     private void removeObjectFromSquare(GameObject object, int startX, int startY) {
+
         for (int i = startX; i <= startX + 1; i++) {
 
             for (int j = startY; j <= startY + 1; j++) {
@@ -146,7 +147,10 @@ public class Tree {
 
         Arrays.stream(cells).flatMap(Arrays::stream)
                 .filter(Cell::hasObjects)
-                .forEach(Cell::update);
+                .forEach(cell -> {
+                    cell.update();
+                    updated++;
+                });
 
         return updated;
     }
@@ -167,9 +171,9 @@ public class Tree {
 
         ArrayList<GameObject> objects = new ArrayList<>();
 
-        int centerX = (int) (x / Block.width);
-        int centerY = (int) (y / Block.width);
-        int cellRange = (int) (range / Block.width);
+        int centerX = (int) (x / Block.WIDTH);
+        int centerY = (int) (y / Block.WIDTH);
+        int cellRange = (int) (range / Block.WIDTH);
 
         double rangeSq = range * range;
 

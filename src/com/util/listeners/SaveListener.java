@@ -1,6 +1,8 @@
 package com.util.listeners;
 
-public interface SaveListener {
+import java.util.EventListener;
+
+public interface SaveListener extends EventListener {
 
     void saveChanged(int index);
 }

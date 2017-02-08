@@ -1,13 +1,15 @@
 package com.util;
 
+import com.keybindings.InputManager;
+import com.settings.Config;
 import org.jetbrains.annotations.Contract;
 
 import java.io.File;
 
-import static com.util.Util.log;
-
-public final class FileManager {
+public class FileManager {
     private static final FileManager ourInstance = new FileManager();
+
+    private static final Logger log = Logger.get();
 
     private FileManager() {
     }
@@ -20,15 +22,29 @@ public final class FileManager {
 
         File dir = getDirectory();
 
-        if (!dir.exists() && !dir.mkdir()) log("Main directory could not be created.", 3);
+        if (!dir.exists())
+            if (dir.mkdir()) log.i("Main directory was created");
+            else log.f("Main directory could not be created");
 
         File config = getConfig();
 
         if (!config.exists()) Config.getInstance().createConfigFile(config);
 
+        File keybindings = getKeybindings();
+
+        if (!keybindings.exists()) InputManager.getInstance().createKeybindingsFile(keybindings);
+
         File saveDir = getSaveDirectory();
 
-        if (!saveDir.exists() && !saveDir.mkdir()) log("Saves directory could not be created", 3);
+        if (!saveDir.exists())
+            if (saveDir.mkdir()) log.i("Saves directory was created");
+            else log.f("Saves directory could not be created");
+
+        File screenshotDir = getScreenshotDirectory();
+
+        if (!screenshotDir.exists())
+            if (screenshotDir.mkdir()) log.i("Screenshots directory was created");
+            else log.f("Screenshots directory could not be created");
     }
 
     @Contract(" -> !null")
@@ -51,11 +67,27 @@ public final class FileManager {
         return new File(FileNames.saveDirectory);
     }
 
-    private static final class FileNames {
+    @Contract(" -> !null")
+    private File getScreenshotDirectory() {
+        return new File(FileNames.screenshotDirectory);
+    }
 
-        private static final String fileSeparator = System.getProperty("file.separator");
-        public static final String directory = System.getProperty("user.home") + fileSeparator + "Alientome" + fileSeparator;
-        public static final String saveDirectory = directory + "saves" + fileSeparator;
-        public static final String config = directory + "Config.properties";
+    @Contract("_ -> !null")
+    public File getScreenshot(String name) {
+        return new File(FileNames.screenshotDirectory + name + ".png");
+    }
+
+    @Contract(" -> !null")
+    public File getKeybindings() {
+        return new File(FileNames.keybindings);
+    }
+
+    private static class FileNames {
+
+        private static final String directory = System.getProperty("user.home") + "/Alientome/";
+        private static final String saveDirectory = directory + "saves/";
+        private static final String config = directory + "config.txt";
+        private static final String keybindings = directory + "keybindings.txt";
+        private static final String screenshotDirectory = directory + "screenshots/";
     }
 }

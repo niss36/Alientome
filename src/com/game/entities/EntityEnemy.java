@@ -3,7 +3,8 @@ package com.game.entities;
 import com.game.entities.actions.Action;
 import com.game.entities.ai.*;
 import com.game.level.Level;
-import com.util.Side;
+import com.util.Vec2;
+import com.util.collisions.Contact;
 
 import java.awt.*;
 
@@ -21,34 +22,32 @@ public class EntityEnemy extends EntityLiving {
     private int attackState = -1;
 
     /**
-     * @param x           the x coordinate
-     * @param y           the y coordinate
+     * @param pos this <code>Entity</code>'s position
      * @param level       the <code>Level</code> this <code>Entity</code> is in
      * @param followRange the range at which the <code>EntityEnemy</code>
      *                    will follow the <code>EntityPlayer</code>
      */
-    EntityEnemy(double x, double y, Level level, int followRange) {
-        this(x, y, level, new Dimension(20, 27), followRange, true);
+    EntityEnemy(Vec2 pos, Level level, int followRange) {
+        this(pos, new Dimension(20, 27), level, 10, followRange, true);
     }
 
     /**
-     * @param x            the x coordinate
-     * @param y            the y coordinate
+     * @param pos this <code>Entity</code>'s position
      * @param level        the <code>Level</code> this <code>Entity</code> is in
      * @param followRange  the range at which the <code>EntityEnemy</code>
      *                     will follow the <code>EntityPlayer</code>
      * @param damagePlayer whether this <code>EntityEnemy</code> should damage
-     *                     the <code>EntityPlayer</code> on contact
      */
-    EntityEnemy(double x, double y, Level level, Dimension dim, int followRange, boolean damagePlayer) {
+    EntityEnemy(Vec2 pos, Dimension dimension, Level level, int maxHealth, int followRange, boolean damagePlayer) {
 
-        super(x, y, dim, level, 10);
+        super(pos, dimension, level, maxHealth);
 
         maxVelocity = 3;
 
         this.followRange = (entityRandom.nextInt(50) + followRange - 25);
         actions = createActions();
         ai = createAI();
+        controller = new AIController(ai);
 
         this.damagePlayer = damagePlayer;
 
@@ -65,10 +64,11 @@ public class EntityEnemy extends EntityLiving {
     }
 
     @Override
-    public void onUpdate() {
-
+    void preUpdateInternal() {
+        /*theProfiler.startSection("Entity Update/AI Update");
         if (ai.getState() == null) ai.start();
         ai.act();
+        theProfiler.endSection("Entity Update/AI Update");*/
 
         if (coolDown > 0) coolDown--;
 
@@ -81,37 +81,14 @@ public class EntityEnemy extends EntityLiving {
                 handler.setAnimationUsed(0);
             }
         }
-
-        super.onUpdate();
-    }
-
-    @Override
-    public boolean onCollidedWithEntity(Entity other, Side side) {
-
-        double tMotionY = other.velocity.y;
-
-        if (super.onCollidedWithEntity(other, side)) {
-
-            if (other instanceof EntityPlayer) {
-                if (side == Side.BOTTOM) {
-                    damageAbsolute(((EntityPlayer) other).getFallDamage(tMotionY) * 2);
-                    if (onGround) other.velocity.y = tMotionY - 11;
-                } else if (damagePlayer) {
-                    if (attackState == 5) ((EntityPlayer) other).damage(3);
-                    else attack();
-                }
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     AI createAI() {
 
-        AITest[] tests = {new AIEntityAbove(this, level.player, 10), new AIEntityAbove(this, level.player, 15), new AISeeEntity(this, level.player, followRange)};
-        AI[] actions = {new AIFlee(this, level.player, 150), new AIIdle(this, -1), new AIFollow(this, level.player, false)};
+        Entity player = level.getPlayer();
+
+        AITest[] tests = {new AIEntityAbove(this, player, 10), new AIEntityAbove(this, player, 15), new AISeeEntity(this, player, followRange)};
+        AI[] actions = {new AIFlee(this, player, 150), new AIIdle(this, -1), new AIFollow(this, player, false)};
 
         return new AIRepeat(
                 new AITestAction(
@@ -123,6 +100,29 @@ public class EntityEnemy extends EntityLiving {
     }
 
     Action[] createActions() {
-        return new Action[0];
+        return null;
+    }
+
+    void onCollidedWithPlayer(EntityPlayer player, Contact contact, double playerPreviousYVel) {
+        if (contact.normal.y > 0) {
+            damageAbsolute(player.getFallDamage(playerPreviousYVel) * 2);
+            if (onGround) player.acceleration.y = playerPreviousYVel - 11;
+        } else if (damagePlayer) {
+            if (attackState == 5) player.damage(3);
+            else attack();
+        }
+    }
+
+    @Override
+    protected void notifyCollision(Entity other, Contact contact) {
+        super.notifyCollision(other, contact);
+
+        if (other instanceof EntityPlayer)
+            onCollidedWithPlayer((EntityPlayer) other, contact, other.velocity.y);
+    }
+
+    @Override
+    public void onControlLost() {
+        controller = new AIController(ai);
     }
 }
