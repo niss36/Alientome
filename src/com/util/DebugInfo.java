@@ -2,6 +2,7 @@ package com.util;
 
 import com.game.entities.Entity;
 import com.game.level.Level;
+import com.settings.Config;
 
 import java.awt.*;
 
@@ -61,7 +62,13 @@ public class DebugInfo {
         int baseLineY = g.getFontMetrics().getAscent() + 5;
         int lineHeight = g.getFontMetrics().getHeight();
 
-        g.drawString(fps + "FPS", 5, baseLineY);
+        int maxFPS = Config.getInstance().getInt("maxFPS");
+        String fpsLimit;
+        if (maxFPS != 0)
+            fpsLimit = String.valueOf(maxFPS);
+        else fpsLimit = "U";
+
+        g.drawString(fps + "FPS - " + fpsLimit, 5, baseLineY);
         baseLineY += lineHeight;
         g.drawString(ups + "UPS", 5, baseLineY);
         baseLineY += lineHeight;

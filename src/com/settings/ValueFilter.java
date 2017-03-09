@@ -23,7 +23,7 @@ public interface ValueFilter {
                 break;
 
             case "list":
-                NodeList entries = filterNode.getElementsByTagName("entry");
+                NodeList entries = filterNode.getElementsByTagName("element");
                 Object[] values = new Object[entries.getLength()];
                 for (int i = 0; i < values.length; i++) {
                     Element entry = (Element) entries.item(i);
@@ -98,7 +98,7 @@ public interface ValueFilter {
 
     class List extends Type {
 
-        public final java.util.List values;
+        public final java.util.List<Object> values;
 
         List(Object[] values) {
             this.values = Collections.unmodifiableList(Arrays.asList(values));

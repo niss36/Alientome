@@ -46,7 +46,7 @@ public class ChatInterface extends GameComponent {
         }));
 
         InputManager.getInstance().setListener("chat", "deleteBefore", makeListener(() -> {
-            if (typing.length() > 0)
+            if (typing.length() > 0 && caretPos > 0)
                 typing.delete(--caretPos, caretPos + 1);
         }));
 
@@ -56,7 +56,7 @@ public class ChatInterface extends GameComponent {
         }));
 
         InputManager.getInstance().setListener("chat", "moveCaretLeft", makeListener(() -> {
-            if (typing.length() > 0)
+            if (caretPos > 0)
                 caretPos--;
         }));
 
