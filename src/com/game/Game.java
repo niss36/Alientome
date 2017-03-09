@@ -23,6 +23,8 @@ public class Game implements Runnable {
     private static final int MAX_FRAME_SKIP = 5;
     private final Object waitLock = new Object();
     private final GameRenderer renderer;
+    private long updates;
+    private long averageUpdateTime;
     private Level level;
     private boolean updating = false;
     private State state = null;
@@ -98,6 +100,10 @@ public class Game implements Runnable {
         return level.getDebugInfo();
     }
 
+    public long getAverageUpdateTime() {
+        return averageUpdateTime;
+    }
+
     private void setState(State newState) {
         state = newState;
         if (state != null)
@@ -121,7 +127,13 @@ public class Game implements Runnable {
 
                     while (System.currentTimeMillis() > nextTick && loops < MAX_FRAME_SKIP) {
 
+                        long updateStart = System.nanoTime();
+
                         level.update();
+
+                        long updateTime = System.nanoTime() - updateStart;
+
+                        averageUpdateTime += (updateTime - averageUpdateTime) / ++updates;
 
                         nextTick += SKIP_TICKS;
                         loops++;

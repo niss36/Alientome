@@ -14,10 +14,9 @@ class ExecutionTimeDataCruncher {
 
     void addEntry(long value) {
 
-        entries++;
         if (value < currentMin) currentMin = value;
         if (value > currentMax) currentMax = value;
-        currentAverage += (value - currentAverage) / entries;
+        currentAverage += (value - currentAverage) / ++entries;
     }
 
     void compute() {

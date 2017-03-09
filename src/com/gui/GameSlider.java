@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class GameSlider extends GameTextComponent implements MouseListener, MouseMotionListener {
 
@@ -25,20 +26,22 @@ public class GameSlider extends GameTextComponent implements MouseListener, Mous
 
     private final int minValue;
     private final int maxValue;
+    private final Function<Integer, String> valueStringProvider;
     private final List<IntValueListener> listeners = new ArrayList<>();
     private int value;
     private boolean hovered;
     private boolean pressed;
     private int sliderX;
 
-    public GameSlider(Dimension dimension, Font font, int minValue, int maxValue, int value) {
+    public GameSlider(Dimension dimension, Font font, int minValue, int maxValue, int value, Function<Integer, String> valueStringProvider) {
 
         super(dimension, "", font);
 
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.value = value;
-        setText(String.valueOf(value));
+        this.valueStringProvider = valueStringProvider;
+        setTextToVal();
 
         setPreferredSize(dimension);
         setMinimumSize(dimension);
@@ -51,6 +54,10 @@ public class GameSlider extends GameTextComponent implements MouseListener, Mous
         addMouseMotionListener(this);
     }
 
+    void setTextToVal() {
+        setText(valueStringProvider.apply(value));
+    }
+
     public void addValueListener(IntValueListener listener) {
         listeners.add(listener);
     }
@@ -60,7 +67,7 @@ public class GameSlider extends GameTextComponent implements MouseListener, Mous
         if (value < minValue || value > maxValue)
             throw new IllegalArgumentException("Requested value out of range (" + value + " -> [" + minValue + " - " + maxValue + "])");
         this.value = value;
-        setText(String.valueOf(value));
+        setTextToVal();
         sliderX = computeX();
         repaint();
     }
@@ -81,7 +88,7 @@ public class GameSlider extends GameTextComponent implements MouseListener, Mous
         sliderX = e.getX();
         sliderX = Util.clamp(sliderX, 4 + sliderWidth / 2, getSliderMaxX());
         value = computeValue();
-        setText(String.valueOf(value));
+        setTextToVal();
         if (notify) notifyStateChange();
         repaint();
     }

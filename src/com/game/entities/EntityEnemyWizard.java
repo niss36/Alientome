@@ -12,14 +12,9 @@ import java.awt.*;
 
 public class EntityEnemyWizard extends EntityEnemy {
 
-    /*private int healState = 0;
-    private int coolDown = 0;*/
-
     @SuppressWarnings("SameParameterValue")
     EntityEnemyWizard(Vec2 pos, Level level, int followRange) {
         super(pos, new Dimension(19, 28), level, 10, followRange, false);
-
-        maxVelocity = 10;
     }
 
     @Override
@@ -52,43 +47,6 @@ public class EntityEnemyWizard extends EntityEnemy {
                                         EntityEnemy.class, 300),
                                 21, handler, 2),
                         66);
-
-                /*new ActionAreaOfEffect(
-                new ActionSelfCast(
-                        new Action() {
-
-                            @Override
-                            public boolean shouldAct() {
-
-                                if (coolDown > 0) coolDown--;
-
-                                if (coolDown == 0) {
-
-                                    handler.setAnimationUsed(1);
-
-                                    if (healState == 27) {
-
-                                        healState = 0;
-                                        coolDown = 33;
-
-                                        handler.setAnimationUsed(0);
-                                        return true;
-                                    }
-
-                                    healState++;
-                                }
-
-                                return false;
-                            }
-
-                            @Override
-                            public void act(GameObject object) {
-                                ((EntityLiving) object).heal(5);
-                            }
-                        },
-                        this),
-                EntityEnemy.class, 300);*/
-
         actions[1] =
                 new ActionCoolDown(
                         new ActionAnimatedCast(

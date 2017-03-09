@@ -4,6 +4,7 @@ import com.game.Game;
 import com.events.GameEventDispatcher;
 import com.game.GameRenderer;
 import com.keybindings.InputManager;
+import com.settings.Config;
 import com.util.GameFont;
 import com.util.Util;
 
@@ -28,6 +29,8 @@ public class PanelGame extends JPanel implements GameRenderer {
     private BufferedImage frontBuffer;
     private BufferedImage backBuffer;
     private boolean takeScreenshot;
+    private long renders;
+    private long averageRenderTime;
 
     PanelGame() {
 
@@ -101,6 +104,8 @@ public class PanelGame extends JPanel implements GameRenderer {
 
         theProfiler.startSection("Rendering");
 
+        long renderStart = System.nanoTime();
+
         theProfiler.startSection("Rendering/Updating Graphics");
 
         if (backBuffer == null) {
@@ -124,10 +129,6 @@ public class PanelGame extends JPanel implements GameRenderer {
 
         game.getLevel().draw(graphics, debug, interpolation);
 
-        theProfiler.startSection("Rendering/Syncing");
-        Toolkit.getDefaultToolkit().sync();
-        theProfiler.endSection("Rendering/Syncing");
-
         BufferedImage swap = frontBuffer;
 
         frontBuffer = backBuffer;
@@ -137,6 +138,36 @@ public class PanelGame extends JPanel implements GameRenderer {
         game.getDebugInfo().registerFrame();
 
         repaint();
+
+        long renderTime = System.nanoTime() - renderStart;
+
+        averageRenderTime += (renderTime - averageRenderTime) / ++renders;
+
+        theProfiler.startSection("Rendering/Syncing");
+        Toolkit.getDefaultToolkit().sync();
+        int maxFPS = Config.getInstance().getInt("maxFPS");
+        if (maxFPS != 0) {
+
+            long estimatedWorkTime = maxFPS * averageRenderTime + 33 * game.getAverageUpdateTime();
+//            System.out.println((double) averageRenderTime / 1_000_000 + "  " + (double) game.getAverageUpdateTime() / 1_000_000 + "  " + (double) estimatedWorkTime / 1_000_000);
+            long excess = 1_000_000_000 - estimatedWorkTime;
+
+            if (excess > 0) {
+
+                long sleepTime = excess / (maxFPS * 1_000_000);
+                if (sleepTime > 0) {
+                    /*long timeBetweenRendersMS = (timeBetweenRenders / 1_000_000);
+                    System.out.println("Sleep : " + sleepTime + "ms; Between renders : " + timeBetweenRendersMS + "ms; Render : " + renderTime + "ms");*/
+
+                    try {
+                        Thread.sleep(sleepTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        theProfiler.endSection("Rendering/Syncing");
 
         theProfiler.endSection("Rendering");
     }

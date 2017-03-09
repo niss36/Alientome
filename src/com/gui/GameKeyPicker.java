@@ -24,10 +24,8 @@ class GameKeyPicker extends GameButton {
 
         setCurrentKey(defaultKeycode);
 
-        setFocusable(true);
-
         InputManager.getInstance().addUnknownEventHandler("keySelect", event -> {
-            if (inUse) {
+            if (inUse && event.getID() == KeyEvent.KEY_PRESSED) {
                 int keyCode = event.getKeyCode();
                 if (keyCode > 0 && (keyCode == KeyEvent.VK_ESCAPE || keyCode == currentKeycode || keyValidator.test(keyCode))) {
                     synchronized (waitKeyPress) {
