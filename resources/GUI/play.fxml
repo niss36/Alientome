@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane prefHeight="480.0" prefWidth="720.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alientome.gui.fx.controllers.FXMLPlayController">
+   <children>
+       <GridPane>
+           <columnConstraints>
+               <ColumnConstraints prefWidth="360.0" />
+            <ColumnConstraints prefWidth="360.0" />
+           </columnConstraints>
+           <rowConstraints>
+               <RowConstraints prefHeight="96.0" />
+               <RowConstraints percentHeight="60.0" />
+               <RowConstraints prefHeight="96.0" />
+           </rowConstraints>
+          <children>
+              <Button fx:id="back" cancelButton="true" onAction="#onButtonAction" prefHeight="60.0" prefWidth="220.0" text="gui.back" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+              <Label styleClass="title" text="menu.play.title" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
+            <Pane prefHeight="288.0" styleClass="boxed-pane" GridPane.columnSpan="2" GridPane.rowIndex="1">
+               <children>
+                  <GridPane>
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" prefWidth="720.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints prefHeight="96.0" vgrow="SOMETIMES" />
+                      <RowConstraints prefHeight="96.0" vgrow="SOMETIMES" />
+                      <RowConstraints prefHeight="96.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                             <children>
+                                 <Button onAction="#onButtonAction" prefHeight="60.0" prefWidth="240.0" styleClass="save-button" text="menu.saves.new" />
+                                 <Button onAction="#onButtonAction" prefHeight="60.0" prefWidth="60.0" styleClass="save-delete-button" text="X" visible="false">
+                                     <HBox.margin>
+                                         <Insets left="20.0" />
+                                     </HBox.margin>
+                                 </Button>
+                             </children>
+                          </HBox>
+                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
+                             <children>
+                                 <Button onAction="#onButtonAction" prefHeight="60.0" prefWidth="240.0" styleClass="save-button" text="menu.saves.new" />
+                                 <Button onAction="#onButtonAction" prefHeight="60.0" prefWidth="60.0" styleClass="save-delete-button" text="X" visible="false">
+                                     <HBox.margin>
+                                         <Insets left="20.0" />
+                                     </HBox.margin>
+                                 </Button>
+                             </children>
+                          </HBox>
+                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2">
+                             <children>
+                                 <Button onAction="#onButtonAction" prefHeight="60.0" prefWidth="240.0" styleClass="save-button" text="menu.saves.new" />
+                                 <Button onAction="#onButtonAction" prefHeight="60.0" prefWidth="60.0" styleClass="save-delete-button" text="X" visible="false">
+                                     <HBox.margin>
+                                         <Insets left="20.0" />
+                                     </HBox.margin>
+                                 </Button>
+                             </children>
+                          </HBox>
+                     </children>
+                  </GridPane>
+               </children>
+            </Pane>
+            <Button fx:id="editor" mnemonicParsing="false" onAction="#onButtonAction" prefHeight="60.0" prefWidth="220.0" text="menu.play.editor" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+          </children>
+       </GridPane>
+   </children>
+</AnchorPane>

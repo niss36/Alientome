@@ -22,8 +22,8 @@ class GameButton extends GameTextComponent implements MouseListener {
 
     private static final Color backgroundPressed = new Color(221, 197, 150);
 
-    private static final BufferedImage corner = SpritesLoader.readImage("UI/buttonCorner");
-    private static final BufferedImage middle = SpritesLoader.readImage("UI/buttonMiddle");
+    private static final BufferedImage corner = SpritesLoader.readImage("UI/buttonCorner.png");
+    private static final BufferedImage middle = SpritesLoader.readImage("UI/buttonMiddle.png");
 
     private final List<ActionListener> listeners = new ArrayList<>();
     private boolean hovered = false;

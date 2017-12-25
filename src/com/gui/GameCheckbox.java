@@ -1,29 +1,19 @@
 package com.gui;
 
-import com.util.listeners.BooleanValueListener;
 import com.util.visual.SpritesLoader;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
 
 public class GameCheckbox extends GameButton {
 
-    private static final BufferedImage scarabOn = SpritesLoader.readImage("UI/scarabOn");
-    private static final BufferedImage scarabOff = SpritesLoader.readImage("UI/scarabOff");
+    private static final BufferedImage scarabOn = SpritesLoader.readImage("UI/scarabOn.png");
+    private static final BufferedImage scarabOff = SpritesLoader.readImage("UI/scarabOff.png");
 
-    private final List<BooleanValueListener> listeners = new ArrayList<>();
     private boolean checked = false;
 
     public GameCheckbox(Dimension d) {
         super(d, "");
-
-        addActionListener(e -> {
-            setChecked(!checked);
-            for (BooleanValueListener listener : listeners)
-                listener.valueChanged(checked);
-        });
     }
 
     @Override
@@ -55,9 +45,5 @@ public class GameCheckbox extends GameButton {
     public void setChecked(boolean checked) {
         this.checked = checked;
         repaint();
-    }
-
-    public void addCheckboxListener(BooleanValueListener listener) {
-        listeners.add(listener);
     }
 }

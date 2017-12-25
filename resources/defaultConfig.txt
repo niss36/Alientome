@@ -1,6 +1,5 @@
 language=en
 pauseOnLostFocus=true
-showBlockIn=false
 showSightLines=false
 version=0.08
 volume=50

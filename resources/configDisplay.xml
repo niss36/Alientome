@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<categories>
+    <category id="general">
+        <setting id="language" type="ComboBox:String">
+            <entry value="en"/>
+            <entry value="fr"/>
+        </setting>
+        <setting id="volume" type="VolumeControl"/>
+    </category>
+    <category id="game">
+        <setting id="maxFPS" type="FPSCombo">
+            <entry value="30"/>
+            <entry value="60"/>
+            <entry value="80"/>
+            <entry value="120"/>
+            <entry value="144"/>
+            <entry value="0"/>
+        </setting>
+        <setting id="pauseOnLostFocus" type="Toggle"/>
+        <setting id="showSightLines" type="Toggle"/>
+    </category>
+</categories>

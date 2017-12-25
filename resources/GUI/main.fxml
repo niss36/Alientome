@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane prefHeight="480.0" prefWidth="720.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alientome.gui.fx.controllers.FXMLMainController">
+    <VBox alignment="BOTTOM_LEFT" prefHeight="480.0" prefWidth="720.0">
+        <Label id="version-label" text="menu.main.version"/>
+    </VBox>
+    <GridPane hgap="40.0" prefHeight="480.0" prefWidth="720.0">
+        <columnConstraints>
+            <ColumnConstraints prefWidth="360.0"/>
+            <ColumnConstraints prefWidth="360.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints prefHeight="30.0" vgrow="SOMETIMES"/>
+        </rowConstraints>
+        <Button fx:id="play" onAction="#onButtonAction" prefHeight="60.0" prefWidth="480.0" text="menu.play.title"
+                GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
+        <Button fx:id="options" onAction="#onButtonAction" prefHeight="60.0" prefWidth="220.0"
+                text="menu.options.title" GridPane.halignment="RIGHT" GridPane.rowIndex="2"/>
+        <Button fx:id="quit" onAction="#onButtonAction" prefHeight="60.0" prefWidth="220.0" text="menu.main.quit"
+                textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2"/>
+        <Label id="title-text" styleClass="title" text="menu.main.title" GridPane.columnSpan="2"
+               GridPane.halignment="CENTER"/>
+    </GridPane>
+</AnchorPane>

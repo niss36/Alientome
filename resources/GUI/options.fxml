@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane prefHeight="480.0" prefWidth="720.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alientome.gui.fx.controllers.FXMLOptionsController">
+   <children>
+       <GridPane prefHeight="480.0" prefWidth="720.0">
+           <columnConstraints>
+               <ColumnConstraints prefWidth="240.0" />
+               <ColumnConstraints prefWidth="240.0" />
+               <ColumnConstraints prefWidth="240.0" />
+           </columnConstraints>
+           <rowConstraints>
+               <RowConstraints prefHeight="96.0" />
+               <RowConstraints percentHeight="60.0" vgrow="SOMETIMES" />
+               <RowConstraints prefHeight="96.0" />
+           </rowConstraints>
+          <children>
+              <ScrollPane GridPane.columnSpan="3" GridPane.rowIndex="1">
+                 <content>
+                     <AnchorPane>
+                        <children>
+                            <GridPane fx:id="grid" prefWidth="695.0" styleClass="scroll-container">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="50.0" />
+                                    <ColumnConstraints percentWidth="50.0" />
+                                </columnConstraints>
+                                <!--<rowConstraints>
+                                    <RowConstraints prefHeight="30.0" />
+                                    <RowConstraints prefHeight="60.0" />
+                                    <RowConstraints prefHeight="60.0" />
+                                    <RowConstraints prefHeight="30.0" />
+                                    <RowConstraints prefHeight="60.0" />
+                                    <RowConstraints prefHeight="60.0" />
+                                    <RowConstraints prefHeight="60.0" />
+                                </rowConstraints>
+                               <children>
+                                   <Label styleClass="option-category" text="options.category.general" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
+                                   <Label text="options.language" GridPane.rowIndex="1" />
+                                   <Label text="options.volume" GridPane.rowIndex="2" />
+                                   <ComboBox fx:id="language" prefHeight="42.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                                       <items>
+                                           <FXCollections fx:factory="observableArrayList">
+                                               <String fx:value="en" />
+                                               <String fx:value="fr" />
+                                           </FXCollections>
+                                       </items>
+                                   </ComboBox>
+                                   <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="42.0" prefWidth="200.0" spacing="10.0" styleClass="labeled-slider" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                                      <children>
+                                          <Label prefWidth="40.0" text="0%" />
+                                          <Slider fx:id="volume" prefHeight="42.0" HBox.hgrow="ALWAYS" />
+                                      </children>
+                                   </HBox>
+                                   <Label styleClass="option-category" text="options.category.game" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                   <Label text="options.maxFPS" GridPane.rowIndex="4" />
+                                   <Label text="options.pauseOnLostFocus" GridPane.rowIndex="5" />
+                                   <Label text="options.showSightLines" GridPane.rowIndex="6" />
+                                   <ComboBox fx:id="maxFPS" prefHeight="42.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                                       <items>
+                                           <FXCollections fx:factory="observableArrayList">
+                                               <Integer fx:value="30" />
+                                               <Integer fx:value="60" />
+                                               <Integer fx:value="80" />
+                                               <Integer fx:value="120" />
+                                               <Integer fx:value="144" />
+                                               <Integer fx:value="0" />
+                                           </FXCollections>
+                                       </items>
+                                   </ComboBox>
+                                   <ToggleButton id="pauseOnLostFocus" prefHeight="42.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="5" />
+                                   <ToggleButton id="showSightLines" prefHeight="42.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="6" />
+                               </children>-->
+                            </GridPane>
+                        </children>
+                     </AnchorPane>
+                 </content>
+              </ScrollPane>
+              <Label styleClass="title" text="menu.options.title" GridPane.columnSpan="3" GridPane.halignment="CENTER" />
+              <Button fx:id="done" cancelButton="true" onAction="#onButtonAction" prefHeight="60.0" prefWidth="180.0" text="gui.done" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+              <Button fx:id="controls" onAction="#onButtonAction" prefHeight="60.0" prefWidth="180.0" text="menu.controls.title" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+              <Button fx:id="resetOptions" onAction="#onButtonAction" prefHeight="60.0" prefWidth="180.0" text="menu.options.reset" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+          </children>
+       </GridPane>
+   </children>
+</AnchorPane>
