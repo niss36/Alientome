@@ -1,69 +1,68 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <animations>
     <!--Entities-->
-    <package name="com.game.entities" directory="Entity">
+    <package directory="Entity" name="com.alientome.game.entities">
         <class name="EntityPlayer" subDirectory="Alientome">
-            <animation path="" spritesCount="2" delay="10"/>
-            <animation path="Charge" spritesCount="5" delay="10"/>
-            <animation path="Charged" spritesCount="2" delay="10"/>
-        </class>
-        <class name="EntityArrow" subDirectory="Arrow">
-            <animation path="" spritesCount="1" delay="10"/>
-        </class>
-        <class name="EntityEnemy" subDirectory="Enemy">
-            <animation path="" spritesCount="1" delay="10"/>
-            <animation path="Attack" spritesCount="3" delay="2"/>
-        </class>
-        <class name="EntityEnemyBow" subDirectory="EnemyBow">
-            <animation path="" spritesCount="1" delay="10"/>
-            <animation path="Fire" delay="3">
-                <sprite/>
-                <sprite offsetX="-6"/>
-                <sprite offsetX="-5"/>
-                <sprite offsetX="-4"/>
-                <sprite offsetX="-3"/>
-                <sprite offsetX="-2"/>
-                <sprite/>
-            </animation>
-        </class>
-        <class name="EntityEnemyShield" subDirectory="EnemyShield">
-            <animation path="" spritesCount="1" delay="10"/>
-        </class>
-        <class name="EntityEnemyWizard" subDirectory="EnemyWizard">
-            <animation path="" spritesCount="10" delay="5" offsetX="-1"/>
-            <animation path="Attack" delay="7">
-                <sprite offsetX="-1"/>
-                <sprite offsetX="-2"/>
-                <sprite offsetX="-2" offsetY="-2"/>
-                <sprite offsetX="-12" offsetY="-2"/>
-                <sprite offsetX="-12"/>
-                <sprite offsetX="-10"/>
-            </animation>
-            <animation path="Heal" delay="7">
-                <sprite offsetX="-1"/>
-                <sprite offsetX="-2"/>
-                <sprite offsetX="-2" offsetY="-2"/>
-                <sprite offsetX="-12" offsetY="-2"/>
-                <sprite offsetX="-12"/>
-                <sprite offsetX="-10"/>
-            </animation>
+            <animation dimension="20x31" name="idle.aam" scale="2"/>
+            <animation dimension="20x31" name="charging.aam" scale="2"/>
+            <animation dimension="20x31" name="charged.aam" scale="2"/>
+            <animation dimension="20x31" name="attack.aam" scale="2"/>
         </class>
         <class name="EntityGhostBall" subDirectory="GhostBall">
-            <animation path="" spritesCount="6" delay="3"/>
-            <animation path="Big" spritesCount="10" delay="2"/>
+            <animation dimension="8x8" name="regular.aam" scale="2"/>
+            <animation dimension="12x12" name="big.aam" scale="2"/>
+        </class>
+    </package>
+    <package directory="Entity" name="com.alientome.impl.entities">
+        <class name="EntityArrow" subDirectory="Arrow">
+            <animation dimension="10x3" name="regular.aam" scale="2"/>
+        </class>
+        <class name="EntityEnemyDefault" subDirectory="Enemy">
+            <animation dimension="20x27" name="idle.aam" scale="2"/>
+            <animation dimension="20x27" name="attack.aam" scale="2"/>
+        </class>
+        <class name="EntityEnemyBow" subDirectory="EnemyBow">
+            <animation dimension="19x27" name="idle.aam" scale="2"/>
+            <animation dimension="19x27" name="shoot.aam" scale="2"/>
+        </class>
+        <class name="EntityEnemyShield" subDirectory="EnemyShield">
+            <animation dimension="20x27" name="idle.aam" scale="2"/>
+        </class>
+        <class name="EntityEnemyWizard" subDirectory="EnemyWizard">
+            <animation dimension="19x28" name="idle.aam" scale="2"/>
+            <animation dimension="19x28" name="attack.aam" scale="2"/>
+            <animation dimension="19x28" name="heal.aam" scale="2"/>
         </class>
     </package>
     <!--Blocks-->
-    <package name="com.game.blocks" directory="Block">
+    <package directory="Block" name="com.alientome.impl.blocks">
         <class name="BlockSand" subDirectory="Sand">
-            <animation path="Default" spritesCount="1" delay="10"/>
-            <animation path="Background" spritesCount="1" delay="10"/>
+            <sheet cols="3" dimension="16x16" name="sheet.png" num="8" scale="2"/>
+        </class>
+        <class name="BlockPlatformSand" subDirectory="Sand">
+            <sheet cols="2" dimension="16x16" name="platform_sheet.png" num="10" scale="2"/>
+        </class>
+        <class name="BlockSlopeSand" subDirectory="Sand">
+            <sheet cols="3" dimension="16x16" name="slope_sheet.png" num="6" scale="2"/>
+        </class>
+        <class name="BlockSpikes" subDirectory="Spikes">
+            <sheet cols="1" dimension="16x16" name="sheet.png" num="1" scale="2"/>
         </class>
     </package>
     <!--Buffs-->
-    <package name="com.game.buffs" directory="Buff">
+    <package directory="Buff" name="com.alientome.impl.buffs">
         <class name="BuffHeal" subDirectory="Heal">
-            <animation path="" spritesCount="8" delay="10"/>
+            <animation dimension="32x41" name="regular.aam"/>
+        </class>
+    </package>
+    <package directory="Particle" name="com.alientome.game.particles">
+        <class name="ParticlePlayerCharge" subDirectory="PlayerCharge">
+            <sheet cols="2" dimension="2x2" name="sheet.png" num="2" scale="1"/>
+        </class>
+    </package>
+    <package directory="Particle" name="com.alientome.impl.particles">
+        <class name="ParticleHeal" subDirectory="Heal">
+            <sheet cols="1" dimension="6x6" name="sheet.png" num="1" scale="1"/>
         </class>
     </package>
 </animations>
