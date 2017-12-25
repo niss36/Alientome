@@ -82,7 +82,7 @@ public class SpritesLoader {
         WrappedXML xml;
 
         try {
-            xml = parseXMLNew("animations_new.xml");
+            xml = parseXMLNew("animations.xml");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

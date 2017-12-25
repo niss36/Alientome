@@ -3,12 +3,11 @@
     <properties maven-id="com.jcabi.incubator:xembly:0.22" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/xembly-0.22.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/lombok-1.16.6.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/antlr-runtime-3.5.2.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/xml-apis-1.4.01.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$PROJECT_DIR$/lib/xembly-0.22-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/antlr-runtime-3.5.2-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES />
   </library>
