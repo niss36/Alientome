@@ -1,4 +1,4 @@
-package com.util;
+package com.alientome.core.util;
 
 import java.awt.*;
 import java.io.IOException;
