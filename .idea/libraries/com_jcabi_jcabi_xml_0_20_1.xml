@@ -9,12 +9,17 @@
       <root url="jar://$PROJECT_DIR$/lib/aspectjrt-1.8.4.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/validation-api-1.1.0.Final.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/jcabi-immutable-1.4.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/lombok-1.16.10.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/cactoos-0.16.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/xml-apis-1.4.01.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$PROJECT_DIR$/lib/jcabi-xml-0.20.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jcabi-log-0.17.2-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.5-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jcabi-aspects-0.22-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/aspectjrt-1.8.4-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/validation-api-1.1.0.Final-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jcabi-immutable-1.4-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/cactoos-0.16-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES />
   </library>
