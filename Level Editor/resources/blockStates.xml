@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<states>
+    <state name="Void" id="void" meta="0">
+        <visual type="color" value="0x80FF0000"/>
+    </state>
+    <state name="Air" id="air" meta="0">
+        <visual type="color" value="0x00000000"/>
+    </state>
+    <tileset name="Sand" id="sand" dimension="16x16" scale="2" firstMeta="0" cols="3" num="8"
+             path="Sprites/Block/Sand/sheet.png"/>
+    <tileset name="Sand Platform" id="platform_sand" dimension="16x16" scale="2" firstMeta="0" cols="2" num="10"
+             path="Sprites/Block/Sand/platform_sheet.png"/>
+    <tileset name="Sand Slope" id="slope_sand" dimension="16x16" scale="2" firstMeta="0" cols="3" num="6"
+             path="Sprites/Block/Sand/slope_sheet.png"/>
+    <tileset name="Spikes" id="spikes" dimension="16x16" scale="2" firstMeta="0" cols="1" num="1"
+             path="Sprites/Block/Spikes/sheet.png"/>
+</states>

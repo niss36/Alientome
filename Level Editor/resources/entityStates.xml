@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<states>
+    <state name="Player" id="player">
+        <visual type="sprite" value="com.alientome.game.entities.EntityPlayer:0"/>
+    </state>
+    <state name="Enemy Default" id="enemyDefault">
+        <visual type="sprite" value="com.alientome.impl.entities.EntityEnemyDefault:0"/>
+    </state>
+    <state name="Enemy Bow" id="enemyBow">
+        <visual type="sprite" value="com.alientome.impl.entities.EntityEnemyBow:0"/>
+    </state>
+    <state name="Enemy Shield" id="enemyShield">
+        <visual type="sprite" value="com.alientome.impl.entities.EntityEnemyShield:0"/>
+    </state>
+    <state name="Enemy Wizard" id="enemyWizard">
+        <visual type="sprite" value="com.alientome.impl.entities.EntityEnemyWizard:0"/>
+    </state>
+</states>
