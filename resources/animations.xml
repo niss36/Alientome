@@ -4,8 +4,6 @@
     <package directory="Entity" name="com.alientome.game.entities">
         <class name="EntityPlayer" subDirectory="Alientome">
             <animation dimension="20x31" name="idle.aam" scale="2"/>
-            <animation dimension="20x31" name="charging.aam" scale="2"/>
-            <animation dimension="20x31" name="charged.aam" scale="2"/>
             <animation dimension="20x31" name="attack.aam" scale="2"/>
         </class>
         <class name="EntityGhostBall" subDirectory="GhostBall">
