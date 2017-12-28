@@ -12,8 +12,7 @@ import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.buffs.Buff;
 import com.alientome.game.commands.Command;
-import com.alientome.game.entities.Entity;
-import com.alientome.game.entities.EntityPlayer;
+import com.alientome.game.entities.*;
 import com.alientome.game.events.GamePauseEvent;
 import com.alientome.game.events.GameStartEvent;
 import com.alientome.game.level.LevelLoader;
@@ -26,10 +25,7 @@ import com.alientome.impl.blocks.*;
 import com.alientome.impl.buffs.BuffHeal;
 import com.alientome.impl.buffs.BuffShield;
 import com.alientome.impl.commands.*;
-import com.alientome.impl.entities.EntityEnemyBow;
-import com.alientome.impl.entities.EntityEnemyDefault;
-import com.alientome.impl.entities.EntityEnemyShield;
-import com.alientome.impl.entities.EntityEnemyWizard;
+import com.alientome.impl.entities.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.text.Font;
@@ -187,10 +183,18 @@ public class DefaultAppLauncher extends AppLauncher {
     protected void registerEntities(Registry<Class<? extends Entity>> registry) {
 
         registry.set("player", EntityPlayer.class);
+
+        registry.set("living", EntityLiving.class);
+
+        registry.set("enemy", EntityEnemy.class);
         registry.set("enemyDefault", EntityEnemyDefault.class);
         registry.set("enemyShield", EntityEnemyShield.class);
         registry.set("enemyBow", EntityEnemyBow.class);
         registry.set("enemyWizard", EntityEnemyWizard.class);
+
+        registry.set("projectile", EntityProjectile.class);
+        registry.set("ghostBall", EntityGhostBall.class);
+        registry.set("arrow", EntityArrow.class);
     }
 
     protected void registerBuffs(Registry<Class<? extends Buff>> registry) {

@@ -8,6 +8,7 @@ import com.alientome.game.registry.Registry;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 
 public class Util {
 
@@ -17,6 +18,9 @@ public class Util {
 
         if (tClass == null)
             throw new IllegalArgumentException("Unregistered ID : " + id);
+
+        if (Modifier.isAbstract(tClass.getModifiers()))
+            throw new IllegalArgumentException("id '" + id + "' denotes an abstract type and cannot be instantiated.");
 
         try {
             Constructor<? extends T> constructor = tClass.getDeclaredConstructor(constructorTypes);
