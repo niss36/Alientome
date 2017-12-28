@@ -7,11 +7,15 @@ import java.awt.*;
 
 public class ScriptObject implements Copyable<ScriptObject> {
 
+    public String id;
+    public boolean enabled;
     public AxisAlignedBoundingBox aabb;
     public String affected;
     public String content;
 
-    public ScriptObject(AxisAlignedBoundingBox aabb, String affected, String content) {
+    public ScriptObject(String id, boolean enabled, AxisAlignedBoundingBox aabb, String affected, String content) {
+        this.id = id;
+        this.enabled = enabled;
         this.aabb = aabb;
         this.affected = affected;
         this.content = content;
@@ -27,6 +31,17 @@ public class ScriptObject implements Copyable<ScriptObject> {
 
     @Override
     public ScriptObject copy() {
-        return new ScriptObject(aabb, affected, content);
+        return new ScriptObject(id, enabled, aabb, affected, content);
+    }
+
+    @Override
+    public String toString() {
+        String s = "";
+        if (id != null)
+            s = "#" + id + " - ";
+        s += getBounds() + " on " + affected;
+        if (!enabled)
+            s += " - disabled";
+        return s;
     }
 }

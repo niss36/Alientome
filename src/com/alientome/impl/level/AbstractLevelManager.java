@@ -58,17 +58,27 @@ public abstract class AbstractLevelManager implements LevelManager {
         engine.addBinding("playerCamera", (VoidFunction) (args, c) -> level.setCamera(level.getPlayer().newCamera()));
 
         engine.addBinding("playSound", (VoidFunction) (args, c) -> {
-            StringValue id = (StringValue) args[0];
+            String id = (String) args[0].objValue();
             BooleanValue loop = args.length > 1 ? (BooleanValue) args[1] : new BooleanValue(Boolean.FALSE);
             SoundManager manager = SharedInstances.get(SOUND_MANAGER);
-            if (loop.objValue()) manager.playLooping(id.objValue());
-            else manager.playOnce(id.objValue());
+            if (loop.objValue()) manager.playLooping(id);
+            else manager.playOnce(id);
         });
 
         engine.addBinding("stopPlaying", (VoidFunction) (args, c) -> {
-            StringValue id = (StringValue) args[0];
+            String id = (String) args[0].objValue();
             SoundManager manager = SharedInstances.get(SOUND_MANAGER);
-            manager.stopPlaying(id.objValue());
+            manager.stopPlaying(id);
+        });
+
+        engine.addBinding("enableScript", (VoidFunction) (args, c) -> {
+            String id = (String) args[0].objValue();
+            level.setScriptEnabled(id, true);
+        });
+
+        engine.addBinding("disableScript", (VoidFunction) (args, c) -> {
+            String id = (String) args[0].objValue();
+            level.setScriptEnabled(id, false);
         });
     }
 

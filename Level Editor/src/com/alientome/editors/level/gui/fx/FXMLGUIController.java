@@ -507,23 +507,29 @@ public class FXMLGUIController extends FXMLController {
 
             editScript.setDisable(true);
             deleteScript.setDisable(true);
+            toggleEnabledScript.setDisable(true);
             scriptContent.setDisable(true);
 
+            toggleEnabledScript.setText("Disable");
+
+            scriptID.setText("");
+            scriptBounds.setText("0; 0 -> 0; 0");
             scriptAffected.setText("");
             scriptContent.setText("");
-
-            scriptBounds.setText("0; 0 -> 0; 0");
 
         } else {
 
             editScript.setDisable(false);
             deleteScript.setDisable(false);
+            toggleEnabledScript.setDisable(false);
             scriptContent.setDisable(false);
 
+            toggleEnabledScript.setText(s.enabled ? "Disable" : "Enable");
+
+            scriptID.setText(s.id);
+            scriptBounds.setText(s.getBounds());
             scriptAffected.setText(s.affected);
             scriptContent.setText(s.content);
-
-            scriptBounds.setText(s.getBounds());
         }
 
         muteListeners = false;
@@ -692,13 +698,13 @@ public class FXMLGUIController extends FXMLController {
     private GridPane editScript;
 
     @FXML
-    private Button newScript, deleteScript;
+    private Button newScript, deleteScript, toggleEnabledScript;
 
     @FXML
     private Button scriptBounds;
 
     @FXML
-    private TextField scriptAffected;
+    private TextField scriptID, scriptAffected;
 
     @FXML
     private TextArea scriptContent;
@@ -809,13 +815,22 @@ public class FXMLGUIController extends FXMLController {
             selectScript(scripts.getSelectionModel().getSelectedItem());
         else if (s == newScript) {
             beforeModification("create script");
-            ScriptObject newScript = new ScriptObject(new StaticBoundingBox(0, 0, 0, 0), "", "");
+            ScriptObject newScript = new ScriptObject(null, true, new StaticBoundingBox(0, 0, 0, 0), "", "");
             scripts.getItems().add(newScript);
             selectScript(newScript);
         } else if (selectedScript != null) {
             if (s == deleteScript) {
                 beforeModification("delete script");
                 scripts.getItems().remove(selectedScript);
+            } else if (s == toggleEnabledScript) {
+                beforeModification("toggle script enabled");
+                selectedScript.enabled = !selectedScript.enabled;
+                toggleEnabledScript.setText(selectedScript.enabled ? "Disable" : "Enable");
+                scripts.refresh();
+            } else if (s == scriptID) {
+                beforeModification("typing");
+                selectedScript.id = scriptID.getText();
+                scripts.refresh();
             } else if (s == scriptBounds) {
                 mouse.setSelected(true);
                 tool = Tool.PICK_BOUNDS;

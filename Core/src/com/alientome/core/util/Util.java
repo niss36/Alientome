@@ -1,8 +1,8 @@
 package com.alientome.core.util;
 
 import com.alientome.core.SharedInstances;
-import com.alientome.core.keybindings.MappedKeyEvent;
 import com.alientome.core.keybindings.InputListener;
+import com.alientome.core.keybindings.MappedKeyEvent;
 import com.jcabi.xml.XMLDocument;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -18,6 +18,7 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.Predicate;
@@ -161,6 +162,10 @@ public class Util {
         try (InputStream stream = ClassLoader.getSystemResourceAsStream(documentPath)) {
             return new WrappedXML(new XMLDocument(stream));
         }
+    }
+
+    public static WrappedXML parseXMLNew(URI uri) throws IOException {
+        return new WrappedXML(new XMLDocument(uri));
     }
 
     public static Element parseXML(File file) throws IOException, SAXException, ParserConfigurationException {

@@ -13,11 +13,13 @@ public class ScriptObject extends GameObject {
 
     private static final Logger log = Logger.get();
 
+    private final String id;
     private final Class<? extends Entity> affected;
     private final Script script;
 
-    public ScriptObject(AxisAlignedBoundingBox aabb, Class<? extends Entity> affected, Script script) {
+    public ScriptObject(String id, AxisAlignedBoundingBox aabb, Class<? extends Entity> affected, Script script) {
         super(aabb.getMinX(), aabb.getMinY());
+        this.id = id;
         this.boundingBox = aabb;
         this.affected = affected;
         this.script = script;
@@ -46,6 +48,14 @@ public class ScriptObject extends GameObject {
                 e.printStackTrace();
             }
         }
+    }
+
+    public boolean is(String id) {
+        return this.id != null && this.id.equals(id);
+    }
+
+    public void setEnabled(boolean enabled) {
+        script.setEnabled(enabled);
     }
 
     @Override

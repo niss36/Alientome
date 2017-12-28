@@ -3,8 +3,8 @@ package com.alientome.impl.level.source;
 import com.alientome.core.SharedInstances;
 import com.alientome.core.SharedNames;
 import com.alientome.core.util.FileUtils;
-import com.alientome.core.util.Logger;
 import com.alientome.core.util.Util;
+import com.alientome.core.util.WrappedXML;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.blocks.parse.BlockState;
 import com.alientome.game.buffs.Buff;
@@ -26,9 +26,6 @@ import com.alientome.impl.level.source.uri.URIProvider;
 import com.alientome.script.Script;
 import com.alientome.script.ScriptException;
 import com.alientome.script.ScriptParser;
-import com.jcabi.xml.XML;
-import com.jcabi.xml.XMLDocument;
-import org.w3c.dom.Element;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -36,9 +33,10 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.alientome.core.util.Util.parseXMLNew;
+
 public abstract class CompoundLevelSource implements LevelSource {
 
-    protected static final Logger log = Logger.get();
     private final ScriptParser parser;
     private final List<EntityState> entitiesSpawnList = new ArrayList<>();
 //    protected final List<BuffState> buffsSpawnList = new ArrayList<>();
@@ -56,11 +54,12 @@ public abstract class CompoundLevelSource implements LevelSource {
 
         try (URIProvider provider = newProvider()) {
 
-            XML levelXML = new XMLDocument(provider.get("level.xml"));
+            WrappedXML levelXML = parseXMLNew(provider.get("level.xml"));
 
-            Element dimension = (Element) levelXML.nodes("level/dimension").get(0).node();
-            int width = Integer.parseInt(dimension.getAttribute("width"));
-            int height = Integer.parseInt(dimension.getAttribute("height"));
+            WrappedXML dimension = levelXML.getFirst("level/dimension");
+
+            int width = dimension.getAttrInt("width");
+            int height = dimension.getAttrInt("height");
 
             background = LvlParser.parseBackground(levelXML,
                     (path, scale) -> {
@@ -73,7 +72,7 @@ public abstract class CompoundLevelSource implements LevelSource {
                     (xCoef, yCoef, src, image) -> new Layer(image, xCoef, yCoef),
                     (layers, yOffset, scale) -> new ParallaxBackground(layers, yOffset));
 
-            XML dictionaryXML = new XMLDocument(provider.get("dictionary.xml"));
+            WrappedXML dictionaryXML = parseXMLNew(provider.get("dictionary.xml"));
 
             BlockState[] blocksDictionary = LvlParser.parseBlocksDictionaryXML(dictionaryXML,
                     (id, meta) -> new BlockState(id, Byte.parseByte(meta)),
@@ -86,7 +85,7 @@ public abstract class CompoundLevelSource implements LevelSource {
 
             map = new LevelMap(blocks);
 
-            XML entitiesXML = new XMLDocument(provider.get("entities.xml"));
+            WrappedXML entitiesXML = parseXMLNew(provider.get("entities.xml"));
 
             LvlParser.parseEntitiesXML(entitiesXML, (id, x, y, tags) -> {
 
@@ -97,12 +96,12 @@ public abstract class CompoundLevelSource implements LevelSource {
                     entitiesSpawnList.add(entity);
             });
 
-            XML scriptsXML = new XMLDocument(provider.get("scripts.xml"));
+            WrappedXML scriptsXML = parseXMLNew(provider.get("scripts.xml"));
 
             GameRegistry registry = SharedInstances.get(SharedNames.REGISTRY);
             Registry<Class<? extends Entity>> entityRegistry = registry.getEntitiesRegistry();
 
-            LvlParser.parseScriptsXML(scriptsXML, (aabb, affected, content) -> {
+            LvlParser.parseScriptsXML(scriptsXML, (id, enabled, aabb, affected, content) -> {
                 Class<? extends Entity> affectedClass = affected.equals("*") ? Entity.class : entityRegistry.get(affected);
                 if (affectedClass == null)
                     throw new RuntimeException("Unknown entity type : " + affected);
@@ -112,7 +111,8 @@ public abstract class CompoundLevelSource implements LevelSource {
                 } catch (ScriptException e) {
                     throw new RuntimeException(e);
                 }
-                scripts.add(new ScriptObject(aabb, affectedClass, script));
+                script.setDefaultEnabled(enabled);
+                scripts.add(new ScriptObject(id, aabb, affectedClass, script));
             });
         }
     }

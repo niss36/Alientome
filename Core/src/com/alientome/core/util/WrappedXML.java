@@ -62,6 +62,13 @@ public class WrappedXML implements XML {
         };
     }
 
+    public WrappedXML getFirst(String query) {
+
+        List<XML> nodes = nodes(query);
+
+        return new WrappedXML(nodes.get(0));
+    }
+
     public String getAttr(String name) {
         return xpath("@" + name).get(0);
     }
@@ -70,8 +77,16 @@ public class WrappedXML implements XML {
         return Integer.parseInt(getAttr(name));
     }
 
+    public double getAttrDouble(String name) {
+        return Double.parseDouble(getAttr(name));
+    }
+
     public byte getAttrByte(String name) {
         return Byte.parseByte(getAttr(name));
+    }
+
+    public boolean getAttrBoolean(String name) {
+        return Boolean.parseBoolean(getAttr(name));
     }
 
     public <T> T getAttrAs(String name, Function<String, T> converter) {
@@ -90,5 +105,15 @@ public class WrappedXML implements XML {
     public int getOrDefaultInt(String name, int defaultVal) {
         String attr = getAttributeSafe(name);
         return attr.isEmpty() ? defaultVal : Integer.parseInt(attr);
+    }
+
+    public double getOrDefaultDouble(String name, double defaultVal) {
+        String attr = getAttributeSafe(name);
+        return attr.isEmpty() ? defaultVal : Double.parseDouble(attr);
+    }
+
+    public boolean getOrDefaultBoolean(String name, boolean defaultVal) {
+        String attr = getAttributeSafe(name);
+        return attr.isEmpty() ? defaultVal : Boolean.parseBoolean(attr);
     }
 }

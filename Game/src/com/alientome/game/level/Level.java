@@ -47,6 +47,8 @@ public interface Level {
 
     void applyScripts(Entity entity);
 
+    void setScriptEnabled(String id, boolean enabled);
+
     boolean sightTest(Entity entity0, Entity entity1);
 
     boolean submitEvent(MappedKeyEvent e);

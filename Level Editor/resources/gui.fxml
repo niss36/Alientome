@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.canvas.Canvas?>
@@ -8,6 +12,7 @@
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.String?>
+
 <AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alientome.editors.level.gui.fx.FXMLGUIController">
     <children>
         <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -179,26 +184,30 @@
                                                         </columnConstraints>
                                                         <rowConstraints>
                                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                         </rowConstraints>
                                                          <children>
                                                             <Label text="Edit Script :" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
-                                                            <Label text="Affected class" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                                                            <TextField fx:id="scriptAffected" maxWidth="-Infinity" onKeyReleased="#onScriptTextInputKeyReleased" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                                                            <Label text="Content :" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-                                                            <Label text="Bounds" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                                                            <Button fx:id="scriptBounds" mnemonicParsing="false" onAction="#onScriptAction" text="0; 0 -&gt; 0; 0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                                                            <Label text="Unique ID" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                                                            <TextField fx:id="scriptID" maxWidth="-Infinity" onKeyReleased="#onScriptTextInputKeyReleased" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                                                            <Label text="Bounds" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                                                            <Button fx:id="scriptBounds" mnemonicParsing="false" onAction="#onScriptAction" text="0; 0 -&gt; 0; 0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                                                            <Label text="Affected class" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                            <TextField fx:id="scriptAffected" maxWidth="-Infinity" onKeyReleased="#onScriptTextInputKeyReleased" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                            <Label text="Content :" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
                                                          </children>
                                                          <padding>
                                                             <Insets bottom="3.0" />
                                                          </padding>
                                                       </GridPane>
                                                       <TextArea fx:id="scriptContent" disable="true" onKeyReleased="#onScriptTextInputKeyReleased" />
-                                                      <HBox alignment="CENTER">
+                                                      <HBox alignment="CENTER" spacing="30.0">
                                                          <children>
                                                             <Button fx:id="deleteScript" disable="true" mnemonicParsing="false" onAction="#onScriptAction" text="Delete" />
+                                                            <Button fx:id="toggleEnabledScript" mnemonicParsing="false" onAction="#onScriptAction" text="Disable" />
                                                          </children>
                                                          <padding>
                                                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

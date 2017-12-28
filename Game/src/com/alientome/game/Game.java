@@ -2,8 +2,8 @@ package com.alientome.game;
 
 import com.alientome.core.SharedInstances;
 import com.alientome.core.events.GameEventDispatcher;
-import com.alientome.core.keybindings.InputManager;
 import com.alientome.core.keybindings.InputListener;
+import com.alientome.core.keybindings.InputManager;
 import com.alientome.core.util.Logger;
 import com.alientome.game.events.GameErrorEvent;
 import com.alientome.game.events.GamePauseEvent;
