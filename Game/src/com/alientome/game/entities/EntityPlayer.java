@@ -101,7 +101,7 @@ public class EntityPlayer extends EntityLiving {
                     action.accept((EntityEnemy) entity);
             }, this);
         };
-        AttackVisuals visuals = new SimpleAttackVisuals(handler, 3, 0);
+        AttackVisuals visuals = new SimpleAttackVisuals(handler, 1, 0);
 
         return new DirectionLockingAttackAbility<>(this, 17, 15, 10, target, attack, visuals);
     }
