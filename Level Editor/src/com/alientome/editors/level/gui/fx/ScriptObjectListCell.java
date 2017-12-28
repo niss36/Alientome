@@ -12,6 +12,6 @@ public class ScriptObjectListCell extends ListCell<ScriptObject> {
         if (empty || item == null)
             setText(null);
         else
-            setText(item.getBounds() + " on " + item.affected);
+            setText(item.toString());
     }
 }

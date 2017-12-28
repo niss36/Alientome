@@ -14,6 +14,7 @@ public class Script {
     private final Map<String, ScriptFunction> bindings = new HashMap<>();
     private final ScriptEngine engine;
     private final Expression[] expressions;
+    private boolean defaultEnabled;
     private boolean enabled = true;
     private int delay = 0;
     private int delayedLn = -1;
@@ -23,7 +24,6 @@ public class Script {
         this.engine = engine;
         this.expressions = expressions;
 
-        bindings.put("enable", (VoidFunction) (args, c) -> enabled = true);
         bindings.put("disable", (VoidFunction) (args, c) -> enabled = false);
 
         bindings.put("delay", (VoidFunction) (args, c) -> delay = ((ArithmeticValue) args[0]).numValue().intValue());
@@ -36,8 +36,16 @@ public class Script {
         return engine.call(functionName, arguments, context);
     }
 
+    public void setDefaultEnabled(boolean defaultEnabled) {
+        this.defaultEnabled = defaultEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public void reset() {
-        enabled = true;
+        enabled = defaultEnabled;
         delay = 0;
         delayedLn = -1;
         context = null;

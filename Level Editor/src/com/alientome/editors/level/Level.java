@@ -2,16 +2,14 @@ package com.alientome.editors.level;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.util.FileUtils;
+import com.alientome.core.util.WrappedXML;
 import com.alientome.editors.level.background.Background;
 import com.alientome.editors.level.background.Layer;
 import com.alientome.editors.level.registry.EditorRegistry;
 import com.alientome.editors.level.state.*;
 import com.alientome.editors.level.util.Colors;
 import com.alientome.game.parse.LvlParser;
-import com.jcabi.xml.XML;
-import com.jcabi.xml.XMLDocument;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xembly.Directives;
 import org.xembly.ImpossibleModificationException;
 import org.xembly.Xembler;
@@ -32,6 +30,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.List;
 
+import static com.alientome.core.util.Util.parseXMLNew;
 import static com.alientome.editors.level.state.BlockState.WIDTH;
 import static com.alientome.editors.level.util.Util.*;
 
@@ -100,11 +99,12 @@ public class Level {
             FileUtils.copyDirectory(fs.getPath("/"), tempDirectory, StandardCopyOption.REPLACE_EXISTING);
         }
 
-        XML level = new XMLDocument(tempDirectory.resolve("level.xml").toUri());
+        WrappedXML level = parseXMLNew(tempDirectory.resolve("level.xml").toUri());
 
-        Element dimension = (Element) level.nodes("level/dimension").get(0).node();
-        int width = Integer.parseInt(dimension.getAttribute("width"));
-        int height = Integer.parseInt(dimension.getAttribute("height"));
+        WrappedXML dimension = level.getFirst("level/dimension");
+
+        int width = dimension.getAttrInt("width");
+        int height = dimension.getAttrInt("height");
 
         background = LvlParser.parseBackground(level,
                 (path, scale) -> {
@@ -119,7 +119,7 @@ public class Level {
                     return new Background(layers, scale, yOffset);
                 });
 
-        XML dictionary = new XMLDocument(tempDirectory.resolve("dictionary.xml").toUri());
+        WrappedXML dictionary = parseXMLNew(tempDirectory.resolve("dictionary.xml").toUri());
 
         BlockState[] blocksDictionary = LvlParser.parseBlocksDictionaryXML(dictionary,
                 (id, meta) -> registry.getBlocksRegistry().get(id + ":" + meta),
@@ -136,7 +136,7 @@ public class Level {
             tiles[x][y] = state;
         });
 
-        XML entitiesXML = new XMLDocument(tempDirectory.resolve("entities.xml").toUri());
+        WrappedXML entitiesXML = parseXMLNew(tempDirectory.resolve("entities.xml").toUri());
 
         LvlParser.parseEntitiesXML(entitiesXML, (id, x, y, tags) -> {
             EntityState state = registry.getEntitiesRegistry().get(id);
@@ -152,9 +152,11 @@ public class Level {
             minimap.setRGB(x, y, state.sprite.color.getRGB());
         });
 
-        XML scriptsXML = new XMLDocument(tempDirectory.resolve("scripts.xml").toUri());
+        WrappedXML scriptsXML = parseXMLNew(tempDirectory.resolve("scripts.xml").toUri());
 
-        LvlParser.parseScriptsXML(scriptsXML, (aabb, affected, content) -> this.scripts.add(new ScriptObject(aabb, affected, content)));
+        LvlParser.parseScriptsXML(scriptsXML,
+                (id, enabled, aabb, affected, content) ->
+                        this.scripts.add(new ScriptObject(id, enabled, aabb, affected, content)));
     }
 
     public void draw(Graphics g, boolean showGrid) {
@@ -428,7 +430,8 @@ public class Level {
     }
 
     private static Directives createScript(ScriptObject s) {
-        return new Directives().add("scriptObject").add("boundingBox")
+        return new Directives().add("scriptObject")
+                .attr("id", s.id == null ? "" : s.id).attr("enabled", s.enabled).add("boundingBox")
                 .attr("x", (int) s.aabb.getMinX()).attr("y", (int) s.aabb.getMinY())
                 .attr("w", (int) s.aabb.getWidth()).attr("h", (int) s.aabb.getHeight()).up()
                 .add("affected").attr("class", s.affected).up()
@@ -516,7 +519,7 @@ public class Level {
 
         AxisAlignedBoundingBox aabb = s.aabb.offset(xOffset * BlockState.WIDTH, yOffset * BlockState.WIDTH);
 
-        ScriptObject n = new ScriptObject(aabb, s.affected, s.content);
+        ScriptObject n = new ScriptObject(s.id, s.enabled, aabb, s.affected, s.content);
 
         scripts.set(index, n);
     }

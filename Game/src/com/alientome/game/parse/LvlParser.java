@@ -2,6 +2,7 @@ package com.alientome.game.parse;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.util.ArrayCreator;
+import com.alientome.core.util.WrappedXML;
 import com.alientome.game.collisions.StaticBoundingBox;
 import com.jcabi.xml.XML;
 import org.w3c.dom.Element;
@@ -10,39 +11,30 @@ import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LvlParser {
 
-    private static String getOrDefault(Element e, String name, String defaultVal) {
-        String s = e.getAttribute(name);
-        return s.isEmpty() ? defaultVal : s;
-    }
-
-    public static <BG, LAYER> BG parseBackground(XML document,
+    public static <BG, LAYER> BG parseBackground(WrappedXML document,
                                                  ImageParser imageParser,
                                                  XMLLayerParser<LAYER> layerParser,
                                                  XMLBackgroundParser<BG, LAYER> backgroundParser) {
 
-        XML backgroundXML = document.nodes("level/background").get(0);
-        Element backgroundElement = (Element) backgroundXML.node();
+        WrappedXML backgroundXML = document.getFirst("level/background");
 
-        int yOffset = Integer.parseInt(getOrDefault(backgroundElement, "yOffset", "0"));
-        int scale = Integer.parseInt(getOrDefault(backgroundElement, "scale", "1"));
+        int yOffset = backgroundXML.getOrDefaultInt("yOffset", 0);
+        int scale = backgroundXML.getOrDefaultInt("scale", 1);
 
         List<XML> layersXML = backgroundXML.nodes("layer");
         List<LAYER> layers = new ArrayList<>(layersXML.size());
 
         for (XML layerXML : layersXML) {
-            Element layerElement = (Element) layerXML.node();
+            WrappedXML wrappedXML = new WrappedXML(layerXML);
 
-            double xCoef = Double.parseDouble(getOrDefault(layerElement, "xCoef", "0"));
-            double yCoef = Double.parseDouble(getOrDefault(layerElement, "yCoef", "0"));
+            double xCoef = wrappedXML.getOrDefaultDouble("xCoef", 0);
+            double yCoef = wrappedXML.getOrDefaultDouble("yCoef", 0);
 
-            String src = layerElement.getAttribute("source");
+            String src = wrappedXML.getAttr("source");
             BufferedImage image = imageParser.parse(src, scale);
 
             layers.add(layerParser.parse(xCoef, yCoef, src, image));
@@ -51,15 +43,13 @@ public class LvlParser {
         return backgroundParser.parse(layers, yOffset, scale);
     }
 
-    public static void parseEntitiesXML(XML document, XMLEntityParser callback) {
+    public static void parseEntitiesXML(WrappedXML document, XMLEntityParser callback) {
 
-        for (XML entityXML : document.nodes("entities/entity")) {
+        for (WrappedXML entityXML : document.nodesWrapped("entities/entity")) {
 
-            Element entity = (Element) entityXML.node();
-
-            String id = entity.getAttribute("id");
-            int x = Integer.parseInt(entity.getAttribute("x"));
-            int y = Integer.parseInt(entity.getAttribute("y"));
+            String id = entityXML.getAttr("id");
+            int x = entityXML.getAttrInt("x");
+            int y = entityXML.getAttrInt("y");
 
             Map<String, String> tags = new LinkedHashMap<>();
 
@@ -73,38 +63,48 @@ public class LvlParser {
         }
     }
 
-    public static <T> T[] parseBlocksDictionaryXML(XML document, XMLBlockStateParser<T> callback, ArrayCreator<T> creator) {
+    public static <T> T[] parseBlocksDictionaryXML(WrappedXML document, XMLBlockStateParser<T> callback, ArrayCreator<T> creator) {
 
         List<XML> statesXML = document.nodes("dictionary/blocks/state");
         T[] dictionary = creator.create(statesXML.size());
 
         for (int i = 0; i < dictionary.length; i++) {
 
-            Element state = (Element) statesXML.get(i).node();
-            dictionary[i] = callback.parse(state.getAttribute("id"), state.getAttribute("meta"));
+            WrappedXML wrappedXML = new WrappedXML(statesXML.get(i));
+            dictionary[i] = callback.parse(wrappedXML.getAttr("id"), wrappedXML.getAttr("meta"));
         }
 
         return dictionary;
     }
 
-    public static void parseScriptsXML(XML document, XMLScriptParser callback) {
+    public static void parseScriptsXML(WrappedXML document, XMLScriptParser callback) {
 
-        for (XML script : document.nodes("scripts/scriptObject")) {
-            Element boundingBox = (Element) script.nodes("boundingBox").get(0).node();
+        Set<String> ids = new HashSet<>();
 
-            double x, y, w, h;
-            x = Double.parseDouble(boundingBox.getAttribute("x"));
-            y = Double.parseDouble(boundingBox.getAttribute("y"));
-            w = Double.parseDouble(boundingBox.getAttribute("w"));
-            h = Double.parseDouble(boundingBox.getAttribute("h"));
+        for (WrappedXML script : document.nodesWrapped("scripts/scriptObject")) {
+
+            String id = script.getOrDefault("id", null);
+
+            if (id != null && ! ids.add(id))
+                throw new IllegalArgumentException("ids must be unique (offending : " + id + ")");
+
+            boolean enabled = script.getOrDefaultBoolean("enabled", true);
+            System.out.println(enabled);
+
+            WrappedXML boundingBox = script.getFirst("boundingBox");
+
+            double x = boundingBox.getAttrDouble("x");
+            double y = boundingBox.getAttrDouble("y");
+            double w = boundingBox.getAttrDouble("w");
+            double h = boundingBox.getAttrDouble("h");
 
             AxisAlignedBoundingBox aabb = new StaticBoundingBox(x, y, x + w, y + h);
 
-            Element affected = (Element) script.nodes("affected").get(0).node();
+            WrappedXML affected = script.getFirst("affected");
 
             String content = script.xpath("content/text()").get(0);
 
-            callback.parse(aabb, affected.getAttribute("class"), content);
+            callback.parse(id, enabled, aabb, affected.getAttr("class"), content);
         }
     }
 

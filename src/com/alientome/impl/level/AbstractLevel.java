@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
 import static com.alientome.core.SharedNames.DISPATCHER;
 import static com.alientome.game.profiling.ExecutionTimeProfiler.theProfiler;
@@ -218,6 +217,16 @@ public abstract class AbstractLevel implements Level {
 
         for (ScriptObject script : scripts)
             script.runOn(entity);
+    }
+
+    @Override
+    public void setScriptEnabled(String id, boolean enabled) {
+
+        for (ScriptObject script : scripts)
+            if (script.is(id)) {
+                script.setEnabled(enabled);
+                return;
+            }
     }
 
     @Override
