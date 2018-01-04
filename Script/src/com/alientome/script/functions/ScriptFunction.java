@@ -6,5 +6,12 @@ import com.alientome.script.values.Value;
 @FunctionalInterface
 public interface ScriptFunction {
 
-    Value apply(Value[] args, Object c) throws ScriptException;
+    default Value apply(Value[] args, Object c) throws ScriptException {
+        Object[] evaluated = new Object[args.length];
+        for (int i = 0; i < args.length; i++)
+            evaluated[i] = args[i].objValue();
+        return apply(evaluated, c);
+    }
+
+    Value apply(Object[] args, Object c) throws ScriptException;
 }

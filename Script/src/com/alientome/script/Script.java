@@ -1,6 +1,5 @@
 package com.alientome.script;
 
-import com.alientome.script.arithmetic.ArithmeticValue;
 import com.alientome.script.functions.ScriptFunction;
 import com.alientome.script.functions.VoidFunction;
 import com.alientome.script.values.Expression;
@@ -26,14 +25,14 @@ public class Script {
 
         bindings.put("disable", (VoidFunction) (args, c) -> enabled = false);
 
-        bindings.put("delay", (VoidFunction) (args, c) -> delay = ((ArithmeticValue) args[0]).numValue().intValue());
+        bindings.put("delay", (VoidFunction) (args, c) -> delay = (Integer) args[0]);
     }
 
     public Value call(String functionName, Value[] arguments) throws ScriptException {
         ScriptFunction function = bindings.get(functionName);
-        if (function != null)
-            return function.apply(arguments, context);
-        return engine.call(functionName, arguments, context);
+        if (function == null)
+            return engine.call(functionName, arguments, context);
+        return function.apply(arguments, context);
     }
 
     public void setDefaultEnabled(boolean defaultEnabled) {

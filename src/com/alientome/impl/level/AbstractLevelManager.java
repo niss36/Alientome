@@ -12,11 +12,7 @@ import com.alientome.game.level.Level;
 import com.alientome.game.level.LevelManager;
 import com.alientome.script.ScriptEngine;
 import com.alientome.script.ScriptParser;
-import com.alientome.script.arithmetic.ArithmeticValue;
 import com.alientome.script.functions.VoidFunction;
-import com.alientome.script.values.BooleanValue;
-import com.alientome.script.values.IntegerValue;
-import com.alientome.script.values.StringValue;
 
 import static com.alientome.core.SharedNames.DISPATCHER;
 import static com.alientome.core.SharedNames.SOUND_MANAGER;
@@ -38,46 +34,46 @@ public abstract class AbstractLevelManager implements LevelManager {
         dispatcher.addToCache(this, listener);
 
         engine.addBinding("nextLevel", (VoidFunction) (args, c) -> nextLevel());
-        engine.addBinding("loadLevel", (VoidFunction) (args, c) -> loadLevel((String) args[0].objValue()));
+        engine.addBinding("loadLevel", (VoidFunction) (args, c) -> loadLevel((String) args[0]));
 
         engine.addBinding("freezePlayer", (VoidFunction) (args, c) -> level.getController().disable());
         engine.addBinding("unfreezePlayer", (VoidFunction) (args, c) -> level.getController().enable());
 
         engine.addBinding("travelCamera", (VoidFunction) (args, c) -> {
-            ArithmeticValue x = (ArithmeticValue) args[0];
-            ArithmeticValue y = (ArithmeticValue) args[1];
-            IntegerValue time = (IntegerValue) args[2];
-            level.setCamera(new TravelCamera(new Vec2(x.numValue().doubleValue(), y.numValue().doubleValue()), time.numValue()));
+            Number x = (Number) args[0];
+            Number y = (Number) args[1];
+            Integer time = (Integer) args[2];
+            level.setCamera(new TravelCamera(new Vec2(x.doubleValue(), y.doubleValue()), time));
         });
 
         engine.addBinding("travelCameraPlayer", (VoidFunction) (args, c) -> {
-            IntegerValue time = (IntegerValue) args[0];
-            level.setCamera(new TravelCamera(level.getPlayer().getCenterPos(), time.numValue()));
+            Integer time = (Integer) args[0];
+            level.setCamera(new TravelCamera(level.getPlayer().getCenterPos(), time));
         });
 
         engine.addBinding("playerCamera", (VoidFunction) (args, c) -> level.setCamera(level.getPlayer().newCamera()));
 
         engine.addBinding("playSound", (VoidFunction) (args, c) -> {
-            String id = (String) args[0].objValue();
-            BooleanValue loop = args.length > 1 ? (BooleanValue) args[1] : new BooleanValue(Boolean.FALSE);
+            String id = (String) args[0];
+            boolean loop = args.length > 1 && (Boolean) args[1];
             SoundManager manager = SharedInstances.get(SOUND_MANAGER);
-            if (loop.objValue()) manager.playLooping(id);
+            if (loop) manager.playLooping(id);
             else manager.playOnce(id);
         });
 
         engine.addBinding("stopPlaying", (VoidFunction) (args, c) -> {
-            String id = (String) args[0].objValue();
+            String id = (String) args[0];
             SoundManager manager = SharedInstances.get(SOUND_MANAGER);
             manager.stopPlaying(id);
         });
 
         engine.addBinding("enableScript", (VoidFunction) (args, c) -> {
-            String id = (String) args[0].objValue();
+            String id = (String) args[0];
             level.setScriptEnabled(id, true);
         });
 
         engine.addBinding("disableScript", (VoidFunction) (args, c) -> {
-            String id = (String) args[0].objValue();
+            String id = (String) args[0];
             level.setScriptEnabled(id, false);
         });
     }
