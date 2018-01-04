@@ -8,10 +8,10 @@ import com.alientome.script.values.VoidValue;
 public interface VoidFunction extends ScriptFunction {
 
     @Override
-    default Value apply(Value[] args, Object c) throws ScriptException {
+    default Value apply(Object[] args, Object c) throws ScriptException {
         applyVoid(args, c);
         return VoidValue.VOID;
     }
 
-    void applyVoid(Value[] args, Object c) throws ScriptException;
+    void applyVoid(Object[] args, Object c) throws ScriptException;
 }
