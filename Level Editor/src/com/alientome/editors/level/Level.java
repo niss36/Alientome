@@ -21,7 +21,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -45,7 +44,6 @@ public class Level {
     private BlockState[][] tiles;
     private Entity[][] entities;
     private List<Entity> entityList = new ArrayList<>();
-    private BufferedImage minimap;
     private int playerX = -1;
     private int playerY = -1;
 
@@ -69,8 +67,6 @@ public class Level {
         fillNullTiles();
 
         entities = new Entity[width][height];
-
-        minimap = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
         background = new Background(layers, 1, 0);
     }
@@ -125,14 +121,11 @@ public class Level {
                 (id, meta) -> registry.getBlocksRegistry().get(id + ":" + meta),
                 BlockState[]::new);
 
-        minimap = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
         tiles = new BlockState[width][height];
         entities = new Entity[width][height];
 
         LvlParser.parseMap(FileUtils.openStream(tempDirectory.resolve("map").toUri()), width, height, (x, y, stateIndex) -> {
             BlockState state = blocksDictionary[stateIndex];
-            minimap.setRGB(x, y, state.sprite.color.getRGB());
             tiles[x][y] = state;
         });
 
@@ -149,7 +142,6 @@ public class Level {
             Entity e = new Entity(state, x, y, tags);
             entities[x][y] = e;
             entityList.add(e);
-            minimap.setRGB(x, y, state.sprite.color.getRGB());
         });
 
         WrappedXML scriptsXML = parseXMLNew(tempDirectory.resolve("scripts.xml").toUri());
@@ -177,10 +169,8 @@ public class Level {
     public void setTile(int x, int y, BlockState state) {
         if (state == null)
             setTile(x, y, defaultState);
-        else {
+        else
             tiles[x][y] = state;
-            minimap.setRGB(x, y, state.sprite.color.getRGB());
-        }
     }
 
     public void addEntity(int x, int y, EntityState state) {
@@ -197,7 +187,6 @@ public class Level {
         Entity e = new Entity(state, x, y, new LinkedHashMap<>());
         entities[x][y] = e;
         entityList.add(e);
-        minimap.setRGB(x, y, state.sprite.color.getRGB());
     }
 
     public void removeEntity(int x, int y) {
@@ -212,7 +201,6 @@ public class Level {
         if (e != null)
             entityList.remove(e);
         entities[x][y] = null;
-        minimap.setRGB(x, y, tiles[x][y].sprite.color.getRGB());
     }
 
     public Entity getEntityAt(int pxX, int pxY) {
@@ -252,10 +240,6 @@ public class Level {
         return tiles[0].length;
     }
 
-    public BufferedImage getMinimap() {
-        return minimap;
-    }
-
     public Background getBackground() {
         return background;
     }
@@ -278,24 +262,6 @@ public class Level {
         update(scripts, state.scripts);
         playerX = state.playerX;
         playerY = state.playerY;
-
-        setMinimapToState();
-    }
-
-    private void setMinimapToState() {
-        int width = getWidth();
-        int height = getHeight();
-
-        if (width != minimap.getWidth() || height != minimap.getHeight())
-            minimap = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-        for (int i = 0; i < width; i++)
-            for (int j = 0; j < height; j++) {
-                minimap.setRGB(i, j, tiles[i][j].sprite.color.getRGB());
-                Entity entity = entities[i][j];
-                if (entity != null)
-                    minimap.setRGB(i, j, entity.state.sprite.color.getRGB());
-            }
     }
 
     public Path getTempDirectory() {
@@ -490,8 +456,6 @@ public class Level {
         }
 
         fillNullTiles();
-
-        setMinimapToState();
     }
 
     private void offsetEntity(int index, int xOffset, int yOffset) {

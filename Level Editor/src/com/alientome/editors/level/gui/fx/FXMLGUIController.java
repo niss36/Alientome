@@ -34,7 +34,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -81,7 +80,6 @@ public class FXMLGUIController extends FXMLController {
     private Layer selectedLayer;
     private Rectangle selection;
     private boolean showGrid = true;
-    private BufferedImage minimapImage;
     private BufferedImage buffer;
     private WritableImage image;
     private BufferedImage backgroundBuffer;
@@ -170,8 +168,6 @@ public class FXMLGUIController extends FXMLController {
 
             canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
             canvas.getGraphicsContext2D().drawImage(image, 0, 0);
-
-            minimap.setImage(SwingFXUtils.toFXImage(minimapImage, null));
         }
     }
 
@@ -185,12 +181,9 @@ public class FXMLGUIController extends FXMLController {
             pxHeight = level.getHeight() * BlockState.WIDTH + 1;
 
             buffer = new BufferedImage(pxWidth, pxHeight, BufferedImage.TYPE_INT_ARGB);
-            minimapImage = level.getMinimap();
         } else {
             pxWidth = pxHeight = 0;
             buffer = null;
-            minimapImage = null;
-            minimap.setImage(null);
         }
 
         canvas.setWidth(pxWidth);
@@ -243,6 +236,8 @@ public class FXMLGUIController extends FXMLController {
         selectEntity(null);
         selectScript(null);
         selectLayer(null);
+
+        background.getGraphicsContext2D().clearRect(0, 0, background.getWidth(), background.getHeight());
 
         clearStacks();
     }
@@ -663,9 +658,6 @@ public class FXMLGUIController extends FXMLController {
 
     @FXML
     private ListView<ScriptObject> scripts;
-
-    @FXML
-    private ImageView minimap;
 
     @FXML
     private Canvas canvas;
