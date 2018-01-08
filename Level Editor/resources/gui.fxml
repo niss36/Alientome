@@ -150,7 +150,7 @@
                                                             <TextField fx:id="tagName" maxWidth="-Infinity" prefWidth="150.0" GridPane.rowIndex="3" />
                                                             <TextField fx:id="tagValue" maxWidth="-Infinity" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                                             <Label fx:id="tagsLabel" text="Tags :" GridPane.columnSpan="3" />
-                                                            <Button fx:id="addTag" mnemonicParsing="false" onAction="#onTagAction" prefWidth="25.0" text="+" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                                            <Button fx:id="addTag" mnemonicParsing="false" onAction="#onTagAction" prefWidth="31.0" text="+" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                                                          </children>
                                                       </GridPane>
                                                    </children>
@@ -183,11 +183,11 @@
                                                           <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
                                                         </columnConstraints>
                                                         <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
                                                         </rowConstraints>
                                                          <children>
                                                             <Label text="Edit Script :" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
@@ -221,15 +221,6 @@
                                     </Tab>
                                             </tabs>
                                         </TabPane>
-                                        <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="200.0" vbarPolicy="NEVER">
-                                            <content>
-                                                <AnchorPane>
-                                                    <children>
-                                                        <ImageView fx:id="minimap" pickOnBounds="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                                    </children>
-                                                </AnchorPane>
-                                            </content>
-                                        </ScrollPane>
                                     </children>
                                 </VBox>
                             </children>
