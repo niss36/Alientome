@@ -108,12 +108,12 @@ public class FXMLOptionsController extends FXMLController {
     @Override
     public void init(Scene scene) {
 
-        I18N i18N = SharedInstances.get(I18N);
+        Property<I18N> i18N = SharedInstances.getProperty(I18N) ;
         Config config = SharedInstances.get(CONFIG);
 
         scene.getRoot().lookupAll("*").forEach(node -> {
             if (node instanceof Labeled)
-                i18N.applyBindTo((Labeled) node);
+                i18N.getValue().applyBindTo((Labeled) node);
         });
 
         WrappedXML configDisplayXML;
@@ -130,7 +130,7 @@ public class FXMLOptionsController extends FXMLController {
         for (WrappedXML categoryXML : configDisplayXML.nodesWrapped("categories/category")) {
 
             Label categoryLabel = new Label("options.category." + categoryXML.getAttr("id"));
-            i18N.applyBindTo(categoryLabel);
+            i18N.getValue().applyBindTo(categoryLabel);
             GridPane.setColumnSpan(categoryLabel, 2);
             GridPane.setHalignment(categoryLabel, HPos.CENTER);
             categoryLabel.getStyleClass().add("option-category");
@@ -144,7 +144,7 @@ public class FXMLOptionsController extends FXMLController {
                 String type = settingXML.getAttr("type");
 
                 Label settingLabel = new Label("options." + id);
-                i18N.applyBindTo(settingLabel);
+                i18N.getValue().applyBindTo(settingLabel);
                 settingLabel.getStyleClass().add("option-label");
 
                 ControlProvider provider = controlProviders.get(type);
@@ -152,7 +152,7 @@ public class FXMLOptionsController extends FXMLController {
                     log.w("Unable to find a control provider for type '" + type + "'. Ignoring...");
                     grid.addRow(rowIndex++, settingLabel);
                 } else {
-                    Node settingControl = provider.create(settingXML, id, i18N, config);
+                    Node settingControl = provider.create(settingXML, id, i18N.getValue(), config);
                     grid.addRow(rowIndex++, settingLabel, settingControl);
                 }
                 grid.getRowConstraints().add(new RowConstraints(USE_COMPUTED_SIZE, 60, USE_COMPUTED_SIZE));

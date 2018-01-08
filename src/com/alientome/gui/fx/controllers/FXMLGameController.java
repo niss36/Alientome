@@ -17,6 +17,7 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.Property;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -71,12 +72,12 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
 
         game = new Game(this);
 
-        GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-        InputManager manager = SharedInstances.get(INPUT_MANAGER);
+        Property<GameEventDispatcher> dispatcher = SharedInstances.getProperty(DISPATCHER);
+        Property<InputManager> manager = SharedInstances.getProperty(INPUT_MANAGER);
 
-        dispatcher.register(GAME_EXIT, e -> {
+        dispatcher.getValue().register(GAME_EXIT, e -> {
             this.manager.switchToScene("MAIN");
-            manager.setActiveContext(null);
+            manager.getValue().setActiveContext(null);
             pauseMenu.setVisible(false);
             deathMenu.setVisible(false);
             pane.setOpacity(0);
@@ -86,7 +87,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
             image = null;
             Platform.runLater(() -> canvas.getGraphicsContext2D().clearRect(0, 0, bounds.width, bounds.height));
         });
-        dispatcher.register(GAME_PAUSE, e -> {
+        dispatcher.getValue().register(GAME_PAUSE, e -> {
             pauseMenu.setVisible(true);
             if (transition != null) {
                 transition.stop();
@@ -95,7 +96,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
             pane.setOpacity(0.5);
             timer.stop();
         });
-        dispatcher.register(GAME_RESUME, e -> {
+        dispatcher.getValue().register(GAME_RESUME, e -> {
             pauseMenu.setVisible(false);
             deathMenu.setVisible(false);
             timer.start();
@@ -112,7 +113,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
             };
             transition.playFromStart();
         });
-        dispatcher.register(GAME_DEATH, e -> {
+        dispatcher.getValue().register(GAME_DEATH, e -> {
             transition = new Transition() {
 
                 {
@@ -127,17 +128,17 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
             transition.setOnFinished(event -> deathMenu.setVisible(true));
             transition.playFromStart();
         });
-        dispatcher.register(GAME_ERROR, e -> Platform.runLater(() -> {
+        dispatcher.getValue().register(GAME_ERROR, e -> Platform.runLater(() -> {
             DialogsUtil.showErrorDialog(((GameErrorEvent) e).error);
-            dispatcher.submit(new GameExitEvent());
+            dispatcher.getValue().submit(new GameExitEvent());
         }));
-        dispatcher.register(MESSAGE_SENT, e -> Platform.runLater(() -> consoleView.getItems().add(((MessageEvent) e).message)));
+        dispatcher.getValue().register(MESSAGE_SENT, e -> Platform.runLater(() -> consoleView.getItems().add(((MessageEvent) e).message)));
 
-        manager.setListener("running", "debug", makeListener(() -> debug = !debug));
-        manager.setListener("running", "console", makeListener(this::openConsole));
-        manager.setListener("global", "profileDump", makeListener(theProfiler::dumpProfileData));
-        manager.setListener("global", "screenshot", makeListener(this::tryTakeScreenshot));
-        manager.setListener("console", "close", makeListener(this::closeConsole));
+        manager.getValue().setListener("running", "debug", makeListener(() -> debug = !debug));
+        manager.getValue().setListener("running", "console", makeListener(this::openConsole));
+        manager.getValue().setListener("global", "profileDump", makeListener(theProfiler::dumpProfileData));
+        manager.getValue().setListener("global", "screenshot", makeListener(this::tryTakeScreenshot));
+        manager.getValue().setListener("console", "close", makeListener(this::closeConsole));
     }
 
     @Override
@@ -155,10 +156,10 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
         for (Node node : deathMenu.lookupAll(".button"))
             i18N.applyBindTo((Labeled) node);
 
-        InputManager manager = SharedInstances.get(INPUT_MANAGER);
+        Property<InputManager> manager = SharedInstances.getProperty(INPUT_MANAGER);
 
         scene.addEventHandler(KeyEvent.ANY, e -> {
-            if (manager.consumeEvent(e))
+            if (manager.getValue().consumeEvent(e))
                 e.consume();
         });
 
@@ -357,9 +358,12 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
 
         String trimmed = consoleInput.getText().trim();
 
-        Level level = game.getLevel();
+        if (!trimmed.isEmpty()) {
 
-        level.executeCommand(level.getControlled(), trimmed);
+            Level level = game.getLevel();
+
+            level.executeCommand(level.getControlled(), trimmed);
+        }
 
         closeConsole();
     }
