@@ -13,6 +13,7 @@ import com.alientome.game.level.LevelManager;
 import com.alientome.script.ScriptEngine;
 import com.alientome.script.ScriptParser;
 import com.alientome.script.functions.VoidFunction;
+import javafx.beans.property.Property;
 
 import static com.alientome.core.SharedNames.DISPATCHER;
 import static com.alientome.core.SharedNames.SOUND_MANAGER;
@@ -53,18 +54,18 @@ public abstract class AbstractLevelManager implements LevelManager {
 
         engine.addBinding("playerCamera", (VoidFunction) (args, c) -> level.setCamera(level.getPlayer().newCamera()));
 
+        Property<SoundManager> manager = SharedInstances.getProperty(SOUND_MANAGER);
+
         engine.addBinding("playSound", (VoidFunction) (args, c) -> {
             String id = (String) args[0];
             boolean loop = args.length > 1 && (Boolean) args[1];
-            SoundManager manager = SharedInstances.get(SOUND_MANAGER);
-            if (loop) manager.playLooping(id);
-            else manager.playOnce(id);
+            if (loop) manager.getValue().playLooping(id);
+            else manager.getValue().playOnce(id);
         });
 
         engine.addBinding("stopPlaying", (VoidFunction) (args, c) -> {
             String id = (String) args[0];
-            SoundManager manager = SharedInstances.get(SOUND_MANAGER);
-            manager.stopPlaying(id);
+            manager.getValue().stopPlaying(id);
         });
 
         engine.addBinding("enableScript", (VoidFunction) (args, c) -> {

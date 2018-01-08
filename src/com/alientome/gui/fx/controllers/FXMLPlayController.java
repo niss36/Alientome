@@ -10,6 +10,7 @@ import com.alientome.game.level.LevelLoader;
 import com.alientome.game.level.SaveManager;
 import com.alientome.gui.fx.DialogsUtil;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -31,12 +32,12 @@ public class FXMLPlayController extends FXMLController {
     @Override
     public void init(Scene scene) {
 
-        I18N i18N = SharedInstances.get(I18N);
-        SaveManager manager = SharedInstances.get(SAVE_MANAGER);
+        Property<I18N> i18N = SharedInstances.getProperty(I18N) ;
+        Property<SaveManager> manager = SharedInstances.getProperty(SAVE_MANAGER) ;
 
-        i18N.applyBindTo((Label) scene.getRoot().lookup(".title"));
-        i18N.applyBindTo(back);
-        i18N.applyBindTo(editor);
+        i18N.getValue().applyBindTo((Label) scene.getRoot().lookup(".title"));
+        i18N.getValue().applyBindTo(back);
+        i18N.getValue().applyBindTo(editor);
 
         {
             int i = 0;
@@ -54,13 +55,13 @@ public class FXMLPlayController extends FXMLController {
 
         for (int i = 0; i < 3; i++) {
 
-            IntegerProperty saveStatus = manager.getStatus(i);
+            IntegerProperty saveStatus = manager.getValue().getStatus(i);
 
-            saves[i].textProperty().bind(i18N.createStringBinding(() -> {
+            saves[i].textProperty().bind(i18N.getValue().createStringBinding(() -> {
                 if (saveStatus.get() > 0)
-                    return i18N.get("menu.saves.level", saveStatus.get());
+                    return i18N.getValue().get("menu.saves.level", saveStatus.get());
                 else
-                    return i18N.get("menu.saves.new");
+                    return i18N.getValue().get("menu.saves.new");
             }, saveStatus));
 
             deletes[i].managedProperty().bind(deletes[i].visibleProperty());
@@ -69,7 +70,7 @@ public class FXMLPlayController extends FXMLController {
 
         scene.windowProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null)
-                manager.actualize();
+                manager.getValue().actualize();
         });
     }
 

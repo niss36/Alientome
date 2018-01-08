@@ -41,12 +41,12 @@ public class FXMLControlsController extends FXMLController {
     @Override
     public void init(Scene scene) {
 
-        I18N i18N = SharedInstances.get(I18N);
+        Property<I18N> i18N = SharedInstances.getProperty(I18N);
         InputManager manager = SharedInstances.get(INPUT_MANAGER);
 
         scene.getRoot().lookupAll("*").forEach(node -> {
             if (node instanceof Labeled)
-                i18N.applyBindTo((Labeled) node);
+                i18N.getValue().applyBindTo((Labeled) node);
         });
 
         WrappedXML keybindingsDisplayXML;
@@ -61,7 +61,7 @@ public class FXMLControlsController extends FXMLController {
         for (WrappedXML categoryXML : keybindingsDisplayXML.nodesWrapped("categories/category")) {
 
             Label categoryLabel = new Label("controls.category." + categoryXML.getAttr("id"));
-            i18N.applyBindTo(categoryLabel);
+            i18N.getValue().applyBindTo(categoryLabel);
             GridPane.setColumnSpan(categoryLabel, 2);
             GridPane.setHalignment(categoryLabel, HPos.CENTER);
             categoryLabel.getStyleClass().add("control-category");
@@ -77,7 +77,7 @@ public class FXMLControlsController extends FXMLController {
                 String id = split[1];
 
                 Label bindingLabel = new Label("controls." + id);
-                i18N.applyBindTo(bindingLabel);
+                i18N.getValue().applyBindTo(bindingLabel);
                 bindingLabel.getStyleClass().add("control-label");
 
                 Property<KeyCode> property = manager.bindingProperty(context, id);

@@ -8,6 +8,7 @@ import com.alientome.core.internationalization.I18N;
 import com.alientome.core.settings.Config;
 import com.alientome.core.sound.SoundManager;
 import com.alientome.editors.level.LevelEditor;
+import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -22,30 +23,30 @@ public class FXMLMainController extends FXMLController {
     @Override
     public void init(Scene scene) {
 
-        I18N i18N = SharedInstances.get(I18N);
-        Config config = SharedInstances.get(CONFIG);
+        Property<I18N> i18N = SharedInstances.getProperty(I18N) ;
+        Property<Config> config = SharedInstances.getProperty(CONFIG) ;
 
         scene.getRoot().lookupAll("*").forEach(node -> {
             if (node instanceof Labeled) {
                 Labeled labeled = (Labeled) node;
                 if (labeled.getId().equals("version-label"))
-                    i18N.applyBindTo(labeled, config.getProperty("version"));
+                    i18N.getValue().applyBindTo(labeled, config.getValue().getProperty("version"));
                 else
-                    i18N.applyBindTo(labeled);
+                    i18N.getValue().applyBindTo(labeled);
             }
         });
 
         GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-        SoundManager soundManager = SharedInstances.get(SOUND_MANAGER);
+        Property<SoundManager> soundManager = SharedInstances.getProperty(SOUND_MANAGER) ;
 
-        dispatcher.register(GAME_START, e -> soundManager.stopPlaying("music.main"));
-        dispatcher.register(GAME_EXIT, e -> soundManager.playLooping("music.main"));
+        dispatcher.register(GAME_START, e -> soundManager.getValue().stopPlaying("music.main"));
+        dispatcher.register(GAME_EXIT, e -> soundManager.getValue().playLooping("music.main"));
         dispatcher.register(QUIT, e -> {
             manager.exit();
             LevelEditor.exit();
         });
 
-        soundManager.playLooping("music.main");
+        soundManager.getValue().playLooping("music.main");
     }
 
     @FXML
@@ -61,8 +62,6 @@ public class FXMLMainController extends FXMLController {
         else if (s == quit) {
             GameEventDispatcher dispatcher = SharedInstances.get(SharedNames.DISPATCHER);
             dispatcher.submit(new QuitRequestEvent());
-            /*manager.exit();
-            LevelEditor.exit();*/
         }
     }
 }

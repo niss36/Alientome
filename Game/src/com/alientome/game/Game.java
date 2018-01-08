@@ -11,6 +11,7 @@ import com.alientome.game.events.GameResumeEvent;
 import com.alientome.game.events.GameStartEvent;
 import com.alientome.game.level.Level;
 import com.alientome.game.level.LevelManager;
+import javafx.beans.property.Property;
 
 import static com.alientome.core.SharedNames.DISPATCHER;
 import static com.alientome.core.SharedNames.INPUT_MANAGER;
@@ -36,17 +37,17 @@ public class Game implements Runnable {
 
         this.renderer = renderer;
 
-        GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
+        Property<GameEventDispatcher> dispatcher = SharedInstances.getProperty(DISPATCHER);
 
-        dispatcher.register(GAME_START, e -> {
-            dispatcher.submit(new GameResumeEvent());
+        dispatcher.getValue().register(GAME_START, e -> {
+            dispatcher.getValue().submit(new GameResumeEvent());
             run = true;
             manager = ((GameStartEvent) e).manager;
             manager.reset();
             new Thread(this, "Thread-Game").start();
         });
 
-        dispatcher.register(GAME_EXIT, e -> {
+        dispatcher.getValue().register(GAME_EXIT, e -> {
             setState(null);
             run = false;
             synchronized (pausedWaitLock) {
@@ -57,7 +58,7 @@ public class Game implements Runnable {
             }
         });
 
-        dispatcher.register(GAME_PAUSE, e -> {
+        dispatcher.getValue().register(GAME_PAUSE, e -> {
             setState(State.PAUSED);
             synchronized (untilPauseWaitLock) {
                 updating = false;
@@ -69,7 +70,7 @@ public class Game implements Runnable {
             }
         });
 
-        dispatcher.register(GAME_RESUME, e -> {
+        dispatcher.getValue().register(GAME_RESUME, e -> {
             setState(State.RUNNING);
             if (!updating)
                 synchronized (pausedWaitLock) {
@@ -78,16 +79,16 @@ public class Game implements Runnable {
                 }
         });
 
-        dispatcher.register(GAME_RESET, e -> {
-            dispatcher.submit(new GameResumeEvent());
+        dispatcher.getValue().register(GAME_RESET, e -> {
+            dispatcher.getValue().submit(new GameResumeEvent());
             manager.reset();
         });
 
-        dispatcher.register(GAME_DEATH, e -> setState(State.DEATH));
+        dispatcher.getValue().register(GAME_DEATH, e -> setState(State.DEATH));
 
         InputManager manager = SharedInstances.get(INPUT_MANAGER);
 
-        manager.setListener("running", "pause", makeListener(() -> dispatcher.submit(new GamePauseEvent())));
+        manager.setListener("running", "pause", makeListener(() -> dispatcher.getValue().submit(new GamePauseEvent())));
 
         InputListener levelListener = e -> getLevel().submitEvent(e);
 
