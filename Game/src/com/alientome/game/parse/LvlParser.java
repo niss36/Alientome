@@ -89,7 +89,6 @@ public class LvlParser {
                 throw new IllegalArgumentException("ids must be unique (offending : " + id + ")");
 
             boolean enabled = script.getOrDefaultBoolean("enabled", true);
-            System.out.println(enabled);
 
             WrappedXML boundingBox = script.getFirst("boundingBox");
 

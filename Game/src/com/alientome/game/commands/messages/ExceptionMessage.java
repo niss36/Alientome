@@ -1,4 +1,4 @@
-package com.alientome.game.commands;
+package com.alientome.game.commands.messages;
 
 import com.alientome.core.internationalization.I18N;
 import com.alientome.game.commands.exceptions.CommandException;

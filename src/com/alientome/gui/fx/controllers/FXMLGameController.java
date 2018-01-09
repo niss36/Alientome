@@ -9,7 +9,7 @@ import com.alientome.core.util.GameFont;
 import com.alientome.core.util.Util;
 import com.alientome.game.Game;
 import com.alientome.game.GameRenderer;
-import com.alientome.game.commands.ConsoleMessage;
+import com.alientome.game.commands.messages.ConsoleMessage;
 import com.alientome.game.events.*;
 import com.alientome.game.level.Level;
 import com.alientome.gui.fx.DialogsUtil;

@@ -5,6 +5,7 @@ import com.alientome.core.util.Logger;
 import com.alientome.game.commands.exceptions.CommandException;
 import com.alientome.game.commands.exceptions.CommandNotFoundException;
 import com.alientome.game.commands.exceptions.UnknownErrorException;
+import com.alientome.game.commands.messages.ExceptionMessage;
 import com.alientome.game.registry.GameRegistry;
 
 import java.util.*;

@@ -2,12 +2,12 @@ package com.alientome.impl.commands;
 
 import com.alientome.game.commands.Command;
 import com.alientome.game.commands.CommandSender;
-import com.alientome.game.commands.EntityConsoleMessage;
-import com.alientome.game.commands.LocalConsoleMessage;
 import com.alientome.game.commands.exceptions.CommandException;
 import com.alientome.game.commands.exceptions.EntityTypeException;
 import com.alientome.game.commands.exceptions.SelectorNotFoundException;
 import com.alientome.game.commands.exceptions.UsageException;
+import com.alientome.game.commands.messages.LocalConsoleMessage;
+import com.alientome.game.commands.messages.Messages;
 import com.alientome.game.entities.Entity;
 import com.alientome.game.entities.EntityLiving;
 import com.alientome.game.util.Selector;
@@ -31,7 +31,7 @@ public class CommandHeal implements Command {
 
             if (entity instanceof EntityLiving) {
                 ((EntityLiving) entity).heal(value);
-                sender.addConsoleMessage(new EntityConsoleMessage("commands.heal.healed", entity));
+                sender.addConsoleMessage(Messages.entityAware("commands.heal.healed", entity));
             } else throw new EntityTypeException("EntityLiving", entity.getClass().getName());
 
         } else if (args.length == 2) {
@@ -56,7 +56,7 @@ public class CommandHeal implements Command {
             if (numHealed == 0)
                 throw new SelectorNotFoundException(selector);
             else if (numHealed == 1)
-                sender.addConsoleMessage(new EntityConsoleMessage("commands.heal.healed", healed));
+                sender.addConsoleMessage(Messages.entityAware("commands.heal.healed", healed));
             else
                 sender.addConsoleMessage(new LocalConsoleMessage("commands.heal.healedNum", numHealed));
 
