@@ -14,7 +14,7 @@ import com.alientome.game.camera.Camera;
 import com.alientome.game.camera.DefaultCamera;
 import com.alientome.game.collisions.DynamicBoundingBox;
 import com.alientome.game.commands.CommandSender;
-import com.alientome.game.commands.ConsoleMessage;
+import com.alientome.game.commands.messages.ConsoleMessage;
 import com.alientome.game.control.Control;
 import com.alientome.game.control.Controller;
 import com.alientome.game.entities.parse.EntityState;

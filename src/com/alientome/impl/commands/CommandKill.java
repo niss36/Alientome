@@ -2,9 +2,9 @@ package com.alientome.impl.commands;
 
 import com.alientome.game.commands.Command;
 import com.alientome.game.commands.CommandSender;
-import com.alientome.game.commands.EntityConsoleMessage;
-import com.alientome.game.commands.LocalConsoleMessage;
 import com.alientome.game.commands.exceptions.CommandException;
+import com.alientome.game.commands.messages.LocalConsoleMessage;
+import com.alientome.game.commands.messages.Messages;
 import com.alientome.game.entities.Entity;
 import com.alientome.game.util.Selector;
 
@@ -22,7 +22,7 @@ public class CommandKill implements Command {
 
         if (args.length == 0) {
             sender.getEntity().setDead();
-            sender.addConsoleMessage(new EntityConsoleMessage("commands.kill.killed", sender.getEntity()));
+            sender.addConsoleMessage(Messages.entityAware("commands.kill.killed", sender.getEntity()));
 
         } else if (args.length == 1) {
 
@@ -34,7 +34,7 @@ public class CommandKill implements Command {
             entities.forEach(Entity::setDead);
 
             if (numKilled == 1)
-                sender.addConsoleMessage(new EntityConsoleMessage("commands.kill.killed", entities.get(0)));
+                sender.addConsoleMessage(Messages.entityAware("commands.kill.killed", entities.get(0)));
             else
                 sender.addConsoleMessage(new LocalConsoleMessage("commands.kill.killedNum", numKilled));
         }
