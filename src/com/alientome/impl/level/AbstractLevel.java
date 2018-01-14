@@ -38,7 +38,7 @@ import java.util.function.Consumer;
 
 import static com.alientome.core.SharedNames.DISPATCHER;
 import static com.alientome.game.profiling.ExecutionTimeProfiler.theProfiler;
-import static java.lang.StrictMath.floor;
+import static java.lang.Math.floor;
 
 public abstract class AbstractLevel implements Level {
 

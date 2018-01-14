@@ -25,7 +25,7 @@ public abstract class Block extends GameObject implements BlockConstants {
     protected final String identifier;
     protected final byte metadata;
     protected final String debugInfo;
-    private final BlockTypeComponent type;
+    public final BlockTypeComponent type;
 
     /**
      * Initialize the Block
