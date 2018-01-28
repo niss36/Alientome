@@ -1,6 +1,6 @@
 package com.alientome.editors.level.gui.fx;
 
-import com.alientome.core.SharedInstances;
+import com.alientome.core.Context;
 import com.alientome.core.events.GameEventDispatcher;
 import com.alientome.core.events.QuitRequestEvent;
 import com.alientome.editors.level.Level;
@@ -13,6 +13,7 @@ import com.alientome.editors.level.registry.EditorRegistry;
 import com.alientome.editors.level.state.*;
 import com.alientome.editors.level.util.Colors;
 import com.alientome.editors.level.util.StateStack;
+import com.alientome.game.GameContext;
 import com.alientome.game.collisions.StaticBoundingBox;
 import com.alientome.game.events.GameExitEvent;
 import com.alientome.game.events.GameStartEvent;
@@ -56,8 +57,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.alientome.core.SharedNames.DISPATCHER;
-import static com.alientome.core.SharedNames.LOADER;
 import static com.alientome.core.events.GameEventType.QUIT_REQUEST;
 import static com.alientome.editors.level.gui.fx.dialogs.DialogsUtil.*;
 import static com.alientome.editors.level.util.Util.invokeAndWait;
@@ -66,20 +65,32 @@ import static com.alientome.gui.fx.DialogsUtil.showErrorDialog;
 public class FXMLGUIController extends FXMLController {
 
     private static final int BLOCKS = 0, ENTITIES = 1, SCRIPTS = 2;
+
     private final EditorRegistry registry = new EditorRegistry();
     private final int[] tempScriptCoordinates = {-1, -1, -1, -1};
+
+    private GameContext context;
+
     private StateStack undoStack, redoStack;
+
     private Tool tool = Tool.MOUSE;
+
     private boolean muteListeners = false;
     private boolean needsSave = false;
+
     private File lastDirectory = FileSystemView.getFileSystemView().getHomeDirectory();
     private File lastDirectoryImage = FileSystemView.getFileSystemView().getHomeDirectory();
+
     private Level level;
+
     private Entity selectedEntity;
     private ScriptObject selectedScript;
     private Layer selectedLayer;
+
     private Rectangle selection;
+
     private boolean showGrid = true;
+
     private BufferedImage buffer;
     private WritableImage image;
     private BufferedImage backgroundBuffer;
@@ -287,7 +298,7 @@ public class FXMLGUIController extends FXMLController {
                     setLevel(new Level(registry, scripts.getItems(), layers.getItems(), selected));
                 } catch (IOException e) {
                     e.printStackTrace();
-                    showErrorDialog(e);
+                    showErrorDialog(context, e);
                 }
             }
         }
@@ -324,7 +335,7 @@ public class FXMLGUIController extends FXMLController {
                 needsSave = false;
             } catch (IOException e) {
                 e.printStackTrace();
-                showErrorDialog(e);
+                showErrorDialog(context, e);
             }
         } else saveAs();
     }
@@ -348,7 +359,7 @@ public class FXMLGUIController extends FXMLController {
                 needsSave = false;
             } catch (IOException e) {
                 e.printStackTrace();
-                showErrorDialog(e);
+                showErrorDialog(context, e);
             }
         }
     }
@@ -416,8 +427,8 @@ public class FXMLGUIController extends FXMLController {
 
         if (level.canPlay()) {
 
-            LevelLoader loader = SharedInstances.get(LOADER);
-            GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
+            LevelLoader loader = context.getLoader();
+            GameEventDispatcher dispatcher = context.getDispatcher();
 
             try {
 
@@ -433,7 +444,7 @@ public class FXMLGUIController extends FXMLController {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                showErrorDialog(e);
+                showErrorDialog(context, e);
             }
         } else {
             //TODO show error
@@ -560,10 +571,16 @@ public class FXMLGUIController extends FXMLController {
     }
 
     @Override
+    public void setContext(Context context) {
+        super.setContext(context);
+
+        this.context = (GameContext) context;
+    }
+
+    @Override
     public void init(Scene scene) {
 
-        GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-        dispatcher.register(QUIT_REQUEST, e ->
+        context.getDispatcher().register(QUIT_REQUEST, e ->
                 invokeAndWait(() -> {
                     if (!promptUnsaved())
                         ((QuitRequestEvent) e).cancel();
@@ -866,7 +883,7 @@ public class FXMLGUIController extends FXMLController {
                     lastDirectoryImage = img.getParentFile();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    showErrorDialog(e);
+                    showErrorDialog(context, e);
                 }
             }
         } else if (s == backgroundScale) {
@@ -883,7 +900,7 @@ public class FXMLGUIController extends FXMLController {
                     layers.getItems().remove(selectedLayer);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    showErrorDialog(e);
+                    showErrorDialog(context, e);
                 }
             } else if (s == layerName) {
                 beforeModification("set layer name");
@@ -895,7 +912,7 @@ public class FXMLGUIController extends FXMLController {
                     layers.refresh();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    showErrorDialog(e);
+                    showErrorDialog(context, e);
                 }
             } else if (s == layerXCoef) {
                 beforeModification("set layer x coefficient");

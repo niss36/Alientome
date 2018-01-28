@@ -7,6 +7,8 @@ import com.alientome.game.commands.exceptions.CommandException;
 import com.alientome.game.commands.exceptions.UsageException;
 import com.alientome.game.control.Control;
 import com.alientome.game.control.Controller;
+import com.alientome.game.entities.Entity;
+import com.alientome.game.level.Level;
 
 public class CommandFly implements Command {
 
@@ -18,31 +20,32 @@ public class CommandFly implements Command {
     @Override
     public void processCommand(CommandSender sender, String[] args) throws CommandException {
 
-        if (args.length == 1) {
+        Entity entity = sender.getEntity();
+        Level level = sender.getLevel();
 
+        if (args.length == 1) {
             switch (args[0]) {
                 case "on":
 
-                    Controller controller = new Controller(sender.getEntity());
+                    Controller controller = entity.newController();
 
-                    controller.addControl(Control.createMoveControl(sender.getEntity(), "moveLeft", Direction.LEFT));
-                    controller.addControl(Control.createMoveControl(sender.getEntity(), "moveRight", Direction.RIGHT));
-                    controller.addControl(Control.createMoveControl(sender.getEntity(), "jump", Direction.UP));
+                    controller.addControlOverride(Control.createMoveControl(entity, "jump", Direction.UP));
 
-                    sender.getEntity().setAffectedByGravity(false);
-                    sender.getLevel().setController(controller);
+                    entity.setAffectedByGravity(false);
+                    level.setController(controller);
                     break;
 
                 case "off":
 
-                    sender.getEntity().setAffectedByGravity(true);
-                    sender.getLevel().setControlled(sender.getEntity());
+                    entity.setAffectedByGravity(true);
+                    level.setControlled(entity);
                     break;
 
                 default:
-                    throw new UsageException(this);
+                    throw new UsageException(this, level.getContext());
             }
 
-        } else throw new UsageException(this);
+        } else
+            throw new UsageException(this, level.getContext());
     }
 }

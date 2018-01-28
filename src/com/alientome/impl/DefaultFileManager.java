@@ -1,24 +1,21 @@
 package com.alientome.impl;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.keybindings.InputManager;
-import com.alientome.core.settings.Config;
+import com.alientome.core.Context;
 import com.alientome.core.util.FileManager;
 import com.alientome.core.util.Logger;
 
 import java.io.File;
 import java.util.function.Consumer;
 
-import static com.alientome.core.SharedNames.CONFIG;
-import static com.alientome.core.SharedNames.INPUT_MANAGER;
-
 public class DefaultFileManager implements FileManager {
 
     protected static final Logger log = Logger.get();
+    protected final Context context;
     protected final File rootDirectory;
 
-    public DefaultFileManager(File rootDirectory) {
+    public DefaultFileManager(Context context, File rootDirectory) {
 
+        this.context = context;
         this.rootDirectory = rootDirectory;
     }
 
@@ -31,13 +28,9 @@ public class DefaultFileManager implements FileManager {
 
         checkDir(getScreenshotsRoot(), "Screenshots directory");
 
-        Config config = SharedInstances.get(CONFIG);
+        checkFile(getConfig(), context.getConfig()::createConfigFile);
 
-        checkFile(getConfig(), config::createConfigFile);
-
-        InputManager manager = SharedInstances.get(INPUT_MANAGER);
-
-        checkFile(getKeybindings(), manager::createKeybindingsFile);
+        checkFile(getKeybindings(), context.getInputManager()::createKeybindingsFile);
     }
 
     @Override

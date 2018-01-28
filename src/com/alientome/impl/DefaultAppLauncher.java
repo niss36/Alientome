@@ -1,13 +1,8 @@
 package com.alientome.impl;
 
 import com.alientome.core.AppLauncher;
-import com.alientome.core.events.GameEventDispatcher;
-import com.alientome.core.internationalization.I18N;
-import com.alientome.core.keybindings.InputManager;
-import com.alientome.core.settings.Config;
-import com.alientome.core.sound.SoundManager;
-import com.alientome.core.util.FileManager;
 import com.alientome.core.util.Logger;
+import com.alientome.game.GameContext;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.buffs.Buff;
@@ -15,8 +10,6 @@ import com.alientome.game.commands.Command;
 import com.alientome.game.entities.*;
 import com.alientome.game.events.GamePauseEvent;
 import com.alientome.game.events.GameStartEvent;
-import com.alientome.game.level.LevelLoader;
-import com.alientome.game.level.SaveManager;
 import com.alientome.game.profiling.ExecutionTimeProfiler;
 import com.alientome.game.registry.GameRegistry;
 import com.alientome.game.registry.Registry;
@@ -27,7 +20,6 @@ import com.alientome.impl.buffs.BuffShield;
 import com.alientome.impl.commands.*;
 import com.alientome.impl.entities.*;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -37,14 +29,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.alientome.core.SharedInstances.get;
-import static com.alientome.core.SharedInstances.set;
-import static com.alientome.core.SharedNames.*;
 import static com.alientome.core.events.GameEventType.GAME_START;
 
 public class DefaultAppLauncher extends AppLauncher {
 
     protected static final Logger log = Logger.get();
+    private final GameContext context = new GameContext();
 
     public DefaultAppLauncher(String[] args) {
         super(args);
@@ -64,53 +54,38 @@ public class DefaultAppLauncher extends AppLauncher {
             e.printStackTrace();
         }
 
-        GameEventDispatcher dispatcher = new DefaultGameEventDispatcher();
-        I18N i18N = new DefaultI18N("Lang/lang");
-        InputManager inputManager = new DefaultInputManager("keybindings.xml", "defaultKeybindings.txt");
-        Config config = new DefaultConfig("config.xml", "defaultConfig.txt");
-        FileManager fileManager = new DefaultFileManager(new File(System.getProperty("user.home") + "/Alientome"));
-        GameRegistry registry = new GameRegistry();
-        SaveManager saveManager = new DefaultSaveManager();
-        SoundManager soundManager = new DefaultSoundManager();
-        LevelLoader loader = new DefaultLevelLoader();
-
-        set(DISPATCHER, dispatcher);
-        set(I18N, i18N);
-        set(INPUT_MANAGER, inputManager);
-        set(CONFIG, config);
-        set(FILE_MANAGER, fileManager);
-        set(REGISTRY, registry);
-        set(SAVE_MANAGER, saveManager);
-        set(SOUND_MANAGER, soundManager);
-        set(LOADER, loader);
+        context.setConfig(new DefaultConfig(context,"config.xml", "defaultConfig.txt"));
+        context.setDispatcher(new DefaultGameEventDispatcher());
+        context.setFileManager(new DefaultFileManager(context, new File(System.getProperty("user.home") + "/Alientome")));
+        context.setI18N(new DefaultI18N(context,"Lang/lang"));
+        context.setInputManager(new DefaultInputManager(context, "keybindings.xml", "defaultKeybindings.txt"));
+        context.setSoundManager(new DefaultSoundManager(context));
+        context.setLoader(new DefaultLevelLoader(context));
+        context.setRegistry(new GameRegistry());
+        context.setSaveManager(new DefaultSaveManager(context));
     }
 
     @Override
     public void init() {
 
-        I18N i18N = get(I18N);
-        InputManager inputManager = get(INPUT_MANAGER);
-        Config config = get(CONFIG);
-        FileManager fileManager = get(FILE_MANAGER);
-        GameRegistry registry = get(REGISTRY);
-        SoundManager soundManager = get(SOUND_MANAGER);
+        GameRegistry registry = context.getRegistry();
 
         registerBlocks(registry.getBlocksRegistry());
         registerEntities(registry.getEntitiesRegistry());
         registerBuffs(registry.getBuffsRegistry());
         registerCommands(registry.getCommandsRegistry());
 
-        fileManager.checkFiles();
-        config.load();
-        inputManager.load();
-        i18N.load();
-        soundManager.load();
+        context.getFileManager().checkFiles();
+        context.getConfig().load();
+        context.getInputManager().load();
+        context.getI18N().load();
+        context.getSoundManager().load();
 
         SpritesLoader.register("animations.xml");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            config.save();
-            inputManager.save();
+            context.getConfig().save();
+            context.getInputManager().save();
             ExecutionTimeProfiler.theProfiler.dumpProfileData();
         }, "Thread-Shutdown"));
     }
@@ -126,7 +101,7 @@ public class DefaultAppLauncher extends AppLauncher {
         stage.setTitle("Alientome");
         stage.initStyle(StageStyle.UNDECORATED);
 
-        StageManager manager = new StageManager(stage);
+        StageManager manager = new StageManager(stage, context);
 
         manager.loadAndGetController(ClassLoader.getSystemResource("GUI/main.fxml"), "MAIN");
         manager.loadAndGetController(ClassLoader.getSystemResource("GUI/play.fxml"), "PLAY");
@@ -134,14 +109,11 @@ public class DefaultAppLauncher extends AppLauncher {
         manager.loadAndGetController(ClassLoader.getSystemResource("GUI/controls.fxml"), "CONTROLS");
         manager.loadAndGetController(ClassLoader.getSystemResource("GUI/game.fxml"), "GAME");
 
-        GameEventDispatcher dispatcher = get(DISPATCHER);
-        Config config = get(CONFIG);
-
-        dispatcher.register(GAME_START, e -> Platform.runLater(() -> manager.switchToScene("GAME")));
+        context.getDispatcher().register(GAME_START, e -> manager.switchToScene("GAME"));
 
         stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue && "GAME".equals(manager.getCurrentScene()) && config.getAsBoolean("pauseOnLostFocus"))
-                dispatcher.submit(new GamePauseEvent());
+            if (!newValue && "GAME".equals(manager.getCurrentScene()) && context.getConfig().getAsBoolean("pauseOnLostFocus"))
+                context.getDispatcher().submit(new GamePauseEvent());
         });
 
         List<String> unnamed = arguments.getUnnamed();
@@ -149,14 +121,11 @@ public class DefaultAppLauncher extends AppLauncher {
         if (unnamed.size() > 0) {
 
             try {
-
-                LevelLoader loader = get(LOADER);
-
                 File levelFile = new File(unnamed.get(0));
 
                 log.i("Loading level from " + levelFile);
 
-                dispatcher.submit(new GameStartEvent(loader.loadFrom(levelFile)));
+                context.getDispatcher().submit(new GameStartEvent(context.getLoader().loadFrom(levelFile)));
 
                 manager.switchToScene("GAME");
             } catch (Exception e) {

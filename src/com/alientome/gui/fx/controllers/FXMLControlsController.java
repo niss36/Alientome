@@ -1,9 +1,5 @@
 package com.alientome.gui.fx.controllers;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.events.GameEventDispatcher;
-import com.alientome.core.internationalization.I18N;
-import com.alientome.core.keybindings.InputManager;
 import com.alientome.core.util.Util;
 import com.alientome.core.util.WrappedXML;
 import com.alientome.game.events.KeybindingsResetEvent;
@@ -27,7 +23,6 @@ import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.alientome.core.SharedNames.*;
 import static javafx.scene.input.KeyCode.ESCAPE;
 import static javafx.scene.input.KeyCode.UNDEFINED;
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
@@ -41,12 +36,9 @@ public class FXMLControlsController extends FXMLController {
     @Override
     public void init(Scene scene) {
 
-        Property<I18N> i18N = SharedInstances.getProperty(I18N);
-        InputManager manager = SharedInstances.get(INPUT_MANAGER);
-
         scene.getRoot().lookupAll("*").forEach(node -> {
             if (node instanceof Labeled)
-                i18N.getValue().applyBindTo((Labeled) node);
+                context.getI18N().applyBindTo((Labeled) node);
         });
 
         WrappedXML keybindingsDisplayXML;
@@ -61,7 +53,7 @@ public class FXMLControlsController extends FXMLController {
         for (WrappedXML categoryXML : keybindingsDisplayXML.nodesWrapped("categories/category")) {
 
             Label categoryLabel = new Label("controls.category." + categoryXML.getAttr("id"));
-            i18N.getValue().applyBindTo(categoryLabel);
+            context.getI18N().applyBindTo(categoryLabel);
             GridPane.setColumnSpan(categoryLabel, 2);
             GridPane.setHalignment(categoryLabel, HPos.CENTER);
             categoryLabel.getStyleClass().add("control-category");
@@ -73,14 +65,14 @@ public class FXMLControlsController extends FXMLController {
 
                 String uid = bindingXML.getAttr("uid");
                 String[] split = uid.split(":");
-                String context = split[0];
-                String id = split[1];
+                String contextID = split[0];
+                String bindingID = split[1];
 
-                Label bindingLabel = new Label("controls." + id);
-                i18N.getValue().applyBindTo(bindingLabel);
+                Label bindingLabel = new Label("controls." + bindingID);
+                context.getI18N().applyBindTo(bindingLabel);
                 bindingLabel.getStyleClass().add("control-label");
 
-                Property<KeyCode> property = manager.bindingProperty(context, id);
+                Property<KeyCode> property = context.getInputManager().bindingProperty(contextID, bindingID);
                 properties.put(uid, property);
 
                 Button bindingButton = new Button(toString(property.getValue()));
@@ -122,8 +114,7 @@ public class FXMLControlsController extends FXMLController {
     }
 
     private boolean isBound(String uid, KeyCode code) {
-        InputManager manager = SharedInstances.get(INPUT_MANAGER);
-        return manager.isBound(uid.substring(0, uid.indexOf(':')), code);
+        return context.getInputManager().isBound(uid.substring(0, uid.indexOf(':')), code);
     }
 
     private String toString(KeyCode code) {
@@ -153,12 +144,10 @@ public class FXMLControlsController extends FXMLController {
             used = null;
         }
 
-        GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-
              if (s == done) manager.popScene();
         else if (s == resetControls) {
-            if (DialogsUtil.showConfirmDialog(null, null, "menu.controls.reset.prompt"))
-                dispatcher.submit(new KeybindingsResetEvent());
+            if (DialogsUtil.showConfirmDialog(context, null, null, "menu.controls.reset.prompt"))
+                context.getDispatcher().submit(new KeybindingsResetEvent());
         }
     }
 

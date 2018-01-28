@@ -1,6 +1,5 @@
 package com.alientome.game.buffs;
 
-import com.alientome.core.SharedInstances;
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.util.Vec2;
@@ -10,13 +9,13 @@ import com.alientome.game.blocks.Block;
 import com.alientome.game.buffs.parse.BuffState;
 import com.alientome.game.collisions.StaticBoundingBox;
 import com.alientome.game.entities.Entity;
+import com.alientome.game.level.Level;
 import com.alientome.game.registry.GameRegistry;
 import com.alientome.game.util.Util;
 import com.alientome.visual.animations.AnimationsHandler;
 
 import java.awt.*;
 
-import static com.alientome.core.SharedNames.REGISTRY;
 import static com.alientome.core.util.Colors.DEBUG;
 
 public abstract class Buff extends GameObject {
@@ -39,12 +38,12 @@ public abstract class Buff extends GameObject {
         handler = SpritesLoader.newAnimationsHandlerFor(getClass());
     }
 
-    public static Buff create(BuffState state) {
+    public static Buff create(BuffState state, Level level) {
 
         if (state == null)
             throw new IllegalArgumentException("Null buff state");
 
-        GameRegistry registry = SharedInstances.get(REGISTRY);
+        GameRegistry registry = level.getContext().getRegistry();
 
         Class<?>[] constructorTypes = new Class[state.args.length + 1];
         constructorTypes[0] = Vec2.class;
@@ -65,41 +64,6 @@ public abstract class Buff extends GameObject {
         buff.actualizeBoundingBox();
 
         return buff;
-
-        /*Class<Buff> buffClass = null;
-
-        try {
-
-            GameRegistry registry = SharedInstances.get(REGISTRY);
-
-            buffClass = registry.getBuffsRegistry().get(state.identifier);
-
-            if (buffClass == null)
-                throw new IllegalArgumentException("Unregistered Buff id : " + state.identifier);
-
-            Constructor<Buff> constructor = (Constructor<Buff>) buffClass.getConstructors()[0];
-
-            Vec2 pos = new Vec2();
-
-            Object[] args = new Object[state.args.length + 1];
-
-            args[0] = pos;
-            System.arraycopy(state.args, 0, args, 1, state.args.length);
-
-            Buff buff = constructor.newInstance(args);
-
-            pos.x = x * Block.WIDTH + Block.WIDTH / 2 - buff.dim.width / 2;
-            pos.y = y * Block.WIDTH + Block.WIDTH - buff.dim.height;
-
-            buff.actualizeBoundingBox();
-
-            return buff;
-
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new IllegalArgumentException("Class " + buffClass.getName() + " does not correctly implement expected constructor", e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }*/
     }
 
     public abstract void onEntityEntered(Entity entity);

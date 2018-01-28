@@ -1,9 +1,7 @@
 package com.alientome.game.entities;
 
-import com.alientome.core.SharedInstances;
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.collisions.Contact;
-import com.alientome.core.events.GameEventDispatcher;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.util.Direction;
 import com.alientome.core.util.Vec2;
@@ -27,8 +25,6 @@ import com.alientome.visual.animations.AnimationsHandler;
 
 import java.awt.*;
 
-import static com.alientome.core.SharedNames.DISPATCHER;
-import static com.alientome.core.SharedNames.REGISTRY;
 import static com.alientome.core.util.Colors.DEBUG;
 import static com.alientome.core.util.Util.*;
 import static com.alientome.game.blocks.BlockConstants.*;
@@ -93,7 +89,7 @@ public abstract class Entity extends GameObject implements CommandSender {
         if (state == null)
             throw new IllegalArgumentException("Null entity state");
 
-        GameRegistry registry = SharedInstances.get(REGISTRY);
+        GameRegistry registry = level.getContext().getRegistry();
 
         Class<?>[] constructorTypes = {Vec2.class, Level.class, EntityTags.class};
 
@@ -272,8 +268,7 @@ public abstract class Entity extends GameObject implements CommandSender {
 
     @Override
     public void addConsoleMessage(ConsoleMessage message) {
-        GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-        dispatcher.submit(new MessageEvent(message));
+        level.getContext().getDispatcher().submit(new MessageEvent(message));
     }
 
     /**
@@ -318,14 +313,14 @@ public abstract class Entity extends GameObject implements CommandSender {
 
                 velocity.add(mtv);
 
+                if (contact.normal.y < 0)
+                    onGround = true;
+
             case PROCESSED_COLLISION:
                 if (contact.normal.x != 0)
                     collidedX = true;
-                else {// y is assumed to be non-zero
+                else // y is assumed to be non-zero
                     collidedY = true;
-                    if (contact.normal.y < 0)
-                        onGround = true;
-                }
 
                 lastCollidedWith = block;
 

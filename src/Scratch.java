@@ -1,7 +1,7 @@
-import com.alientome.core.SharedInstances;
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.util.Vec2;
+import com.alientome.game.GameContext;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.blocks.component.PlatformBlockType;
@@ -22,18 +22,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.alientome.core.SharedNames.REGISTRY;
 import static com.alientome.game.blocks.BlockConstants.WIDTH;
 import static java.lang.Math.floor;
 
@@ -69,13 +67,15 @@ public class Scratch {
 
         AxisAlignedBoundingBox box = new StaticBoundingBox(0, 0, 40, 62);
 
-        double jumpVelocity = 25;
-        double r = jumpVelocity % 1.5;
-        double q = (jumpVelocity - r) / 1.5;
+//        double jumpVelocity = 25;
+//        double r = jumpVelocity % 1.5;
+//        double q = (jumpVelocity - r) / 1.5;
 
-        double maxJumpHeight = q * (r + jumpVelocity - 1.5) / 2;
-        System.out.println(maxJumpHeight);
-        System.out.println();
+//        double maxJumpHeight = q * (r + jumpVelocity - 1.5) / 2;
+//        System.out.println(maxJumpHeight);
+//        System.out.println();
+
+        GameContext context = new GameContext();
 
         GameRegistry gameRegistry = new GameRegistry();
         Registry<Class<? extends Block>> registry = gameRegistry.getBlocksRegistry();
@@ -85,108 +85,74 @@ public class Scratch {
         registry.set("platform_sand", BlockPlatformSand.class);
         registry.set("slope_sand", BlockSlopeSand.class);
         registry.set("spikes", BlockSpikes.class);
-        SharedInstances.set(REGISTRY, gameRegistry);
+
+        context.setRegistry(gameRegistry);
 
         SpritesLoader.register("animations.xml");
         SpritesLoader.loadAll();
         SpritesLoader.waitUntilLoaded();
 
         ScriptEngine engine = new ScriptEngine();
-        LevelSource source = new CompressedCompoundSource(engine.newParser(), new File("C:/Users/niss3/Desktop/pathfinding test.lvl"));
+        LevelSource source = new CompressedCompoundSource(context, engine.newParser(), new File("C:/Users/niss3/Desktop/pathfinding test.lvl"));
         source.load();
 
         LevelMap map = source.getMap();
-        int w = map.getWidth(), h = map.getHeight();
+        int w = map.getWidth();
 
-        boolean[][] bitmap = new boolean[w][h];
+        GridGraph graph = createGraph(map, box);
 
-        List<Platform> platforms = createPlatforms(map, box, bitmap);
+        for (WalkablePlatform platform : graph.platforms) {
 
-        GridGraph graph = new GridGraph(bitmap);
-
-        image = new BufferedImage(w * WIDTH, h * WIDTH, BufferedImage.TYPE_INT_ARGB);
-        Graphics g = image.getGraphics();
-
-        GameGraphics graphics = new GameGraphics(g, new Point(), 0, 0);
-
-        StringBuilder sb = new StringBuilder();
-
-        for (int j = 0; j < h; j++) {
-            for (int i = 0; i < w; i++) {
-                map.getBlock(i, j, false).draw(graphics, false);
-                if (bitmap[i][j]) {
-                    g.setColor(new Color(0, 127, 127, 127));
-                    g.fillRect(i * WIDTH, j * WIDTH, WIDTH, WIDTH);
-                }
-                if (map.getBlock(i, j, false).canBeCollidedWith())
-                    sb.append('B');
-                else if (bitmap[i][j])
-                    sb.append('#');
-                else
-                    sb.append(' ');
-            }
-            sb.append('\n');
-        }
-
-        for (Platform platform : platforms) {
-            List<Point> points = platform.points;
-            for (int i = 0; i < points.size() - 1; i++) {
-                Point a = points.get(i), b = points.get(i + 1);
-                GraphNode nodeA = graph.get(a.x, a.y), nodeB = graph.get(b.x, b.y);
-                nodeA.connect(nodeB, 1, ConnectionType.WALK);
-                nodeB.connect(nodeA, 1, ConnectionType.WALK);
+            List<GraphNode> nodes = platform.nodes;
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                GraphNode a = nodes.get(i), b = nodes.get(i + 1);
+                a.connect(b, 1, ConnectionType.WALK);
+                b.connect(a, 1, ConnectionType.WALK);
             }
 
-            Point right = points.get(points.size() - 1);
-            GraphNode rightEdge = graph.get(right.x, right.y);
-            if (right.x < w - 1)
-                for (int i = right.y + 1; i < h; i++) {
-                    if (map.getBlock(right.x + 1, i, false).canBeCollidedWith())
-                        break;
-                    GraphNode other = graph.get(right.x + 1, i);
-                    if (other != null)
-                        rightEdge.connect(other, 2, ConnectionType.FALL);
-                }
+            GraphNode leftEdge = platform.getLeftEdge();
+            if (leftEdge.x > 0)
+                fallAlong(map, box, graph, leftEdge, LEFT);
 
-            Point left = points.get(0);
-            GraphNode leftEdge = graph.get(left.x, left.y);
-            if (left.x > 0)
-                for (int i = left.y + 1; i < h; i++) {
-                    if (map.getBlock(left.x - 1, i, false).canBeCollidedWith())
-                        break;
-                    GraphNode other = graph.get(left.x - 1, i);
-                    if (other != null)
-                        leftEdge.connect(other, 2, ConnectionType.FALL);
-                }
+            GraphNode rightEdge = platform.getRightEdge();
+            if (rightEdge.x < w - 1)
+                fallAlong(map, box, graph, rightEdge, RIGHT);
         }
 
-        graph.forEachNode(node -> node.drawConnections(g));
-
-        System.out.println(sb);
+        image = createImageRepresentation(map, graph);
 
         Application.launch(App.class);
     }
 
-    private static List<Platform> createPlatforms(LevelMap map, AxisAlignedBoundingBox box, boolean[][] visited) {
+    private static GridGraph createGraph(LevelMap map, AxisAlignedBoundingBox box) {
 
-        List<Platform> platforms = new ArrayList<>();
+        int w = map.getWidth(), h = map.getHeight();
+
+        int[][] grid = new int[w][h];
+        for (int i = 0; i < grid.length; i++)
+            for (int j = 0; j < grid[i].length; j++)
+                grid[i][j] = -1;
+
+        List<GraphNode> nodes = new ArrayList<>();
+        int nodeIndex = 0;
+
+        List<WalkablePlatform> platforms = new ArrayList<>();
+        int platformID = 0;
 
         Vec2 pos = new Vec2();
         double bh = box.getHeight(), bw = box.getWidth();
 
         AxisAlignedBoundingBox dynamic = new DynamicBoundingBox(pos, bw, bh);
 
-        int w = map.getWidth(), h = map.getHeight();
-
         for (int i = 0; i < w; i++) {
             for (int j = 0; j < h - 1; j++) {
-                if (visited[i][j])
+                if (grid[i][j] != -1)
                     continue;
                 Block b = map.getBlock(i, j, false);
                 if (b.canBeCollidedWith())
                     continue;
 
-                List<Point> points = new ArrayList<>();
+                List<GraphNode> platformNodes = new ArrayList<>();
 
                 Block under = map.getBlock(i, j + 1, false);
                 while (under.canBeCollidedWith()) {
@@ -212,26 +178,113 @@ public class Scratch {
                     }
 
                     if (free) {
-                        visited[x][y - 1] = true;
-                        points.add(new Point(x, y - 1));
+                        GraphNode node = new GraphNode(x, y - 1, platformID);
+                        grid[x][y - 1] = nodeIndex++;
+                        nodes.add(node);
+                        platformNodes.add(node);
 
                         if (x == w - 1)
                             break;
-                        else
+                        else {
+                            boolean wasSlope = isSlope(under);
                             under = map.getBlock(x + 1, y, false);
+
+                            if (wasSlope && !under.canBeCollidedWith())
+                                under = map.getBlock(x + 1, y + 1, false);
+                        }
                     } else break;
                 }
 
-                if (points.size() > 0) {
-
-                    System.out.println(points);
-
-                    platforms.add(new Platform(points));
+                if (platformNodes.size() > 0) {
+                    platforms.add(new WalkablePlatform(platformNodes));
+                    platformID++;
                 }
             }
         }
 
-        return platforms;
+        return new GridGraph(grid, nodes, platforms);
+    }
+
+    private static BufferedImage createImageRepresentation(LevelMap map, GridGraph graph) {
+
+        int w = map.getWidth(), h = map.getHeight();
+
+        BufferedImage image = new BufferedImage(w * WIDTH, h * WIDTH, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics g = image.getGraphics();
+        g.setFont(g.getFont().deriveFont(10f));
+
+        GameGraphics graphics = new GameGraphics(g, new Point(), 0, 0);
+
+        for (int j = 0; j < h; j++) {
+            for (int i = 0; i < w; i++) {
+                map.getBlock(i, j, false).draw(graphics, false);
+                g.drawString(i + "-" + j, i * WIDTH, j * WIDTH + 10);
+                if (graph.grid[i][j] != -1) {
+                    g.setColor(new Color(0, 127, 127, 127));
+                    g.fillRect(i * WIDTH, j * WIDTH, WIDTH, WIDTH);
+                }
+            }
+        }
+
+        graph.forEachNode(node -> node.drawConnections(g));
+
+        return image;
+    }
+
+    private static final int LEFT = 0, RIGHT = 1;
+
+    private static void fallAlong(LevelMap map, AxisAlignedBoundingBox box, GridGraph graph, GraphNode from, int dir) {
+
+        double bh = box.getHeight(), bw = box.getWidth();
+        int startX;
+        int startY = (int) ((from.y + 1) * WIDTH - bh);
+
+        switch (dir) {
+            case LEFT:
+                startX = (int) (from.x * WIDTH - bw);
+                break;
+
+            case RIGHT:
+                startX = (from.x + 1) * WIDTH;
+                break;
+
+            default:
+                throw new IllegalArgumentException("Direction " + dir);
+        }
+
+        Vec2 pos = new Vec2(startX, startY);
+
+        AxisAlignedBoundingBox dynamic = new DynamicBoundingBox(pos, bw, bh);
+
+        int h = map.getHeight();
+
+        int minBX = (int) floor(dynamic.getMinX() / WIDTH);
+        int maxBX = (int) floor(dynamic.getMaxX() / WIDTH);
+
+        int[] start = {maxBX, minBX};
+        int[] inc = {-1, 1};
+
+        for (int i = from.y; i < h; i++) {
+            if (!testCollision(map, dynamic))
+                break;
+            pos.add(0, 1);
+
+            for (int j = start[dir]; j >= minBX && j <= maxBX; j += inc[dir]) {
+                Block b = map.getBlock(j, i + 1, false);
+                if (b.canBeCollidedWith() && b.getBoundingBox().intersects(dynamic)) {
+                    GraphNode other = graph.get(j, i);
+                    if (other != null) {
+                        if (i == from.y)
+                            from.connect(other, 1, ConnectionType.WALK);
+                        else
+                            from.connect(other, 2, ConnectionType.FALL);
+                    }
+                    return;
+                }
+            }
+            pos.add(0, WIDTH - 1);
+        }
     }
 
     private static boolean isPlatform(Block b) {
@@ -259,35 +312,33 @@ public class Scratch {
         return true;
     }
 
-    private static class Platform {
+    private static class WalkablePlatform {
 
-        private final List<Point> points;
+        private final List<GraphNode> nodes;
 
-        private Platform(List<Point> points) {
-            this.points = points;
+        public WalkablePlatform(List<GraphNode> nodes) {
+            this.nodes = Collections.unmodifiableList(nodes);
         }
 
+        public GraphNode getLeftEdge() {
+            return nodes.get(0);
+        }
 
+        public GraphNode getRightEdge() {
+            return nodes.get(nodes.size() - 1);
+        }
     }
 
     private static class GridGraph {
 
         private final int[][] grid;
         private final List<GraphNode> nodes;
+        private final List<WalkablePlatform> platforms;
 
-        public GridGraph(boolean[][] bitmap) {
-            int w = bitmap.length;
-            int h = bitmap[0].length;
-            grid = new int[w][h];
-            nodes = new ArrayList<>();
-
-            int index = 0;
-            for (int i = 0; i < w; i++)
-                for (int j = 0; j < h; j++)
-                    if (bitmap[i][j]) {
-                        grid[i][j] = index++;
-                        nodes.add(new GraphNode(i, j));
-                    } else grid[i][j] = -1;
+        public GridGraph(int[][] grid, List<GraphNode> nodes, List<WalkablePlatform> platforms) {
+            this.grid = grid;
+            this.nodes = nodes;
+            this.platforms = platforms;
         }
 
         public void forEachNode(Consumer<GraphNode> action) {
@@ -311,11 +362,12 @@ public class Scratch {
 
         private final int x, y;
         private final List<GraphConnection> connections = new ArrayList<>();
-        private int platformID;
+        private final int platformID;
 
-        public GraphNode(int x, int y) {
+        public GraphNode(int x, int y, int platformID) {
             this.x = x;
             this.y = y;
+            this.platformID = platformID;
         }
 
         public void connect(GraphNode to, int cost, ConnectionType type) {

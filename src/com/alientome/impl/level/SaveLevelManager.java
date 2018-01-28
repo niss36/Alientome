@@ -1,9 +1,8 @@
 package com.alientome.impl.level;
 
-import com.alientome.core.SharedInstances;
 import com.alientome.core.util.FileUtils;
+import com.alientome.game.GameContext;
 import com.alientome.game.level.Level;
-import com.alientome.game.level.SaveManager;
 import com.alientome.impl.level.source.CompressedCompoundSource;
 import javafx.beans.property.IntegerProperty;
 
@@ -15,17 +14,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-import static com.alientome.core.SharedNames.SAVE_MANAGER;
-
 public class SaveLevelManager extends AbstractLevelManager {
 
     private final IntegerProperty saveStatus;
 
-    public SaveLevelManager(int saveIndex) throws IOException {
+    public SaveLevelManager(GameContext context, int saveIndex) throws IOException {
+
+        super(context);
 
         try {
-            SaveManager manager = SharedInstances.get(SAVE_MANAGER);
-            saveStatus = manager.getStatus(saveIndex);
+            saveStatus = context.getSaveManager().getStatus(saveIndex);
 
             level = load(saveStatus.get());
 
@@ -76,6 +74,6 @@ public class SaveLevelManager extends AbstractLevelManager {
             Files.copy(stream, temp, StandardCopyOption.REPLACE_EXISTING);
         }
 
-        return new DefaultLevel(this, new CompressedCompoundSource(parser, temp.toFile()));
+        return new DefaultLevel(this, new CompressedCompoundSource(context, parser, temp.toFile()));
     }
 }

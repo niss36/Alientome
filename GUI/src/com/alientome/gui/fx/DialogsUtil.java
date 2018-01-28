@@ -1,7 +1,6 @@
 package com.alientome.gui.fx;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.SharedNames;
+import com.alientome.core.Context;
 import com.alientome.core.internationalization.I18N;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -13,9 +12,9 @@ import java.util.Optional;
 
 public class DialogsUtil {
 
-    public static boolean showConfirmDialog(String titleUnlocalized, String headerUnlocalized, String contentUnlocalized) {
+    public static boolean showConfirmDialog(Context context, String titleUnlocalized, String headerUnlocalized, String contentUnlocalized) {
 
-        I18N i18N = SharedInstances.get(SharedNames.I18N);
+        I18N i18N = context.getI18N();
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         if (titleUnlocalized != null)
@@ -43,9 +42,9 @@ public class DialogsUtil {
         return selected.isPresent() && selected.get() == yes;
     }
 
-    public static void showErrorDialog(Throwable t) {
+    public static void showErrorDialog(Context context, Throwable t) {
 
-        I18N i18N = SharedInstances.get(SharedNames.I18N);
+        I18N i18N = context.getI18N();
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
 

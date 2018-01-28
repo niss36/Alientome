@@ -1,22 +1,23 @@
 package com.alientome.impl;
 
-import com.alientome.core.SharedInstances;
+import com.alientome.core.Context;
 import com.alientome.core.util.FileManager;
 import com.alientome.game.level.SaveManager;
 
 import java.io.*;
 
-import static com.alientome.core.SharedNames.FILE_MANAGER;
-
 public class DefaultSaveManager extends SaveManager {
 
-    public DefaultSaveManager() {}
+    protected final Context context;
+
+    public DefaultSaveManager(Context context) {
+        this.context = context;
+    }
 
     @Override
     public int read(int saveIndex, boolean createFile) {
 
-        FileManager manager = SharedInstances.get(FILE_MANAGER);
-        File saveFile = manager.getSave(saveIndex);
+        File saveFile = context.getFileManager().getSave(saveIndex);
 
         if (!saveFile.exists())
             if (createFile)
@@ -34,7 +35,7 @@ public class DefaultSaveManager extends SaveManager {
     @Override
     public void save(int saveIndex, int levelID) {
 
-        FileManager manager = SharedInstances.get(FILE_MANAGER);
+        FileManager manager = context.getFileManager();
 
         try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(manager.getSave(saveIndex)))) {
 
@@ -48,9 +49,7 @@ public class DefaultSaveManager extends SaveManager {
     @Override
     public boolean delete(int saveIndex) {
 
-        FileManager manager = SharedInstances.get(FILE_MANAGER);
-
-        if (manager.getSave(saveIndex).delete()) {
+        if (context.getFileManager().getSave(saveIndex).delete()) {
 
             getStatus(saveIndex).set(-1);
 

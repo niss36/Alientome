@@ -1,7 +1,6 @@
 package com.alientome.core.keybindings;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.events.GameEventDispatcher;
+import com.alientome.core.Context;
 import com.alientome.core.util.Logger;
 import com.alientome.core.util.WrappedXML;
 import javafx.application.Platform;
@@ -14,21 +13,24 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.alientome.core.SharedNames.DISPATCHER;
 import static com.alientome.core.events.GameEventType.KEYBINDINGS_RESET;
 
 public abstract class AbstractInputManager implements InputManager {
 
     protected static final Logger log = Logger.get();
 
+    protected final Context context;
     protected final Map<String, InputContext> contexts = new LinkedHashMap<>();
     protected InputContext activeContext;
+
+    protected AbstractInputManager(Context context) {
+        this.context = context;
+    }
 
     @Override
     public void load() {
 
-        GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-        dispatcher.register(KEYBINDINGS_RESET, e -> Platform.runLater(this::reset));
+        context.getDispatcher().register(KEYBINDINGS_RESET, e -> Platform.runLater(this::reset));
 
         log.i("Loading keybindings");
         try {

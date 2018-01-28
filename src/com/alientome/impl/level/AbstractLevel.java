@@ -1,10 +1,9 @@
 package com.alientome.impl.level;
 
-import com.alientome.core.SharedInstances;
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
-import com.alientome.core.events.GameEventDispatcher;
 import com.alientome.core.util.Logger;
 import com.alientome.game.DebugInfo;
+import com.alientome.game.GameContext;
 import com.alientome.game.GameObject;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-import static com.alientome.core.SharedNames.DISPATCHER;
 import static com.alientome.game.profiling.ExecutionTimeProfiler.theProfiler;
 import static java.lang.Math.floor;
 
@@ -50,8 +48,8 @@ public abstract class AbstractLevel implements Level {
     protected final List<ScriptObject> scripts = new ArrayList<>();
     protected final List<QueuedEntityModification> entityModifications = new ArrayList<>();
     protected final List<Particle> removedParticles = new ArrayList<>();
-    protected final DebugInfo debugInfo = new DebugInfo(this);
-    protected final CommandHandler commandHandler = new CommandHandler();
+    protected final DebugInfo debugInfo;
+    protected final CommandHandler commandHandler;
     protected final LevelManager manager;
     protected final LevelSource source;
     protected final LevelMap map;
@@ -64,6 +62,9 @@ public abstract class AbstractLevel implements Level {
 
         this.manager = manager;
         this.source = source;
+
+        debugInfo = new DebugInfo(getContext(), this);
+        commandHandler = new CommandHandler(getContext());
 
         try {
             SpritesLoader.waitUntilLoaded();
@@ -91,10 +92,7 @@ public abstract class AbstractLevel implements Level {
         entities.add(player);
 
         playerController = source.newController(this);
-        playerController.addControlledDeathListener(() -> {
-            GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-            dispatcher.submit(new GameDeathEvent());
-        });
+        playerController.addControlledDeathListener(() -> getContext().getDispatcher().submit(new GameDeathEvent()));
         timeTicks = 0;
 
         scripts.forEach(ScriptObject::reset);
@@ -310,6 +308,11 @@ public abstract class AbstractLevel implements Level {
         } catch (CommandException e) {
             sender.addConsoleMessage(new ExceptionMessage(e));
         }
+    }
+
+    @Override
+    public GameContext getContext() {
+        return manager.getContext();
     }
 
     @Override

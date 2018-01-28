@@ -1,7 +1,6 @@
 package com.alientome.core.settings;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.events.GameEventDispatcher;
+import com.alientome.core.Context;
 import com.alientome.core.util.Logger;
 import com.alientome.core.util.WrappedXML;
 import javafx.application.Platform;
@@ -19,22 +18,25 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static com.alientome.core.SharedNames.DISPATCHER;
 import static com.alientome.core.events.GameEventType.CONFIG_RESET;
 
 public abstract class AbstractConfig implements Config {
 
     protected static final Logger log = Logger.get();
 
+    protected final Context context;
     protected final Map<Class<?>, BiFunction<Property<?>, String, Property<?>>> propertyProviders = new HashMap<>();
     protected final Map<String, Setting> settings = new LinkedHashMap<>();
     protected final Map<String, Property<?>> properties = new HashMap<>();
 
+    public AbstractConfig(Context context) {
+        this.context = context;
+    }
+
     @Override
     public void load() {
 
-        GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-        dispatcher.register(CONFIG_RESET, e -> Platform.runLater(this::reset));
+        context.getDispatcher().register(CONFIG_RESET, e -> Platform.runLater(this::reset));
 
         log.i("Loading config");
 

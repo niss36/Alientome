@@ -1,7 +1,6 @@
 package com.alientome.gui.fx.controllers;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.events.GameEventDispatcher;
+import com.alientome.core.Context;
 import com.alientome.core.internationalization.I18N;
 import com.alientome.core.settings.Config;
 import com.alientome.core.util.Logger;
@@ -27,7 +26,6 @@ import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.alientome.core.SharedNames.*;
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 import static javafx.scene.layout.Region.USE_PREF_SIZE;
 
@@ -91,14 +89,14 @@ public class FXMLOptionsController extends FXMLController {
             GridPane.setHalignment(comboBox, HPos.RIGHT);
             for (WrappedXML entryXML : settingXML.nodesWrapped("entry"))
                 comboBox.getItems().add(entryXML.getAttrInt("value"));
-            comboBox.setButtonCell(new FPSListCell());
-            comboBox.setCellFactory(param -> new FPSListCell());
+            comboBox.setButtonCell(new FPSListCell(context));
+            comboBox.setCellFactory(param -> new FPSListCell(context));
             comboBox.valueProperty().bindBidirectional(config.getProperty(id));
 
             i18N.localeProperty().addListener(observable -> {
-                comboBox.setButtonCell(new FPSListCell());
+                comboBox.setButtonCell(new FPSListCell(context));
                 comboBox.setCellFactory(null); //Force actualization
-                comboBox.setCellFactory(param -> new FPSListCell());
+                comboBox.setCellFactory(param -> new FPSListCell(context));
             });
 
             return comboBox;
@@ -108,12 +106,12 @@ public class FXMLOptionsController extends FXMLController {
     @Override
     public void init(Scene scene) {
 
-        Property<I18N> i18N = SharedInstances.getProperty(I18N) ;
-        Config config = SharedInstances.get(CONFIG);
+        Config config = context.getConfig();
+        I18N i18N = context.getI18N();
 
         scene.getRoot().lookupAll("*").forEach(node -> {
             if (node instanceof Labeled)
-                i18N.getValue().applyBindTo((Labeled) node);
+                context.getI18N().applyBindTo((Labeled) node);
         });
 
         WrappedXML configDisplayXML;
@@ -130,7 +128,7 @@ public class FXMLOptionsController extends FXMLController {
         for (WrappedXML categoryXML : configDisplayXML.nodesWrapped("categories/category")) {
 
             Label categoryLabel = new Label("options.category." + categoryXML.getAttr("id"));
-            i18N.getValue().applyBindTo(categoryLabel);
+            i18N.applyBindTo(categoryLabel);
             GridPane.setColumnSpan(categoryLabel, 2);
             GridPane.setHalignment(categoryLabel, HPos.CENTER);
             categoryLabel.getStyleClass().add("option-category");
@@ -144,7 +142,7 @@ public class FXMLOptionsController extends FXMLController {
                 String type = settingXML.getAttr("type");
 
                 Label settingLabel = new Label("options." + id);
-                i18N.getValue().applyBindTo(settingLabel);
+                i18N.applyBindTo(settingLabel);
                 settingLabel.getStyleClass().add("option-label");
 
                 ControlProvider provider = controlProviders.get(type);
@@ -152,7 +150,7 @@ public class FXMLOptionsController extends FXMLController {
                     log.w("Unable to find a control provider for type '" + type + "'. Ignoring...");
                     grid.addRow(rowIndex++, settingLabel);
                 } else {
-                    Node settingControl = provider.create(settingXML, id, i18N.getValue(), config);
+                    Node settingControl = provider.create(settingXML, id, i18N, config);
                     grid.addRow(rowIndex++, settingLabel, settingControl);
                 }
                 grid.getRowConstraints().add(new RowConstraints(USE_COMPUTED_SIZE, 60, USE_COMPUTED_SIZE));
@@ -162,11 +160,17 @@ public class FXMLOptionsController extends FXMLController {
 
     private static class FPSListCell extends ListCell<Integer> {
 
+        private final Context context;
+
+        FPSListCell(Context context) {
+            this.context = context;
+        }
+
         @Override
         protected void updateItem(Integer item, boolean empty) {
             super.updateItem(item, empty);
 
-            I18N i18N = SharedInstances.get(I18N);
+            I18N i18N = context.getI18N();
 
             if (empty || item == null)
                 setText(null);
@@ -191,12 +195,10 @@ public class FXMLOptionsController extends FXMLController {
 
         Object s = e.getSource();
 
-        GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-
              if (s == done) manager.popScene();
         else if (s == resetOptions) {
-            if (DialogsUtil.showConfirmDialog(null, null, "menu.options.reset.prompt"))
-                dispatcher.submit(new ConfigResetEvent());
+            if (DialogsUtil.showConfirmDialog(context, null, null, "menu.options.reset.prompt"))
+                context.getDispatcher().submit(new ConfigResetEvent());
         }
         else if (s == controls) manager.pushScene("CONTROLS");
     }

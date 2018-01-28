@@ -1,13 +1,13 @@
 package com.alientome.gui.fx.controllers;
 
-import com.alientome.core.SharedInstances;
+import com.alientome.core.Context;
 import com.alientome.core.events.GameEventDispatcher;
 import com.alientome.core.internationalization.I18N;
 import com.alientome.core.keybindings.InputManager;
-import com.alientome.core.settings.Config;
 import com.alientome.core.util.GameFont;
 import com.alientome.core.util.Util;
 import com.alientome.game.Game;
+import com.alientome.game.GameContext;
 import com.alientome.game.GameRenderer;
 import com.alientome.game.commands.messages.ConsoleMessage;
 import com.alientome.game.events.*;
@@ -17,7 +17,6 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.Property;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,7 +36,6 @@ import javafx.util.Duration;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-import static com.alientome.core.SharedNames.*;
 import static com.alientome.core.events.GameEventType.*;
 import static com.alientome.core.util.Colors.*;
 import static com.alientome.core.util.Util.deepCopy;
@@ -49,7 +47,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
     private static final Font DEFAULT_FONT = GameFont.get(1);
     private static final Font DEBUG_FONT = GameFont.get(2);
 
-    private final Game game;
+    private Game game;
 
     private Transition transition;
 
@@ -68,16 +66,16 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
 
     private AnimationTimer timer;
 
-    public FXMLGameController() {
+    @Override
+    public void init(Scene scene) {
 
-        game = new Game(this);
+        game = new Game(this, (GameContext) context);
 
-        Property<GameEventDispatcher> dispatcher = SharedInstances.getProperty(DISPATCHER);
-        Property<InputManager> manager = SharedInstances.getProperty(INPUT_MANAGER);
+        GameEventDispatcher dispatcher = context.getDispatcher();
 
-        dispatcher.getValue().register(GAME_EXIT, e -> {
-            this.manager.switchToScene("MAIN");
-            manager.getValue().setActiveContext(null);
+        dispatcher.register(GAME_EXIT, e -> {
+            manager.switchToScene("MAIN");
+            context.getInputManager().setActiveContext(null);
             pauseMenu.setVisible(false);
             deathMenu.setVisible(false);
             pane.setOpacity(0);
@@ -87,7 +85,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
             image = null;
             Platform.runLater(() -> canvas.getGraphicsContext2D().clearRect(0, 0, bounds.width, bounds.height));
         });
-        dispatcher.getValue().register(GAME_PAUSE, e -> {
+        dispatcher.register(GAME_PAUSE, e -> {
             pauseMenu.setVisible(true);
             if (transition != null) {
                 transition.stop();
@@ -96,7 +94,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
             pane.setOpacity(0.5);
             timer.stop();
         });
-        dispatcher.getValue().register(GAME_RESUME, e -> {
+        dispatcher.register(GAME_RESUME, e -> {
             pauseMenu.setVisible(false);
             deathMenu.setVisible(false);
             timer.start();
@@ -113,7 +111,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
             };
             transition.playFromStart();
         });
-        dispatcher.getValue().register(GAME_DEATH, e -> {
+        dispatcher.register(GAME_DEATH, e -> {
             transition = new Transition() {
 
                 {
@@ -128,23 +126,21 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
             transition.setOnFinished(event -> deathMenu.setVisible(true));
             transition.playFromStart();
         });
-        dispatcher.getValue().register(GAME_ERROR, e -> Platform.runLater(() -> {
-            DialogsUtil.showErrorDialog(((GameErrorEvent) e).error);
-            dispatcher.getValue().submit(new GameExitEvent());
+        dispatcher.register(GAME_ERROR, e -> Platform.runLater(() -> {
+            DialogsUtil.showErrorDialog(context, ((GameErrorEvent) e).error);
+            context.getDispatcher().submit(new GameExitEvent());
         }));
-        dispatcher.getValue().register(MESSAGE_SENT, e -> Platform.runLater(() -> consoleView.getItems().add(((MessageEvent) e).message)));
+        dispatcher.register(MESSAGE_SENT, e -> Platform.runLater(() -> consoleView.getItems().add(((MessageEvent) e).message)));
 
-        manager.getValue().setListener("running", "debug", makeListener(() -> debug = !debug));
-        manager.getValue().setListener("running", "console", makeListener(this::openConsole));
-        manager.getValue().setListener("global", "profileDump", makeListener(theProfiler::dumpProfileData));
-        manager.getValue().setListener("global", "screenshot", makeListener(this::tryTakeScreenshot));
-        manager.getValue().setListener("console", "close", makeListener(this::closeConsole));
-    }
+        InputManager inputManager = context.getInputManager();
 
-    @Override
-    public void init(Scene scene) {
+        inputManager.setListener("running", "debug", makeListener(() -> debug = !debug));
+        inputManager.setListener("running", "console", makeListener(this::openConsole));
+        inputManager.setListener("global", "profileDump", makeListener(theProfiler::dumpProfileData));
+        inputManager.setListener("global", "screenshot", makeListener(this::tryTakeScreenshot));
+        inputManager.setListener("console", "close", makeListener(this::closeConsole));
 
-        I18N i18N = SharedInstances.get(I18N);
+        I18N i18N = context.getI18N();
 
         i18N.applyBindTo((Labeled) pauseMenu.lookup(".title"));
 
@@ -156,10 +152,8 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
         for (Node node : deathMenu.lookupAll(".button"))
             i18N.applyBindTo((Labeled) node);
 
-        Property<InputManager> manager = SharedInstances.getProperty(INPUT_MANAGER);
-
         scene.addEventHandler(KeyEvent.ANY, e -> {
-            if (manager.getValue().consumeEvent(e))
+            if (context.getInputManager().consumeEvent(e))
                 e.consume();
         });
 
@@ -182,7 +176,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
 
         pane.visibleProperty().bind(Bindings.notEqual(0, pane.opacityProperty()));
 
-        consoleView.setCellFactory(param -> new MessageListCell());
+        consoleView.setCellFactory(param -> new MessageListCell(context));
 
         i18N.localeProperty().addListener(observable -> consoleView.refresh());
 
@@ -193,6 +187,12 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
 
     private static class MessageListCell extends ListCell<ConsoleMessage> {
 
+        private final Context context;
+
+        MessageListCell(Context context) {
+            this.context = context;
+        }
+
         @Override
         protected void updateItem(ConsoleMessage item, boolean empty) {
             super.updateItem(item, empty);
@@ -200,7 +200,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
             if (empty)
                 setText(null);
             else
-                setText(item.getMessage(SharedInstances.get(I18N)));
+                setText(item.getMessage(context.getI18N()));
         }
     }
 
@@ -248,8 +248,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
         averageRenderTime += (renderTime - averageRenderTime) / ++renders;
 
         theProfiler.startSection("Rendering/FPS Limit");
-        Config config = SharedInstances.get(CONFIG);
-        int maxFPS = config.getAsInt("maxFPS");
+        int maxFPS = context.getConfig().getAsInt("maxFPS");
         if (maxFPS != 0) {
 
             long estimatedWorkTime = maxFPS * averageRenderTime + 33 * game.getAverageUpdateTime();
@@ -282,7 +281,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
 
     private void saveScreenshot(BufferedImage image) {
 
-        new Thread(() -> Util.saveScreenshot(image), "Thread-Screenshot").start();
+        new Thread(() -> Util.saveScreenshot(context, image), "Thread-Screenshot").start();
     }
 
     private void swapBuffers() {
@@ -294,8 +293,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
     private void openConsole() {
         console.setVisible(true);
 
-        InputManager manager = SharedInstances.get(INPUT_MANAGER);
-        manager.setActiveContext("console");
+        context.getInputManager().setActiveContext("console");
 
         Platform.runLater(consoleInput::requestFocus);
     }
@@ -304,8 +302,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
         console.setVisible(false);
         consoleInput.setText("");
 
-        InputManager manager = SharedInstances.get(INPUT_MANAGER);
-        manager.setActiveContext("running");
+        context.getInputManager().setActiveContext("running");
     }
 
     @FXML
@@ -337,7 +334,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
 
         Object s = e.getSource();
 
-        GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
+        GameEventDispatcher dispatcher = context.getDispatcher();
 
              if (s == resume) dispatcher.submit(new GameResumeEvent());
         else if (s == reset) dispatcher.submit(new GameResetEvent());

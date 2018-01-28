@@ -1,17 +1,15 @@
 package com.alientome.game;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.settings.Config;
+import com.alientome.core.Context;
 import com.alientome.core.util.Vec2;
 import com.alientome.game.entities.Entity;
 import com.alientome.game.level.Level;
 
 import java.awt.*;
 
-import static com.alientome.core.SharedNames.CONFIG;
-
 public class DebugInfo {
 
+    private final Context context;
     private final Level level;
 
     private long prevTimeFrames;
@@ -22,7 +20,8 @@ public class DebugInfo {
     private int updates;
     private int ups; //Game Updates per second
 
-    public DebugInfo(Level level) {
+    public DebugInfo(Context context, Level level) {
+        this.context = context;
         this.level = level;
     }
 
@@ -60,9 +59,7 @@ public class DebugInfo {
         int baseLineY = g.getFontMetrics().getAscent() + 5;
         int lineHeight = g.getFontMetrics().getHeight();
 
-        Config config = SharedInstances.get(CONFIG);
-
-        int maxFPS = config.getAsInt("maxFPS");
+        int maxFPS = context.getConfig().getAsInt("maxFPS");
         String fpsLimit;
         if (maxFPS != 0)
             fpsLimit = String.valueOf(maxFPS);

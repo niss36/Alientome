@@ -1,5 +1,6 @@
 package com.alientome.gui.fx;
 
+import com.alientome.core.Context;
 import com.alientome.gui.fx.controllers.FXMLController;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -16,11 +17,13 @@ import java.util.Stack;
 public class StageManager {
 
     protected final Stage stage;
+    protected final Context context;
     private final Map<String, Scene> scenes;
     private final Stack<Scene> scenesStack;
 
-    public StageManager(Stage stage) {
+    public StageManager(Stage stage, Context context) {
         this.stage = stage;
+        this.context = context;
         scenes = new HashMap<>();
         scenesStack = new Stack<>();
     }
@@ -37,6 +40,7 @@ public class StageManager {
         FXMLController controller = loader.getController();
 
         controller.setManager(this);
+        controller.setContext(context);
         controller.init(scene);
 
         return controller;
