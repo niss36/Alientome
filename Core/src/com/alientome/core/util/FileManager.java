@@ -19,4 +19,8 @@ public interface FileManager {
     File getScreenshotsRoot();
 
     File getScreenshot(String name);
+
+    File getBackupsRoot();
+
+    File getBackup(String prefix);
 }

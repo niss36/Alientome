@@ -2,6 +2,7 @@ package com.alientome.core.settings;
 
 import com.alientome.core.Context;
 import com.alientome.core.util.Logger;
+import com.alientome.core.util.VersionConflictData;
 import com.alientome.core.util.WrappedXML;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
@@ -34,7 +35,7 @@ public abstract class AbstractConfig implements Config {
     }
 
     @Override
-    public void load() {
+    public VersionConflictData load() {
 
         context.getDispatcher().register(CONFIG_RESET, e -> Platform.runLater(this::reset));
 
@@ -48,7 +49,47 @@ public abstract class AbstractConfig implements Config {
 
         read(defaultConfig());
 
+        String gameVersion = this.<String>getProperty("version").getValue();
+
         read(userConfig());
+
+        String userVersion = this.<String>getProperty("version").getValue();
+
+        /*try {
+
+            File backupDir = context.getFileManager().getBackup(userVersion);
+            if (backupDir.exists()) {
+                log.w("Backup directory already exists");
+                // TODO prompt for overwrite
+            } else {
+                if (backupDir.mkdir()) {
+
+                    Path dir = backupDir.toPath();
+
+                    // We need to save the config, the key bindings and the saves.
+
+                    Path mainDir = context.getFileManager().getRootDirectory().toPath();
+
+                    Path config = context.getFileManager().getConfig().toPath();
+                    Path keybindings = context.getFileManager().getKeybindings().toPath();
+                    Path savesDir = context.getFileManager().getSavesRoot().toPath();
+
+                    Files.copy(config, dir.resolve(mainDir.relativize(config)));
+                    Files.copy(keybindings, dir.resolve(mainDir.relativize(keybindings)));
+                    FileUtils.copyDirectory(savesDir, dir.resolve(mainDir.relativize(savesDir)));
+
+                } else
+                    throw new IOException("Couldn't create backup directory");
+            }
+        } catch (IOException e) {
+            // TODO alert user
+            throw new UncheckedIOException(e);
+        }*/
+
+        if (gameVersion.equals(userVersion))
+            return null;
+
+        return new VersionConflictData(gameVersion, userVersion);
     }
 
     protected void init() throws IOException, ClassNotFoundException {

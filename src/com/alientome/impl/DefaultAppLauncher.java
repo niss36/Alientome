@@ -2,6 +2,7 @@ package com.alientome.impl;
 
 import com.alientome.core.AppLauncher;
 import com.alientome.core.util.Logger;
+import com.alientome.core.util.VersionConflictData;
 import com.alientome.game.GameContext;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
@@ -35,6 +36,7 @@ public class DefaultAppLauncher extends AppLauncher {
 
     protected static final Logger log = Logger.get();
     private final GameContext context = new GameContext();
+    private VersionConflictData conflictData;
 
     public DefaultAppLauncher(String[] args) {
         super(args);
@@ -76,7 +78,7 @@ public class DefaultAppLauncher extends AppLauncher {
         registerCommands(registry.getCommandsRegistry());
 
         context.getFileManager().checkFiles();
-        context.getConfig().load();
+        conflictData = context.getConfig().load();
         context.getInputManager().load();
         context.getI18N().load();
         context.getSoundManager().load();
@@ -108,6 +110,9 @@ public class DefaultAppLauncher extends AppLauncher {
         manager.loadAndGetController(ClassLoader.getSystemResource("GUI/options.fxml"), "OPTIONS");
         manager.loadAndGetController(ClassLoader.getSystemResource("GUI/controls.fxml"), "CONTROLS");
         manager.loadAndGetController(ClassLoader.getSystemResource("GUI/game.fxml"), "GAME");
+
+        if (conflictData != null)
+            context.getConfig().resolveConflict(conflictData);
 
         context.getDispatcher().register(GAME_START, e -> manager.switchToScene("GAME"));
 

@@ -1,12 +1,15 @@
 package com.alientome.core.settings;
 
+import com.alientome.core.util.VersionConflictData;
 import javafx.beans.property.Property;
 
 import java.io.File;
 
 public interface Config {
 
-    void load();
+    VersionConflictData load();
+
+    void resolveConflict(VersionConflictData data);
 
     void save();
 

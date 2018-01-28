@@ -28,6 +28,8 @@ public class DefaultFileManager implements FileManager {
 
         checkDir(getScreenshotsRoot(), "Screenshots directory");
 
+        checkDir(getBackupsRoot(), "Backups directory");
+
         checkFile(getConfig(), context.getConfig()::createConfigFile);
 
         checkFile(getKeybindings(), context.getInputManager()::createKeybindingsFile);
@@ -66,6 +68,16 @@ public class DefaultFileManager implements FileManager {
     @Override
     public File getScreenshot(String name) {
         return new File(rootDirectory, "screenshots/" + name + ".png");
+    }
+
+    @Override
+    public File getBackupsRoot() {
+        return new File(rootDirectory, "backups");
+    }
+
+    @Override
+    public File getBackup(String prefix) {
+        return new File(rootDirectory, "backups/" + prefix);
     }
 
     protected void checkDir(File directory, String loggedName) {
