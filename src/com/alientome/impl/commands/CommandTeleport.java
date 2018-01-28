@@ -64,7 +64,7 @@ public class CommandTeleport implements Command {
 
             message = Messages.entityAware("commands.tp.teleportedToXY", teleported, x, y);
         } else
-            throw new UsageException(this, level.getContext());
+            throw new UsageException(this);
 
         teleported.getPos().set(destination);
         sender.addConsoleMessage(message);

@@ -42,10 +42,10 @@ public class CommandFly implements Command {
                     break;
 
                 default:
-                    throw new UsageException(this, level.getContext());
+                    throw new UsageException(this);
             }
 
         } else
-            throw new UsageException(this, level.getContext());
+            throw new UsageException(this);
     }
 }

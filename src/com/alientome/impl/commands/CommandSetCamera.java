@@ -25,6 +25,6 @@ public class CommandSetCamera implements Command {
             Entity target = level.selectFirst(Selector.from(args[0]));
             level.setCamera(target.newCamera());
         } else
-            throw new UsageException(this, level.getContext());
+            throw new UsageException(this);
     }
 }

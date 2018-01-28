@@ -63,6 +63,6 @@ public class CommandHeal implements Command {
                 sender.addConsoleMessage(new LocalConsoleMessage("commands.heal.healedNum", numHealed));
 
         } else
-            throw new UsageException(this, level.getContext());
+            throw new UsageException(this);
     }
 }
