@@ -1,16 +1,13 @@
 package com.alientome.gui.fx.controllers;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.events.GameEventDispatcher;
+import com.alientome.core.Context;
 import com.alientome.core.internationalization.I18N;
 import com.alientome.core.util.Logger;
 import com.alientome.editors.level.LevelEditor;
+import com.alientome.game.GameContext;
 import com.alientome.game.events.GameStartEvent;
-import com.alientome.game.level.LevelLoader;
-import com.alientome.game.level.SaveManager;
 import com.alientome.gui.fx.DialogsUtil;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -20,8 +17,6 @@ import javafx.scene.control.Label;
 
 import java.io.IOException;
 
-import static com.alientome.core.SharedNames.*;
-
 public class FXMLPlayController extends FXMLController {
 
     private static final Logger log = Logger.get();
@@ -29,15 +24,23 @@ public class FXMLPlayController extends FXMLController {
     private final Button[] saves = new Button[3];
     private final Button[] deletes = new Button[3];
 
+    private GameContext context;
+
+    @Override
+    public void setContext(Context context) {
+        super.setContext(context);
+
+        this.context = (GameContext) context;
+    }
+
     @Override
     public void init(Scene scene) {
 
-        Property<I18N> i18N = SharedInstances.getProperty(I18N) ;
-        Property<SaveManager> manager = SharedInstances.getProperty(SAVE_MANAGER) ;
+        I18N i18N = context.getI18N();
 
-        i18N.getValue().applyBindTo((Label) scene.getRoot().lookup(".title"));
-        i18N.getValue().applyBindTo(back);
-        i18N.getValue().applyBindTo(editor);
+        i18N.applyBindTo((Label) scene.getRoot().lookup(".title"));
+        i18N.applyBindTo(back);
+        i18N.applyBindTo(editor);
 
         {
             int i = 0;
@@ -55,13 +58,13 @@ public class FXMLPlayController extends FXMLController {
 
         for (int i = 0; i < 3; i++) {
 
-            IntegerProperty saveStatus = manager.getValue().getStatus(i);
+            IntegerProperty saveStatus = context.getSaveManager().getStatus(i);
 
-            saves[i].textProperty().bind(i18N.getValue().createStringBinding(() -> {
+            saves[i].textProperty().bind(i18N.createStringBinding(() -> {
                 if (saveStatus.get() > 0)
-                    return i18N.getValue().get("menu.saves.level", saveStatus.get());
+                    return context.getI18N().get("menu.saves.level", saveStatus.get());
                 else
-                    return i18N.getValue().get("menu.saves.new");
+                    return context.getI18N().get("menu.saves.new");
             }, saveStatus));
 
             deletes[i].managedProperty().bind(deletes[i].visibleProperty());
@@ -70,7 +73,7 @@ public class FXMLPlayController extends FXMLController {
 
         scene.windowProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null)
-                manager.getValue().actualize();
+                context.getSaveManager().actualize();
         });
     }
 
@@ -100,47 +103,40 @@ public class FXMLPlayController extends FXMLController {
 
     private void playSave(int index) {
 
-        SaveManager manager = SharedInstances.get(SAVE_MANAGER);
-
-        IntegerProperty saveStatus = manager.getStatus(index);
+        IntegerProperty saveStatus = context.getSaveManager().getStatus(index);
 
         if (saveStatus.get() == -1)
             saveStatus.set(1);
         else {
 
             try {
-                LevelLoader loader = SharedInstances.get(LOADER);
-                GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-
-                dispatcher.submit(new GameStartEvent(loader.loadFrom(index)));
+                context.getDispatcher().submit(new GameStartEvent(context.getLoader().loadFrom(index)));
 
                 this.manager.switchToScene("GAME");
             } catch (IOException e) {
                 log.e("Exception while loading level " + saveStatus.get() + " :");
                 e.printStackTrace();
-                DialogsUtil.showErrorDialog(e);
+                DialogsUtil.showErrorDialog(context, e);
             }
         }
     }
 
     private void deleteSave(int index) {
 
-        SaveManager manager = SharedInstances.get(SAVE_MANAGER);
+        boolean delete = DialogsUtil.showConfirmDialog(context, null, null, "menu.saves.deletePrompt");
 
-        boolean delete = DialogsUtil.showConfirmDialog(null, null, "menu.saves.deletePrompt");
-
-        if (delete && !manager.delete(index))
+        if (delete && !context.getSaveManager().delete(index))
             log.w("Save " + index + " could not be deleted");
     }
 
     private void openEditor() {
 
         try {
-            LevelEditor.start();
+            LevelEditor.start(context);
         } catch (Exception e) {
             log.e("Exception while opening editor :");
             e.printStackTrace();
-            DialogsUtil.showErrorDialog(e);
+            DialogsUtil.showErrorDialog(context, e);
         }
     }
 }

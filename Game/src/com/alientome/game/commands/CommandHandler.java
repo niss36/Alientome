@@ -1,28 +1,23 @@
 package com.alientome.game.commands;
 
-import com.alientome.core.SharedInstances;
 import com.alientome.core.util.Logger;
+import com.alientome.game.GameContext;
 import com.alientome.game.commands.exceptions.CommandException;
 import com.alientome.game.commands.exceptions.CommandNotFoundException;
 import com.alientome.game.commands.exceptions.UnknownErrorException;
 import com.alientome.game.commands.messages.ExceptionMessage;
-import com.alientome.game.registry.GameRegistry;
 
 import java.util.*;
-
-import static com.alientome.core.SharedNames.REGISTRY;
 
 public class CommandHandler {
 
     private static final Logger log = Logger.get();
-    private final List<CommandExecutionInfo> delayedExecutions = new ArrayList<>();
     private final Map<String, Command> commands = new HashMap<>();
+    private final List<CommandExecutionInfo> delayedExecutions = new ArrayList<>();
 
-    public CommandHandler() {
+    public CommandHandler(GameContext context) {
 
-        GameRegistry registry = SharedInstances.get(REGISTRY);
-
-        List<Command> commandsRegistry = registry.getCommandsRegistry();
+        List<Command> commandsRegistry = context.getRegistry().getCommandsRegistry();
 
         for (Command command : commandsRegistry)
             commands.put(command.getCommandName(), command);

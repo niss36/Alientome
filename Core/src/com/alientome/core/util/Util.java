@@ -1,6 +1,6 @@
 package com.alientome.core.util;
 
-import com.alientome.core.SharedInstances;
+import com.alientome.core.Context;
 import com.alientome.core.keybindings.InputListener;
 import com.alientome.core.keybindings.MappedKeyEvent;
 import com.jcabi.xml.XMLDocument;
@@ -24,8 +24,6 @@ import java.util.Date;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.alientome.core.SharedNames.FILE_MANAGER;
 
 public class Util {
 
@@ -102,9 +100,9 @@ public class Util {
         };
     }
 
-    public static void saveScreenshot(BufferedImage image) {
+    public static void saveScreenshot(Context context, BufferedImage image) {
 
-        FileManager manager = SharedInstances.get(FILE_MANAGER);
+        FileManager manager = context.getFileManager();
 
         Date date = new Date();
         String timestamp = screenshotDateFormat.format(date);

@@ -1,5 +1,7 @@
 package com.alientome.game.level;
 
+import com.alientome.game.GameContext;
+
 public interface LevelManager {
 
     void reset();
@@ -11,4 +13,6 @@ public interface LevelManager {
     void dispose();
 
     Level getLevel();
+
+    GameContext getContext();
 }

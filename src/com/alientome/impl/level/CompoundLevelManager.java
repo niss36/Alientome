@@ -1,5 +1,6 @@
 package com.alientome.impl.level;
 
+import com.alientome.game.GameContext;
 import com.alientome.impl.level.source.CompressedCompoundSource;
 import com.alientome.impl.level.source.LevelSource;
 import com.alientome.impl.level.source.UncompressedCompoundSource;
@@ -13,11 +14,13 @@ public class CompoundLevelManager extends AbstractLevelManager {
 
     private Path lastFile;
 
-    public CompoundLevelManager(File file) throws IOException {
-        this(file, file);
+    public CompoundLevelManager(GameContext context, File file) throws IOException {
+        this(context, file, file);
     }
 
-    public CompoundLevelManager(File tempFile, File location) throws IOException {
+    public CompoundLevelManager(GameContext context, File tempFile, File location) throws IOException {
+
+        super(context);
 
         try {
             loadLevel(tempFile);
@@ -53,9 +56,9 @@ public class CompoundLevelManager extends AbstractLevelManager {
         LevelSource source;
 
         if (file.isDirectory())
-            source = new UncompressedCompoundSource(parser, file);
+            source = new UncompressedCompoundSource(context, parser, file);
         else
-            source = new CompressedCompoundSource(parser, file);
+            source = new CompressedCompoundSource(context, parser, file);
 
         level = new DefaultLevel(this, source);
     }

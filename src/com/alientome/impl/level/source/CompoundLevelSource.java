@@ -1,10 +1,9 @@
 package com.alientome.impl.level.source;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.SharedNames;
 import com.alientome.core.util.FileUtils;
 import com.alientome.core.util.Util;
 import com.alientome.core.util.WrappedXML;
+import com.alientome.game.GameContext;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.blocks.parse.BlockState;
 import com.alientome.game.buffs.Buff;
@@ -16,7 +15,6 @@ import com.alientome.game.entities.parse.EntityState;
 import com.alientome.game.level.Level;
 import com.alientome.game.level.LevelMap;
 import com.alientome.game.parse.LvlParser;
-import com.alientome.game.registry.GameRegistry;
 import com.alientome.game.registry.Registry;
 import com.alientome.game.scripts.ScriptObject;
 import com.alientome.game.util.EntityTags;
@@ -37,6 +35,7 @@ import static com.alientome.core.util.Util.parseXMLNew;
 
 public abstract class CompoundLevelSource implements LevelSource {
 
+    private final GameContext context;
     private final ScriptParser parser;
     private final List<EntityState> entitiesSpawnList = new ArrayList<>();
 //    protected final List<BuffState> buffsSpawnList = new ArrayList<>();
@@ -45,7 +44,8 @@ public abstract class CompoundLevelSource implements LevelSource {
     private LevelMap map;
     private EntityState playerState;
 
-    public CompoundLevelSource(ScriptParser parser) {
+    public CompoundLevelSource(GameContext context, ScriptParser parser) {
+        this.context = context;
         this.parser = parser;
     }
 
@@ -81,9 +81,9 @@ public abstract class CompoundLevelSource implements LevelSource {
             Block[][] blocks = new Block[width][height];
 
             LvlParser.parseMap(FileUtils.openStream(provider.get("map")), width, height,
-                    (x, y, stateIndex) -> blocks[x][y] = Block.create(x, y, blocksDictionary[stateIndex]));
+                    (x, y, stateIndex) -> blocks[x][y] = Block.create(x, y, blocksDictionary[stateIndex], context));
 
-            map = new LevelMap(blocks);
+            map = new LevelMap(context, blocks);
 
             WrappedXML entitiesXML = parseXMLNew(provider.get("entities.xml"));
 
@@ -98,8 +98,7 @@ public abstract class CompoundLevelSource implements LevelSource {
 
             WrappedXML scriptsXML = parseXMLNew(provider.get("scripts.xml"));
 
-            GameRegistry registry = SharedInstances.get(SharedNames.REGISTRY);
-            Registry<Class<? extends Entity>> entityRegistry = registry.getEntitiesRegistry();
+            Registry<Class<? extends Entity>> entityRegistry = context.getRegistry().getEntitiesRegistry();
 
             LvlParser.parseScriptsXML(scriptsXML, (id, enabled, aabb, affected, content) -> {
                 Class<? extends Entity> affectedClass = affected.equals("*") ? Entity.class : entityRegistry.get(affected);

@@ -1,8 +1,8 @@
 package com.alientome.game.blocks;
 
-import com.alientome.core.SharedInstances;
 import com.alientome.core.collisions.Contact;
 import com.alientome.core.graphics.GameGraphics;
+import com.alientome.game.GameContext;
 import com.alientome.game.GameObject;
 import com.alientome.game.blocks.component.BlockTypeComponent;
 import com.alientome.game.blocks.parse.BlockState;
@@ -12,7 +12,6 @@ import com.alientome.game.entities.Entity;
 import com.alientome.game.registry.GameRegistry;
 import com.alientome.game.util.Util;
 
-import static com.alientome.core.SharedNames.REGISTRY;
 import static com.alientome.core.util.Colors.DEBUG;
 
 /**
@@ -49,12 +48,12 @@ public abstract class Block extends GameObject implements BlockConstants {
         type = createTypeComponent();
     }
 
-    public static Block create(int x, int y, BlockState state) {
+    public static Block create(int x, int y, BlockState state, GameContext context) {
 
         if (state == null)
-            return create(x, y, new BlockState("void", (byte) 0));
+            return create(x, y, new BlockState("void", (byte) 0), context);
 
-        GameRegistry registry = SharedInstances.get(REGISTRY);
+        GameRegistry registry = context.getRegistry();
         Class<?>[] constructorTypes = {Integer.TYPE, Integer.TYPE, BlockState.class};
         Object[] args = {x, y, state};
 

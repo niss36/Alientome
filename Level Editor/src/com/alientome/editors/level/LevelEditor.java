@@ -5,6 +5,7 @@ import com.alientome.core.util.WrappedXML;
 import com.alientome.editors.level.registry.Registry;
 import com.alientome.editors.level.state.BlockState;
 import com.alientome.editors.level.state.EntityState;
+import com.alientome.game.GameContext;
 import com.alientome.gui.fx.StageManager;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -23,7 +24,7 @@ public class LevelEditor {
 
     private static Stage stage;
 
-    public static void start() throws Exception {
+    public static void start(GameContext context) throws Exception {
 
         if (stage == null) {
 
@@ -31,7 +32,7 @@ public class LevelEditor {
 
             stage.setTitle("Alientome Level Editor");
 
-            StageManager manager = new StageManager(stage) {
+            StageManager manager = new StageManager(stage, context) {
                 @Override
                 protected void exitInternal() {
                     stage.hide();

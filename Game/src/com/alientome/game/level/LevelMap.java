@@ -1,18 +1,21 @@
 package com.alientome.game.level;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
+import com.alientome.game.GameContext;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.collisions.StaticBoundingBox;
 
 public class LevelMap {
 
+    private final GameContext context;
     private final Block[][] blocks;
     private final AxisAlignedBoundingBox bounds;
     private final int width;
     private final int height;
 
-    public LevelMap(Block[][] blocks) {
+    public LevelMap(GameContext context, Block[][] blocks) {
 
+        this.context = context;
         this.blocks = blocks;
 
         width = blocks.length;
@@ -35,7 +38,7 @@ public class LevelMap {
      *                                        is false and the coordinates are out of bounds.
      */
     public Block getBlock(int x, int y, boolean checkBounds) {
-        return (!checkBounds || checkBounds(x, y)) ? blocks[x][y] : Block.create(x, y, null);
+        return (!checkBounds || checkBounds(x, y)) ? blocks[x][y] : Block.create(x, y, null, context);
     }
 
     public Block getBlock(int x, int y) {

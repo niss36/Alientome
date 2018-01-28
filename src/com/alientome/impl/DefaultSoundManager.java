@@ -1,7 +1,6 @@
 package com.alientome.impl;
 
-import com.alientome.core.SharedInstances;
-import com.alientome.core.settings.Config;
+import com.alientome.core.Context;
 import com.alientome.core.sound.SoundManager;
 import com.alientome.core.util.Logger;
 import javafx.beans.binding.Bindings;
@@ -14,13 +13,16 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.alientome.core.SharedNames.CONFIG;
-
 public class DefaultSoundManager implements SoundManager {
 
     private static final Logger log = Logger.get();
 
+    private final Context context;
     private final Map<String, MediaPlayer> players = new HashMap<>();
+
+    public DefaultSoundManager(Context context) {
+        this.context = context;
+    }
 
     @Override
     public void load() {
@@ -67,9 +69,7 @@ public class DefaultSoundManager implements SoundManager {
 
     private DoubleBinding createVolumeBinding(String volumePropertyKey) {
 
-        Config config = SharedInstances.get(CONFIG);
-
-        Property<Integer> volumeProperty = config.getProperty(volumePropertyKey);
+        Property<Integer> volumeProperty = context.getConfig().getProperty(volumePropertyKey);
         return Bindings.createDoubleBinding(() -> volumeProperty.getValue() / 100.0, volumeProperty);
     }
 }

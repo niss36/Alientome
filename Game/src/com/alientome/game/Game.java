@@ -1,6 +1,5 @@
 package com.alientome.game;
 
-import com.alientome.core.SharedInstances;
 import com.alientome.core.events.GameEventDispatcher;
 import com.alientome.core.keybindings.InputListener;
 import com.alientome.core.keybindings.InputManager;
@@ -11,10 +10,7 @@ import com.alientome.game.events.GameResumeEvent;
 import com.alientome.game.events.GameStartEvent;
 import com.alientome.game.level.Level;
 import com.alientome.game.level.LevelManager;
-import javafx.beans.property.Property;
 
-import static com.alientome.core.SharedNames.DISPATCHER;
-import static com.alientome.core.SharedNames.INPUT_MANAGER;
 import static com.alientome.core.events.GameEventType.*;
 import static com.alientome.core.util.Util.makeListener;
 
@@ -25,6 +21,7 @@ public class Game implements Runnable {
     private static final int MAX_FRAME_SKIP = 5;
     private final Object pausedWaitLock = new Object();
     private final Object untilPauseWaitLock = new Object();
+    private final GameContext context;
     private final GameRenderer renderer;
     private long updates;
     private long averageUpdateTime;
@@ -33,21 +30,22 @@ public class Game implements Runnable {
     private State state = null;
     private boolean run = false;
 
-    public Game(GameRenderer renderer) {
+    public Game(GameRenderer renderer, GameContext context) {
 
+        this.context = context;
         this.renderer = renderer;
 
-        Property<GameEventDispatcher> dispatcher = SharedInstances.getProperty(DISPATCHER);
+        GameEventDispatcher dispatcher = context.getDispatcher();
 
-        dispatcher.getValue().register(GAME_START, e -> {
-            dispatcher.getValue().submit(new GameResumeEvent());
+        dispatcher.register(GAME_START, e -> {
+            context.getDispatcher().submit(new GameResumeEvent());
             run = true;
             manager = ((GameStartEvent) e).manager;
             manager.reset();
             new Thread(this, "Thread-Game").start();
         });
 
-        dispatcher.getValue().register(GAME_EXIT, e -> {
+        dispatcher.register(GAME_EXIT, e -> {
             setState(null);
             run = false;
             synchronized (pausedWaitLock) {
@@ -58,7 +56,7 @@ public class Game implements Runnable {
             }
         });
 
-        dispatcher.getValue().register(GAME_PAUSE, e -> {
+        dispatcher.register(GAME_PAUSE, e -> {
             setState(State.PAUSED);
             synchronized (untilPauseWaitLock) {
                 updating = false;
@@ -70,7 +68,7 @@ public class Game implements Runnable {
             }
         });
 
-        dispatcher.getValue().register(GAME_RESUME, e -> {
+        dispatcher.register(GAME_RESUME, e -> {
             setState(State.RUNNING);
             if (!updating)
                 synchronized (pausedWaitLock) {
@@ -79,16 +77,16 @@ public class Game implements Runnable {
                 }
         });
 
-        dispatcher.getValue().register(GAME_RESET, e -> {
-            dispatcher.getValue().submit(new GameResumeEvent());
+        dispatcher.register(GAME_RESET, e -> {
+            context.getDispatcher().submit(new GameResumeEvent());
             manager.reset();
         });
 
-        dispatcher.getValue().register(GAME_DEATH, e -> setState(State.DEATH));
+        dispatcher.register(GAME_DEATH, e -> setState(State.DEATH));
 
-        InputManager manager = SharedInstances.get(INPUT_MANAGER);
+        InputManager manager = context.getInputManager();
 
-        manager.setListener("running", "pause", makeListener(() -> dispatcher.getValue().submit(new GamePauseEvent())));
+        manager.setListener("running", "pause", makeListener(() -> context.getDispatcher().submit(new GamePauseEvent())));
 
         InputListener levelListener = e -> getLevel().submitEvent(e);
 
@@ -119,8 +117,7 @@ public class Game implements Runnable {
     private void setState(State newState) {
         state = newState;
         if (state != null) {
-            InputManager manager = SharedInstances.get(INPUT_MANAGER);
-            manager.setActiveContext(state.inputContext);
+            context.getInputManager().setActiveContext(state.inputContext);
         }
     }
 
@@ -176,8 +173,7 @@ public class Game implements Runnable {
             setState(State.ERROR);
             log.e("An exception has occurred : ");
             e.printStackTrace();
-            GameEventDispatcher dispatcher = SharedInstances.get(DISPATCHER);
-            dispatcher.submit(new GameErrorEvent(e));
+            context.getDispatcher().submit(new GameErrorEvent(e));
 
         } finally {
 

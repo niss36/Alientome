@@ -1,6 +1,6 @@
 package com.alientome.impl;
 
-import com.alientome.core.SharedInstances;
+import com.alientome.core.Context;
 import com.alientome.core.internationalization.I18N;
 import com.alientome.core.settings.Config;
 import javafx.beans.Observable;
@@ -17,12 +17,12 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
-import static com.alientome.core.SharedNames.CONFIG;
-
 /**
  * The default implementation for the {@link I18N} interface.
  */
 public class DefaultI18N implements I18N {
+
+    private final Context context;
 
     /**
      * The base name for all resource files.
@@ -41,8 +41,9 @@ public class DefaultI18N implements I18N {
      */
     private final ObjectProperty<ResourceBundle> bundle;
 
-    public DefaultI18N(String baseName) {
+    public DefaultI18N(Context context, String baseName) {
 
+        this.context = context;
         this.baseName = baseName;
 
         locale = new SimpleObjectProperty<>();
@@ -56,7 +57,7 @@ public class DefaultI18N implements I18N {
     @Override
     public void load() {
 
-        Config config = SharedInstances.get(CONFIG);
+        Config config = context.getConfig();
 
         Property<String> languageProperty = config.getProperty("language");
 

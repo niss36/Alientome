@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
  * I18N stands for Internationalization. This class is used to provide ways to access pre-translated Strings with their
  * identifiers. Language can also be changed dynamically, through the locale property. GUI text items can be bound to this instance
  * in order to have their text updated dynamically on language change.
- * Under normal circumstances, the global I18N instance should be shared through the {@link com.alientome.core.SharedInstances} class.
+ * Under normal circumstances, the global I18N instance should be shared through a {@link com.alientome.core.Context} instance.
  * Implementations are required to bind the locale property with the config's language property on load.
  */
 public interface I18N {
@@ -72,7 +72,8 @@ public interface I18N {
 
     /**
      * Binds the provided Labeled component's text property with a new property, that uses the dependencies as format arguments.
-     * For example, consider 'text=Hello %s ! It is %d pm' as an internationalized string. If a Label is initialized with text
+     *
+     * <p>For example, consider 'text=Hello %s ! It is %d pm' as an internationalized string. If a Label is initialized with text
      * "text", and bound through this method with a StringProperty and an IntegerProperty, its text will be updated on locale change,
      * but also on each properties' change, and the two values will be used as format arguments. Therefore, if the StringProperty's
      * value is "John Doe" and the IntegerProperty's value is 8, the Label's text will be "Hello John Doe ! It is 8 pm".

@@ -1,10 +1,8 @@
 package com.alientome.impl.level;
 
-import com.alientome.core.SharedInstances;
 import com.alientome.core.collisions.Line;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.keybindings.MappedKeyEvent;
-import com.alientome.core.settings.Config;
 import com.alientome.core.util.Util;
 import com.alientome.core.util.Vec2;
 import com.alientome.game.blocks.Block;
@@ -21,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alientome.core.SharedNames.CONFIG;
 import static com.alientome.game.profiling.ExecutionTimeProfiler.theProfiler;
 
 public class DefaultLevel extends AbstractLevel {
@@ -89,11 +86,9 @@ public class DefaultLevel extends AbstractLevel {
 
         theProfiler.endSection("Rendering/Drawing Level/Drawing Objects");
 
-        if (debug) {
-            Config config = SharedInstances.get(CONFIG);
-            if (config.getAsBoolean("showSightLines"))
-                for (Line line : lines) line.draw(graphics);
-        }
+        if (debug && getContext().getConfig().getAsBoolean("showSightLines"))
+            for (Line line : lines)
+                line.draw(graphics);
 
         theProfiler.endSection("Rendering/Drawing Level");
     }

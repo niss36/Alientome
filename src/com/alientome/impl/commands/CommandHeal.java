@@ -10,6 +10,7 @@ import com.alientome.game.commands.messages.LocalConsoleMessage;
 import com.alientome.game.commands.messages.Messages;
 import com.alientome.game.entities.Entity;
 import com.alientome.game.entities.EntityLiving;
+import com.alientome.game.level.Level;
 import com.alientome.game.util.Selector;
 
 import java.util.List;
@@ -24,6 +25,8 @@ public class CommandHeal implements Command {
     @Override
     public void processCommand(CommandSender sender, String[] args) throws CommandException {
 
+        Level level = sender.getLevel();
+
         if (args.length == 1) {
 
             Entity entity = sender.getEntity();
@@ -37,8 +40,7 @@ public class CommandHeal implements Command {
         } else if (args.length == 2) {
 
             Selector selector = Selector.from(args[0]);
-
-            List<Entity> entities = sender.getLevel().selectAll(selector);
+            List<Entity> entities = level.selectAll(selector);
             float value = Command.parseFloat(args[1]);
 
             int numHealed = 0;
@@ -60,6 +62,7 @@ public class CommandHeal implements Command {
             else
                 sender.addConsoleMessage(new LocalConsoleMessage("commands.heal.healedNum", numHealed));
 
-        } else throw new UsageException(this);
+        } else
+            throw new UsageException(this, level.getContext());
     }
 }

@@ -3,6 +3,7 @@ package com.alientome.game.level;
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.keybindings.MappedKeyEvent;
 import com.alientome.game.DebugInfo;
+import com.alientome.game.GameContext;
 import com.alientome.game.GameObject;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.camera.Camera;
@@ -58,6 +59,8 @@ public interface Level {
     Entity selectFirst(Selector selector) throws CommandException;
 
     void executeCommand(CommandSender sender, String command);
+
+    GameContext getContext();
 
     Random getRandom();
 

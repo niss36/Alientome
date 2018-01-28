@@ -1,6 +1,7 @@
 package com.alientome.impl.level.source;
 
 import com.alientome.core.util.FileUtils;
+import com.alientome.game.GameContext;
 import com.alientome.impl.level.source.uri.URIProvider;
 import com.alientome.impl.level.source.uri.ZipURIProvider;
 import com.alientome.script.ScriptParser;
@@ -13,9 +14,9 @@ public class CompressedCompoundSource extends CompoundLevelSource {
 
     private final URI zipURI;
 
-    public CompressedCompoundSource(ScriptParser parser, File file) {
+    public CompressedCompoundSource(GameContext context, ScriptParser parser, File file) {
 
-        super(parser);
+        super(context, parser);
 
         zipURI = FileUtils.toZip(file);
     }
