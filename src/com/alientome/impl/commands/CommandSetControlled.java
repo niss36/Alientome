@@ -25,6 +25,6 @@ public class CommandSetControlled implements Command {
             Entity target = level.selectFirst(Selector.from(args[0]));
             level.setControlled(target);
         } else
-            throw new UsageException(this, level.getContext());
+            throw new UsageException(this);
     }
 }
