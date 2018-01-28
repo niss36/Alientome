@@ -1,6 +1,6 @@
 language=en
 pauseOnLostFocus=true
 showSightLines=false
-version=0.08
+version=0.1.0
 volume=50
 maxFPS=0

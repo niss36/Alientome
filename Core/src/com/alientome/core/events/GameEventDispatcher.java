@@ -7,7 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * A GameEventDispatcher is a centralised message exchange system that links different parts of the program together.
+ * A GameEventDispatcher is a centralized message exchange system that links different parts of the program together.
  * GameEvents can be submitted to it in order to be dispatched asynchronously. GameEventListeners can be attached in order
  * to react to specific events.
  *

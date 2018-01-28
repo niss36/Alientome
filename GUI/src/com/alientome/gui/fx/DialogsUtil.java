@@ -12,6 +12,36 @@ import java.util.Optional;
 
 public class DialogsUtil {
 
+    public static final int YES = 0, NO = 1, CANCEL = 2;
+
+    public static int showYesNoCancelDialog(Alert.AlertType type,
+                                            String title, String header, String content,
+                                            String yesText, String noText, String cancelText) {
+
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+
+        alert.getDialogPane().getStylesheets().add(ClassLoader.getSystemResource("GUI/style.css").toExternalForm());
+
+        ButtonType yes = new ButtonType(yesText);
+        ButtonType no = new ButtonType(noText);
+        ButtonType cancel = new ButtonType(cancelText, ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(yes, no, cancel);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        assert result.isPresent();
+        // According to spec, if a CANCEL_CLOSE button is set, then it is returned if the dialog is closed.
+
+        if (result.get() == yes)
+            return YES;
+        if (result.get() == no)
+            return NO;
+        return CANCEL;
+    }
+
     public static boolean showConfirmDialog(Context context, String titleUnlocalized, String headerUnlocalized, String contentUnlocalized) {
 
         I18N i18N = context.getI18N();
