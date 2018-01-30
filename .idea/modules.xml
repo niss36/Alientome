@@ -3,6 +3,13 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Alientome.iml" filepath="$PROJECT_DIR$/Alientome.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Animations/Animations.iml" filepath="$PROJECT_DIR$/Animations/Animations.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Animations Editor/Animations Editor.iml" filepath="$PROJECT_DIR$/Animations Editor/Animations Editor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Core/Core.iml" filepath="$PROJECT_DIR$/Core/Core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GUI/GUI.iml" filepath="$PROJECT_DIR$/GUI/GUI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Game/Game.iml" filepath="$PROJECT_DIR$/Game/Game.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Level Editor/Level Editor.iml" filepath="$PROJECT_DIR$/Level Editor/Level Editor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Script/Script.iml" filepath="$PROJECT_DIR$/Script/Script.iml" />
     </modules>
   </component>
 </project>

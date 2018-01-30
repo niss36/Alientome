@@ -8,14 +8,13 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/redist/annotations-java8.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="module" module-name="Animations" />
+    <orderEntry type="module" module-name="Core" />
+    <orderEntry type="module" module-name="Game" />
+    <orderEntry type="module" module-name="GUI" />
+    <orderEntry type="module" module-name="Level Editor" />
+    <orderEntry type="library" name="com.jcabi.incubator:xembly:0.22" level="project" />
+    <orderEntry type="library" name="com.jcabi:jcabi-xml:0.20.1" level="project" />
+    <orderEntry type="module" module-name="Script" />
   </component>
 </module>

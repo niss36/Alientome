@@ -1,14 +1,11 @@
 package com.gui;
 
 import com.util.Util;
-import com.util.listeners.IntValueListener;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 public class GameSlider extends GameTextComponent implements MouseListener, MouseMotionListener {
@@ -27,7 +24,6 @@ public class GameSlider extends GameTextComponent implements MouseListener, Mous
     private final int minValue;
     private final int maxValue;
     private final Function<Integer, String> valueStringProvider;
-    private final List<IntValueListener> listeners = new ArrayList<>();
     private int value;
     private boolean hovered;
     private boolean pressed;
@@ -54,12 +50,8 @@ public class GameSlider extends GameTextComponent implements MouseListener, Mous
         addMouseMotionListener(this);
     }
 
-    void setTextToVal() {
+    private void setTextToVal() {
         setText(valueStringProvider.apply(value));
-    }
-
-    public void addValueListener(IntValueListener listener) {
-        listeners.add(listener);
     }
 
     public void setValue(int value) {
@@ -84,17 +76,12 @@ public class GameSlider extends GameTextComponent implements MouseListener, Mous
         return getWidth() - 5 - sliderWidth / 2;
     }
 
-    private void onMouseEvent(MouseEvent e, boolean notify) {
+    private void onMouseEvent(MouseEvent e) {
         sliderX = e.getX();
         sliderX = Util.clamp(sliderX, 4 + sliderWidth / 2, getSliderMaxX());
         value = computeValue();
         setTextToVal();
-        if (notify) notifyStateChange();
         repaint();
-    }
-
-    private void notifyStateChange() {
-        for (IntValueListener listener : listeners) listener.valueChanged(value);
     }
 
     @Override
@@ -137,7 +124,7 @@ public class GameSlider extends GameTextComponent implements MouseListener, Mous
     @Override
     public void mouseReleased(MouseEvent e) {
         pressed = false;
-        onMouseEvent(e, true);
+        onMouseEvent(e);
     }
 
     @Override
@@ -154,7 +141,7 @@ public class GameSlider extends GameTextComponent implements MouseListener, Mous
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        onMouseEvent(e, false);
+        onMouseEvent(e);
     }
 
     @Override

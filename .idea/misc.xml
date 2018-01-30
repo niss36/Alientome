@@ -3,6 +3,10 @@
   <component name="DevPartner.ProjectProperties">
     <option name="dpjConfigurationName" value="misc" />
   </component>
+  <component name="EntryPointsManager">
+    <pattern value="com.alientome.animations.io.AnimationWriter" method="AnimationWriter" />
+    <pattern value="com.alientome.animations.io.AnimationWriter" method="writeAnimation" />
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
     <option name="OPTION_SCOPE" value="protected" />
@@ -26,5 +30,6 @@
   </component>
   <component name="PropertiesSeparatorManager">
     <file url="file://$PROJECT_DIR$/resources/Lang/lang" separator="\u002e" />
+    <file url="file://$PROJECT_DIR$/resources/__Lang/lang" separator="\u005f" />
   </component>
 </project>

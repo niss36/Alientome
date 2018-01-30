@@ -1,36 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <settings>
-    <setting id="version" type="java.lang.String" editable="false"/>
-    <setting id="language" type="java.lang.String" editable="true">
-        <valueFilter>
-            <list>
-                <element value="en"/>
-                <element value="fr"/>
-            </list>
-        </valueFilter>
-    </setting>
-    <setting id="pauseOnLostFocus" type="java.lang.Boolean" editable="true"/>
-    <setting id="showBlockIn" type="java.lang.Boolean" editable="true"/>
-    <setting id="showSightLines" type="java.lang.Boolean" editable="true"/>
-    <setting id="volume" type="java.lang.Integer" editable="true">
-        <valueFilter>
-            <range min="0" max="100"/>
-        </valueFilter>
-        <dictionary defaultMapping="setting.volume.format"/>
-    </setting>
-    <setting id="maxFPS" type="java.lang.Integer" editable="true">
-        <valueFilter>
-            <list>
-                <element value="30"/>
-                <element value="60"/>
-                <element value="80"/>
-                <element value="120"/>
-                <element value="144"/>
-                <element value="0"/>
-            </list>
-        </valueFilter>
-        <dictionary defaultMapping="setting.maxFPS.format">
-            <entry key="0" mapping="setting.maxFPS.unlimited"/>
-        </dictionary>
-    </setting>
+    <setting id="version" type="java.lang.String"/>
+    <setting id="language" type="java.lang.String"/>
+    <setting id="pauseOnLostFocus" type="java.lang.Boolean"/>
+    <setting id="showSightLines" type="java.lang.Boolean"/>
+    <setting id="volume" type="java.lang.Integer"/>
+    <setting id="maxFPS" type="java.lang.Integer"/>
 </settings>

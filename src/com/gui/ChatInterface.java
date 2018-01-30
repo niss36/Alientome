@@ -1,20 +1,9 @@
 package com.gui;
 
-import com.events.GameEventDispatcher;
-import com.events.GameEventType;
-import com.game.command.CommandSender;
-import com.game.level.Level;
-import com.keybindings.InputManager;
-import com.util.GameFont;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
-
-import static com.util.Util.makeListener;
 
 public class ChatInterface extends GameComponent {
 
@@ -25,16 +14,16 @@ public class ChatInterface extends GameComponent {
     private boolean caretShown = false;
     private int historyIndex = 0;
 
-    public ChatInterface(Supplier<Level> levelSupplier) {
+    public ChatInterface(/*Supplier<Level> levelSupplier*/) {
 
-        InputManager.getInstance().setListener("chat", "send", makeListener(() -> {
+        /*InputManager.getInstance().setListener("chat", "send", makeListener(() -> {
             String trimmed = typing.toString().trim();
             if (trimmed.length() > 0) {
 
                 if (trimmed.startsWith("/")) {
                     Level level = levelSupplier.get();
-                    CommandSender e = level.getControlled();
-                    level.executeCommand(e, trimmed);
+                    CommandSender sender = level.getControlled();
+                    level.executeCommand(sender, trimmed);
                 } else
                     GameEventDispatcher.getInstance().submit(trimmed, GameEventType.MESSAGE_SENT);
                 typing = new StringBuilder();
@@ -78,44 +67,10 @@ public class ChatInterface extends GameComponent {
 
         InputManager.getInstance().addUnknownEventHandler("chat", event -> {
             if (event.getID() == KeyEvent.KEY_PRESSED) {
-                /*int keyCode = event.getKeyCode();
+                char c = event.getKeyChar();
 
-                if (keyCode == KeyEvent.VK_BACK_SPACE) {
-                    if (typing.length() > 0)
-                        typing.delete(--caretPos, caretPos + 1);
-
-                } else if (keyCode == KeyEvent.VK_DELETE) {
-                    if (typing.length() > caretPos)
-                        typing.delete(caretPos, caretPos + 1);
-
-                } else if (keyCode == KeyEvent.VK_LEFT) {
-                    if (typing.length() > 0)
-                        caretPos--;
-
-                } else if (keyCode == KeyEvent.VK_RIGHT) {
-                    if (typing.length() > caretPos)
-                        caretPos++;
-
-                } else if (keyCode == KeyEvent.VK_UP){
-                    if (historyIndex < sentHistory.size()) {
-
-                        typing = new StringBuilder(sentHistory.get(sentHistory.size() - ++historyIndex));
-                        caretPos = 0;
-                    }
-
-                } else if (keyCode == KeyEvent.VK_DOWN) {
-                    if (historyIndex >= 1) {
-
-
-                    }
-
-                } else {*/
-                    char c = event.getKeyChar();
-
-                    if (c >= ' ' && c != KeyEvent.CHAR_UNDEFINED)
-                        typing.insert(caretPos++, c);
-//                }
-
+                if (c >= ' ' && c != KeyEvent.CHAR_UNDEFINED)
+                    typing.insert(caretPos++, c);
                 return true;
             }
             return false;
@@ -123,7 +78,7 @@ public class ChatInterface extends GameComponent {
 
         GameEventDispatcher.getInstance().register(GameEventType.GAME_EXIT, e -> messages.clear());
 
-        GameEventDispatcher.getInstance().register(GameEventType.MESSAGE_SENT, e -> messages.add((String) e.source));
+        GameEventDispatcher.getInstance().register(GameEventType.MESSAGE_SENT, e -> messages.add((String) e.source));*/
 
         Timer timer = new Timer(500, e -> caretShown = !caretShown);
         timer.setRepeats(true);
@@ -131,7 +86,6 @@ public class ChatInterface extends GameComponent {
 
         setOpaque(false);
         setDimension(new Dimension(400, 400));
-        setFont(GameFont.get(3));
     }
 
     @Override
