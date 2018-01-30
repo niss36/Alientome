@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alientome.editors.level.gui.fx.FXMLGUIController">
+    <children>
+        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <top>
+                <MenuBar>
+                    <menus>
+                        <Menu text="_File">
+                            <items>
+                                <MenuItem fx:id="newLevel" onAction="#onMenuItemAction" text="New...">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="open" onAction="#onMenuItemAction" text="Open...">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="close" disable="true" onAction="#onMenuItemAction" text="Close" />
+                                <SeparatorMenuItem />
+                                <MenuItem fx:id="save" disable="true" onAction="#onMenuItemAction" text="Save">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="saveAs" disable="true" onAction="#onMenuItemAction" text="Save as...">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                                    </accelerator>
+                                </MenuItem>
+                                <SeparatorMenuItem />
+                                <MenuItem fx:id="exit" onAction="#onMenuItemAction" text="Exit" />
+                            </items>
+                        </Menu>
+                        <Menu text="_Edit">
+                            <items>
+                                <MenuItem fx:id="undo" disable="true" onAction="#onMenuItemAction" text="Undo">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="redo" disable="true" onAction="#onMenuItemAction" text="Redo">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                                    </accelerator>
+                                </MenuItem>
+                            </items>
+                        </Menu>
+                        <Menu text="_View">
+                            <items>
+                                <CheckMenuItem fx:id="grid" onAction="#onMenuItemAction" selected="true" text="Show Grid">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="G" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                    </accelerator>
+                                </CheckMenuItem>
+                            </items>
+                        </Menu>
+                        <Menu text="_Level">
+                            <items>
+                                <MenuItem fx:id="resize" disable="true" onAction="#onMenuItemAction" text="Resize">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="play" disable="true" onAction="#onMenuItemAction" text="Play">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                    </accelerator>
+                                </MenuItem>
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+            </top>
+            <center>
+                <SplitPane dividerPositions="0.2">
+                    <items>
+                        <AnchorPane>
+                            <children>
+                                <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <children>
+                              <ToolBar prefHeight="40.0" prefWidth="200.0">
+                                 <items>
+                                    <ToggleButton fx:id="mouse" mnemonicParsing="false" onAction="#onToolAction" selected="true" text="Mouse">
+                                       <toggleGroup>
+                                          <ToggleGroup fx:id="toolToggle" />
+                                       </toggleGroup>
+                                    </ToggleButton>
+                                    <ToggleButton fx:id="pencil" mnemonicParsing="false" onAction="#onToolAction" text="Pencil" toggleGroup="$toolToggle" />
+                                    <ToggleButton fx:id="eraser" mnemonicParsing="false" onAction="#onToolAction" text="Eraser" toggleGroup="$toolToggle" />
+                                 </items>
+                              </ToolBar>
+                                        <TabPane fx:id="tabPane" disable="true" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                                            <tabs>
+                                                <Tab text="Blocks">
+                                                    <content>
+                                                        <AnchorPane>
+                                                            <children>
+                                                                <ListView fx:id="blocks" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                            </children>
+                                                        </AnchorPane>
+                                                    </content>
+                                                </Tab>
+                                                <Tab text="Entities">
+                                                    <content>
+                                                        <AnchorPane>
+                                                            <children>
+                                                <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                   <children>
+                                                                      <ListView fx:id="entities" />
+                                                      <GridPane fx:id="tags" disable="true" maxHeight="1.7976931348623157E308" vgap="5.0">
+                                                        <columnConstraints>
+                                                            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
+                                                          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
+                                                          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" prefWidth="30.0" />
+                                                        </columnConstraints>
+                                                        <rowConstraints>
+                                                            <RowConstraints prefHeight="25.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints vgrow="SOMETIMES" />
+                                                          <RowConstraints vgrow="SOMETIMES" />
+                                                          <RowConstraints vgrow="SOMETIMES" />
+                                                        </rowConstraints>
+                                                         <children>
+                                                            <Label text="orientation" GridPane.rowIndex="1" />
+                                                            <Label text="offsets" GridPane.rowIndex="2" />
+                                                             <ComboBox fx:id="orientation" onAction="#onTagAction" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                                 <items>
+                                                                     <FXCollections fx:factory="observableArrayList">
+                                                                         <String fx:value="RIGHT" />
+                                                                         <String fx:value="LEFT" />
+                                                                     </FXCollections>
+                                                                 </items>
+                                                             </ComboBox>
+                                                            <TextField fx:id="offsets" maxWidth="-Infinity" onAction="#onTagAction" prefWidth="150.0" text="0;0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                            <TextField fx:id="tagName" maxWidth="-Infinity" prefWidth="150.0" GridPane.rowIndex="3" />
+                                                            <TextField fx:id="tagValue" maxWidth="-Infinity" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                            <Label fx:id="tagsLabel" text="Tags :" GridPane.columnSpan="3" />
+                                                            <Button fx:id="addTag" mnemonicParsing="false" onAction="#onTagAction" prefWidth="31.0" text="+" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </children>
+                                                </VBox>
+                                                            </children>
+                                                        </AnchorPane>
+                                                    </content>
+                                                </Tab>
+                                    <Tab text="Scripts">
+                                      <content>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                             <children>
+                                                <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                   <children>
+                                                      <ListView fx:id="scripts" />
+                                                      <HBox alignment="CENTER">
+                                                         <children>
+                                                            <Button fx:id="newScript" mnemonicParsing="false" onAction="#onScriptAction" text="New Script" />
+                                                         </children>
+                                                         <padding>
+                                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                                         </padding>
+                                                         <VBox.margin>
+                                                            <Insets />
+                                                         </VBox.margin>
+                                                      </HBox>
+                                                      <GridPane fx:id="editScript" disable="true">
+                                                        <columnConstraints>
+                                                          <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                                          <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                                        </columnConstraints>
+                                                        <rowConstraints>
+                                                          <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                                        </rowConstraints>
+                                                         <children>
+                                                            <Label text="Edit Script :" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
+                                                            <Label text="Unique ID" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                                                            <TextField fx:id="scriptID" maxWidth="-Infinity" onKeyReleased="#onScriptTextInputKeyReleased" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                                                            <Label text="Bounds" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                                                            <Button fx:id="scriptBounds" mnemonicParsing="false" onAction="#onScriptAction" text="0; 0 -&gt; 0; 0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                                                            <Label text="Affected class" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                            <TextField fx:id="scriptAffected" maxWidth="-Infinity" onKeyReleased="#onScriptTextInputKeyReleased" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                            <Label text="Content :" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+                                                         </children>
+                                                         <padding>
+                                                            <Insets bottom="3.0" />
+                                                         </padding>
+                                                      </GridPane>
+                                                      <TextArea fx:id="scriptContent" disable="true" onKeyReleased="#onScriptTextInputKeyReleased" />
+                                                      <HBox alignment="CENTER" spacing="30.0">
+                                                         <children>
+                                                            <Button fx:id="deleteScript" disable="true" mnemonicParsing="false" onAction="#onScriptAction" text="Delete" />
+                                                            <Button fx:id="toggleEnabledScript" mnemonicParsing="false" onAction="#onScriptAction" text="Disable" />
+                                                         </children>
+                                                         <padding>
+                                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                                         </padding>
+                                                      </HBox>
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                          </AnchorPane>
+                                      </content>
+                                    </Tab>
+                                            </tabs>
+                                        </TabPane>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                        <AnchorPane>
+                            <children>
+                        <SplitPane dividerPositions="0.7498" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <items>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                 <children>
+                                            <ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                <content>
+                                                    <AnchorPane onMouseDragged="#onMouseDragged" onMousePressed="#onMousePressed" onMouseReleased="#onMouseReleased">
+                                                        <children>
+                                                            <Canvas fx:id="canvas" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                        </children>
+                                                    </AnchorPane>
+                                                </content>
+                                            </ScrollPane>
+                                 </children>
+                              </AnchorPane>
+                            <AnchorPane>
+                                 <children>
+                                    <HBox fx:id="backgroundTab" alignment="CENTER" disable="true" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                                       <children>
+                                          <Canvas fx:id="background" height="240.0" width="360.0">
+                                             <HBox.margin>
+                                                <Insets right="20.0" />
+                                             </HBox.margin>
+                                          </Canvas>
+                                          <GridPane>
+                                            <columnConstraints>
+                                              <ColumnConstraints hgrow="SOMETIMES" prefWidth="70.0" />
+                                              <ColumnConstraints hgrow="SOMETIMES" prefWidth="130.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <Label text="Background :" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
+                                                <Label text="Scale" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                                                <Label text="Y Offset" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                                                <TextField fx:id="backgroundScale" onAction="#onBackgroundAction" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                                                <TextField fx:id="backgroundYOffset" onAction="#onBackgroundAction" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                                                <Button fx:id="addLayer" mnemonicParsing="false" onAction="#onBackgroundAction" text="Add Layer" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                             </children>
+                                          </GridPane>
+                                          <ListView fx:id="layers">
+                                             <HBox.margin>
+                                                <Insets left="20.0" right="20.0" />
+                                             </HBox.margin></ListView>
+                                          <GridPane fx:id="editLayer" disable="true">
+                                            <columnConstraints>
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <Label text="Layer :" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
+                                                <Label text="Name" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                                                <Label text="X Coefficient" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                                                <Label text="Y Coefficient" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                <TextField fx:id="layerName" onAction="#onBackgroundAction" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <TextField fx:id="layerXCoef" onAction="#onBackgroundAction" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <TextField fx:id="layerYCoef" onAction="#onBackgroundAction" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                <Button fx:id="deleteLayer" mnemonicParsing="false" onAction="#onBackgroundAction" text="Delete" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+                                             </children>
+                                          </GridPane>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </AnchorPane>
+                          </items>
+                        </SplitPane>
+                            </children>
+                        </AnchorPane>
+                    </items>
+                </SplitPane>
+            </center>
+        </BorderPane>
+    </children>
+</AnchorPane>

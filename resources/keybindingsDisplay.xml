@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<categories>
+    <category id="movement">
+        <binding uid="running:jump"/>
+        <binding uid="running:moveLeft"/>
+        <binding uid="running:moveRight"/>
+    </category>
+    <category id="abilities">
+        <binding uid="running:special1"/>
+        <binding uid="running:special2"/>
+        <binding uid="running:special3"/>
+    </category>
+    <category id="miscellaneous">
+        <binding uid="global:screenshot"/>
+        <binding uid="running:debug"/>
+    </category>
+</categories>

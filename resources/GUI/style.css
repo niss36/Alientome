@@ -1,0 +1,55 @@
+.root {
+    -fx-font-family: "Alientome";
+    -fx-font-size: 20px;
+    -fx-text-fill: black;
+}
+
+.text-area  {
+    -fx-font-size: 10px;
+}
+
+.button, .label {
+    -fx-text-fill: inherit;
+}
+
+.button {
+    -fx-cursor: hand;
+}
+
+.slider {
+    -fx-minor-tick-count: 24;
+    -fx-snap-to-ticks: true;
+}
+
+.labeled-slider {
+    -fx-alignment: center-right;
+}
+
+.labeled-slider .label {
+    -fx-alignment: center-right;
+}
+
+.scroll-container {
+    -fx-padding: 0 40 0 40;
+}
+
+.title {
+    -fx-font-size: 30px;
+}
+
+.boxed-pane {
+    -fx-background-color: -fx-box-border, -fx-background;
+    -fx-background-insets: 0, 1;
+    -fx-padding: 1;
+}
+
+#title-text {
+    -fx-font-size: 50px;
+}
+
+#version-label {
+    -fx-font-size: 10px;
+    -fx-padding: 5px;
+    -fx-border-insets: 5px;
+    -fx-background-insets: 5px;
+}
