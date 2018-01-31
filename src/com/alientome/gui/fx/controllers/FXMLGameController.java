@@ -281,7 +281,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
 
     private void saveScreenshot(BufferedImage image) {
 
-        new Thread(() -> Util.saveScreenshot(context, image), "Thread-Screenshot").start();
+        new Thread(() -> Util.saveScreenshot(context.getFileManager(), image), "Thread-Screenshot").start();
     }
 
     private void swapBuffers() {

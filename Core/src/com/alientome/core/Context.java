@@ -13,6 +13,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.alientome.core.util.Util.require;
+
 public class Context {
 
     private final Property<Config> config;
@@ -106,12 +108,5 @@ public class Context {
     @SuppressWarnings("unchecked")
     public <T> Property<T> property(String id) {
         return (Property<T>) custom.computeIfAbsent(id, s -> new SimpleObjectProperty<T>(Context.this, id));
-    }
-
-    protected <T> T require(Property<T> p) {
-        T v = p.getValue();
-        if (v == null)
-            throw new IllegalStateException("Missing component : " + p.getName());
-        return v;
     }
 }
