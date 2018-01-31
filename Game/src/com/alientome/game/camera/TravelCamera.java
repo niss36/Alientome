@@ -1,7 +1,7 @@
 package com.alientome.game.camera;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
-import com.alientome.core.util.Util;
+import com.alientome.core.util.MathUtils;
 import com.alientome.core.util.Vec2;
 
 import java.awt.*;
@@ -40,11 +40,11 @@ public class TravelCamera implements Camera {
     }
 
     private double computeX(double x, Rectangle viewBounds, AxisAlignedBoundingBox levelBounds) {
-        return Util.clamp(x - viewBounds.width / 2, levelBounds.getMinX(), levelBounds.getMaxX() - viewBounds.width);
+        return MathUtils.clamp(x - viewBounds.width / 2, levelBounds.getMinX(), levelBounds.getMaxX() - viewBounds.width);
     }
 
     private double computeY(double y, Rectangle viewBounds, AxisAlignedBoundingBox levelBounds) {
-        return Util.clamp(y - viewBounds.height / 2, levelBounds.getMinY(), levelBounds.getMaxY() - viewBounds.height);
+        return MathUtils.clamp(y - viewBounds.height / 2, levelBounds.getMinY(), levelBounds.getMaxY() - viewBounds.height);
     }
 
     @Override

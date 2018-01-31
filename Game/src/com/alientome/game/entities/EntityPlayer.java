@@ -2,6 +2,7 @@ package com.alientome.game.entities;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.util.Direction;
+import com.alientome.core.util.MathUtils;
 import com.alientome.core.util.Vec2;
 import com.alientome.game.abilities.AttackAbility;
 import com.alientome.game.abilities.ChanneledAbility;
@@ -145,7 +146,7 @@ public class EntityPlayer extends EntityLiving {
             @Override
             protected void onChannelProgress(int currentState) {
 
-                owner.maxVelocity = com.alientome.core.util.Util.roundClosest(Math.max(5 - currentState / 10d, 2), 0.25);
+                owner.maxVelocity = MathUtils.roundClosest(Math.max(5 - currentState / 10d, 2), 0.25);
 
                 Particle particle = chargingGenerator.generateCircleTowards(getMouthPos(), 5, 15, 10);
 
