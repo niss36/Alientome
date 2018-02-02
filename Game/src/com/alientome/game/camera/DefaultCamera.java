@@ -2,7 +2,7 @@ package com.alientome.game.camera;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.util.MathUtils;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 
 import java.awt.*;
 
@@ -19,11 +19,11 @@ public class DefaultCamera implements Camera {
     }
 
     private double getX(double interpolation) {
-        return position.x + velocity.x * interpolation + xOffset;
+        return position.getX() + velocity.getX() * interpolation + xOffset;
     }
 
     private double getY(double interpolation) {
-        return position.y + velocity.y * interpolation + yOffset;
+        return position.getY() + velocity.getY() * interpolation + yOffset;
     }
 
     @Override

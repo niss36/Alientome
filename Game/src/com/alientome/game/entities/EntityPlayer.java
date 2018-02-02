@@ -3,7 +3,7 @@ package com.alientome.game.entities;
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.util.Direction;
 import com.alientome.core.util.MathUtils;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.abilities.AttackAbility;
 import com.alientome.game.abilities.ChanneledAbility;
 import com.alientome.game.abilities.DirectionLockingAttackAbility;
@@ -173,7 +173,7 @@ public class EntityPlayer extends EntityLiving {
                 if (isOffCooldown()) {
                     dashDirection = owner.facing;
                     owner.onGround = false;
-                    owner.velocity.y = 0;
+                    owner.velocity.setY(0);
                     owner.move(dashDirection, owner.maxVelocity);
                     owner.setAffectedByGravity(false);
                     super.startChannel();
@@ -199,7 +199,7 @@ public class EntityPlayer extends EntityLiving {
             @Override
             protected void onChannelProgress(int currentState) {
                 owner.facing = dashDirection;
-                owner.velocity.x = dashDirection.normal.x * 10;
+                owner.velocity.setX(dashDirection.normal.getX() * 10);
             }
         };
     }

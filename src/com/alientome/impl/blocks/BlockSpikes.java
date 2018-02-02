@@ -1,7 +1,7 @@
 package com.alientome.impl.blocks;
 
 import com.alientome.core.collisions.Contact;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Constants;
 import com.alientome.game.blocks.BlockSheet;
 import com.alientome.game.blocks.component.BlockTypeComponent;
 import com.alientome.game.blocks.component.SimpleBlockType;
@@ -20,7 +20,7 @@ public class BlockSpikes extends BlockSheet {
 
     @Override
     protected AbstractBoundingBox boundingBox() {
-        return new StaticBoundingBox(pos.x, pos.y + WIDTH - 4, pos.x + WIDTH, pos.y + WIDTH);
+        return new StaticBoundingBox(pos.getX(), pos.getY() + WIDTH - 4, pos.getX() + WIDTH, pos.getY() + WIDTH);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class BlockSpikes extends BlockSheet {
             @Override
             public int beforeCollide(Entity entity, Contact contact) {
 
-                if (entity instanceof EntityLiving && contact.normal.equals(Vec2.UNIT_MINUS_Y))
+                if (entity instanceof EntityLiving && contact.normal == Constants.UNIT_MINUS_Y)
                     ((EntityLiving) entity).damageAbsolute(Float.MAX_VALUE);
 
                 return COLLISION;

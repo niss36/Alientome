@@ -2,7 +2,7 @@ package com.alientome.game;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.graphics.GameGraphics;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 
 import java.awt.*;
 
@@ -93,19 +93,19 @@ public abstract class GameObject {
     protected abstract void drawSpecial(GameGraphics g, int x, int y);
 
     protected int getScaledX(Point origin) {
-        return (int) pos.x - origin.x;
+        return (int) pos.getX() - origin.x;
     }
 
     protected int getScaledY(Point origin) {
-        return (int) pos.y - origin.y;
+        return (int) pos.getY() - origin.y;
     }
 
     public int getInterpolatedX(double partialTick) {
-        return (int) pos.x;
+        return (int) pos.getX();
     }
 
     public int getInterpolatedY(double partialTick) {
-        return (int) pos.y;
+        return (int) pos.getY();
     }
 
     //GETTERS
