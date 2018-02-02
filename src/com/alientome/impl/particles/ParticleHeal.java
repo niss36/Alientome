@@ -1,6 +1,6 @@
 package com.alientome.impl.particles;
 
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.level.Level;
 import com.alientome.game.particles.ParticleSheet;
 
