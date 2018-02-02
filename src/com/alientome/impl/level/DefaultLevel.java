@@ -3,7 +3,7 @@ package com.alientome.impl.level;
 import com.alientome.core.collisions.Line;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.keybindings.MappedKeyEvent;
-import com.alientome.core.util.Util;
+import com.alientome.core.util.MathUtils;
 import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.buffs.Buff;
@@ -125,7 +125,7 @@ public class DefaultLevel extends AbstractLevel {
 
     private Block[] line(Vec2 pos0, Vec2 pos1) {
 
-        int n = (int) Util.diagonalDistance(pos0, pos1) / Block.WIDTH + 2;
+        int n = (int) MathUtils.diagonalDistance(pos0, pos1) / Block.WIDTH + 2;
 
         Block[] blocks = new Block[n];
 
@@ -133,7 +133,7 @@ public class DefaultLevel extends AbstractLevel {
 
             double t = (double) i / n;
 
-            Vec2 v = Util.lerpVec2(pos0, pos1, t);
+            Vec2 v = MathUtils.lerpVec2(pos0, pos1, t);
 
             blocks[i] = map.getBlockAbsCoordinates(v.getX(), v.getY());
         }

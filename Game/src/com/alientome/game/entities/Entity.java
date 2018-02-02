@@ -4,6 +4,7 @@ import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.collisions.Contact;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.util.Direction;
+import com.alientome.core.util.MathUtils;
 import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.GameObject;
 import com.alientome.game.SpritesLoader;
@@ -26,7 +27,6 @@ import com.alientome.visual.animations.AnimationsHandler;
 import java.awt.*;
 
 import static com.alientome.core.util.Colors.DEBUG;
-import static com.alientome.core.util.Util.*;
 import static com.alientome.game.blocks.BlockConstants.*;
 import static com.alientome.game.profiling.ExecutionTimeProfiler.theProfiler;
 
@@ -127,7 +127,7 @@ public abstract class Entity extends GameObject implements CommandSender {
         preUpdateInternal();
 
         // 1: Apply external forces.
-        decrease(velocity, 0.5d); // Pseudo-friction
+        MathUtils.decrease(velocity, 0.5d); // Pseudo-friction
 
         if (affectedByGravity) velocity.add(gravity); // Gravity
 
@@ -340,7 +340,7 @@ public abstract class Entity extends GameObject implements CommandSender {
 
         if (beforeCollideWith(other) && other.beforeCollideWith(this)) {
 
-            double weightedDepth = roundClosest(contact.depth / 2, 0.5);
+            double weightedDepth = MathUtils.roundClosest(contact.depth / 2, 0.5);
 
             Vec2 mtv = new Vec2(contact.normal, weightedDepth);
 
