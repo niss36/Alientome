@@ -1,7 +1,7 @@
 package com.alientome.game.particles;
 
 import com.alientome.core.graphics.GameGraphics;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.level.Level;
 import com.alientome.visual.sheets.SheetsHandler;

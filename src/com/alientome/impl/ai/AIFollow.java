@@ -42,10 +42,13 @@ public class AIFollow extends AI {
             else if (following.isDead()) state = onFollowedDeath;
 
             else {
-                if (following.getPos().x > entity.getPos().x) entity.move(Direction.RIGHT);
-                else if (following.getPos().x < entity.getPos().x) entity.move(Direction.LEFT);
+                double followingX = following.getPos().getX();
+                double entityX = entity.getPos().getX();
 
-                if (following.getPos().x != entity.getPos().x) avoidObstacles();
+                if (followingX > entityX) entity.move(Direction.RIGHT);
+                else if (followingX < entityX) entity.move(Direction.LEFT);
+
+                if (followingX != entityX) avoidObstacles();
             }
         }
     }
@@ -61,11 +64,11 @@ public class AIFollow extends AI {
         if (entity.collidedX && entity.lastCollidedWith != following && !(entity.lastCollidedWith instanceof EntityProjectile))
             entity.jump();
 
-        else if (following.getPos().y <= entity.getPos().y) {
+        else if (following.getPos().getY() <= entity.getPos().getY()) {
 
             boolean b = entity.level.getMap().getBlockAbsCoordinates(
-                    entity.getPos().x + entity.dimension.width / 2 + entity.getVelocity().x,
-                    entity.getPos().y + entity.dimension.height + 1).canBeCollidedWith();
+                    entity.getPos().getX() + entity.dimension.width / 2 + entity.getVelocity().getX(),
+                    entity.getPos().getY() + entity.dimension.height + 1).canBeCollidedWith();
 
             if (!b) entity.jump();
         }

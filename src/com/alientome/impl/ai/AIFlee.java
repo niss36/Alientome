@@ -34,10 +34,13 @@ public class AIFlee extends AI {
 
             else if (entity.distanceSqTo(fleeing) <= fleeRangeSq) {
 
-                if (fleeing.getPos().x > entity.getPos().x) entity.move(Direction.LEFT);
-                else if (fleeing.getPos().x < entity.getPos().x) entity.move(Direction.RIGHT);
+                double fleeingX = fleeing.getPos().getX();
+                double entityX = entity.getPos().getX();
 
-                if (fleeing.getPos().x != entity.getPos().x) avoidObstacles();
+                if (fleeingX > entityX) entity.move(Direction.LEFT);
+                else if (fleeingX < entityX) entity.move(Direction.RIGHT);
+
+                if (fleeingX != entityX) avoidObstacles();
             } else succeed();
         }
     }
@@ -53,11 +56,11 @@ public class AIFlee extends AI {
         if (entity.collidedX && entity.lastCollidedWith != fleeing && !(entity.lastCollidedWith instanceof EntityProjectile))
             entity.jump();
 
-        else if (fleeing.getPos().y <= entity.getPos().y) {
+        else if (fleeing.getPos().getY() <= entity.getPos().getY()) {
 
             boolean b = entity.level.getMap().getBlockAbsCoordinates(
-                    entity.getPos().x + entity.dimension.width / 2 + entity.getVelocity().x,
-                    entity.getPos().y + entity.dimension.height + 1).canBeCollidedWith();
+                    entity.getPos().getX() + entity.dimension.width / 2 + entity.getVelocity().getX(),
+                    entity.getPos().getY() + entity.dimension.height + 1).canBeCollidedWith();
 
             if (!b) entity.jump();
         }

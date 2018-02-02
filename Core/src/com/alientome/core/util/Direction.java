@@ -1,18 +1,21 @@
 package com.alientome.core.util;
 
+import com.alientome.core.vecmath.Constants;
+import com.alientome.core.vecmath.Vec2;
+
 public enum Direction {
 
-    UP(Vec2.UNIT_MINUS_Y),
-    DOWN(Vec2.UNIT_Y),
-    LEFT(Vec2.UNIT_MINUS_X),
-    RIGHT(Vec2.UNIT_X);
+    UP(Constants.UNIT_MINUS_Y),
+    DOWN(Constants.UNIT_Y),
+    LEFT(Constants.UNIT_MINUS_X),
+    RIGHT(Constants.UNIT_X);
 
     public final Vec2 normal;
     public final boolean horizontal;
 
     Direction(Vec2 normal) {
         this.normal = normal;
-        horizontal = normal.y == 0;
+        horizontal = normal.getY() == 0;
     }
 
     public static Direction requireHorizontal(String name) {

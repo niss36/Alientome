@@ -1,6 +1,6 @@
 package com.alientome.impl.entities;
 
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.GameObject;
 import com.alientome.game.actions.Action;
 import com.alientome.game.ai.AI;
