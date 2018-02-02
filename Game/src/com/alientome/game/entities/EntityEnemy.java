@@ -2,7 +2,7 @@ package com.alientome.game.entities;
 
 import com.alientome.core.collisions.Contact;
 import com.alientome.core.util.Colors;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.ai.AI;
 import com.alientome.game.ai.AIController;
 import com.alientome.game.entities.bars.FillColorProvider;
@@ -32,10 +32,10 @@ public abstract class EntityEnemy extends EntityLiving {
 
     protected boolean onCollidedWithPlayer(EntityPlayer player, Contact contact) {
 
-        if (contact.normal.y > 0) {
+        if (contact.normal.getY() > 0) {
 
-            damageAbsolute(player.getFallDamage(player.velocity.y) * 2);
-            if (onGround) player.velocity.y -= 11;
+            damageAbsolute(player.getFallDamage(player.velocity.getY()) * 2);
+            if (onGround) player.velocity.addY(-11);
 
             return true;
         }

@@ -2,7 +2,7 @@ package com.alientome.game.particles;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.graphics.GameGraphics;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.GameObject;
 import com.alientome.game.level.Level;
 

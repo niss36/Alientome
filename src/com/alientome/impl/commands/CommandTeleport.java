@@ -1,6 +1,6 @@
 package com.alientome.impl.commands;
 
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.commands.Command;
 import com.alientome.game.commands.CommandSender;
 import com.alientome.game.commands.exceptions.CommandException;

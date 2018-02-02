@@ -1,7 +1,7 @@
 package com.alientome.impl.blocks;
 
 import com.alientome.core.util.Direction;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.blocks.BlockSheet;
 import com.alientome.game.blocks.component.BlockTypeComponent;
 import com.alientome.game.blocks.component.SimpleSlopeBlockType;
@@ -12,7 +12,7 @@ public class BlockSlopeSand extends BlockSheet {
     public BlockSlopeSand(int x, int y, BlockState state) {
         super(x, y, state);
 
-        handler.setVariantUsed(0, state.metadata);
+        handler.setVariantUsed(0, metadata);
     }
 
     private Vec2 getSlopeStart() {
@@ -22,7 +22,7 @@ public class BlockSlopeSand extends BlockSheet {
                 new Vec2(), new Vec2(), new Vec2(-WIDTH, 0)
         };
 
-        return pos.addImmutable(offsets[metadata]);
+        return pos.copy().add(offsets[metadata]);
     }
 
     private Direction getOrientation() {
