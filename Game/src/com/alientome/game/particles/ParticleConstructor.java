@@ -1,6 +1,6 @@
 package com.alientome.game.particles;
 
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 
 @FunctionalInterface
 public interface ParticleConstructor {

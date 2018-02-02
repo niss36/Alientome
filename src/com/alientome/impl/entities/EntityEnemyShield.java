@@ -1,7 +1,7 @@
 package com.alientome.impl.entities;
 
 import com.alientome.core.collisions.Contact;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 import com.alientome.game.Shield;
 import com.alientome.game.ai.AIController;
 import com.alientome.game.entities.Entity;
@@ -50,7 +50,7 @@ public class EntityEnemyShield extends EntityEnemyDefault {
     protected void notifyCollision(Entity other, Contact contact) {
 
         if (other instanceof EntityProjectile)
-            shield.damage(((EntityProjectile) other).damage, facing.normal.negated() == contact.normal);
+            shield.damage(((EntityProjectile) other).damage, facing.normal.negateImmutable().equals(contact.normal));
         else
             super.notifyCollision(other, contact);
     }

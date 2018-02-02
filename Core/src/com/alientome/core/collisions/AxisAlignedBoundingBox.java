@@ -1,7 +1,7 @@
 package com.alientome.core.collisions;
 
 import com.alientome.core.graphics.GameGraphics;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 
 /**
  * <p>An AxisAlignedBoundingBox (AABB for short) is a non-rotated rectangle enclosing game objects.

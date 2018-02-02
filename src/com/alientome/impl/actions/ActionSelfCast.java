@@ -48,11 +48,11 @@ public class ActionSelfCast implements Action {
 
     @Override
     public double getX() {
-        return entity.getPos().getX();
+        return entity.getPos().x;
     }
 
     @Override
     public double getY() {
-        return entity.getPos().getY();
+        return entity.getPos().y;
     }
 }

@@ -1,6 +1,6 @@
 package com.alientome.core.collisions;
 
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 
 /**
  * A Contact is used to represent a way to resolve a collision.
@@ -32,7 +32,7 @@ public class Contact {
      * @return a new <code>Contact</code>, relative to the other object.
      */
     public Contact reverse() {
-        return new Contact(normal.negated(), depth);
+        return new Contact(normal.negateImmutable(), depth);
     }
 
     @Override

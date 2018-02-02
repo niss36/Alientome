@@ -12,15 +12,15 @@ public class EntityArrow extends EntityProjectile {
 
         super(thrower, new Dimension(10, 3), damage);
 
-        pos.setY(Math.min(pos.getY() + 10 - verticalMotion, pos.getY() + thrower.dimension.height - 3));
+        pos.y = Math.min(pos.y + 10 - verticalMotion, pos.y + thrower.dimension.height - 3);
 
-        pos.setX(facing == Direction.LEFT ? thrower.getPos().getX() : thrower.getPos().getX() + thrower.dimension.width);
+        pos.x = facing == Direction.LEFT ? thrower.getPos().x : thrower.getPos().x + thrower.dimension.width;
 
         maxVelocity = 15;
 
-        velocity.setY(verticalMotion);
+        velocity.y = verticalMotion;
 
-        velocity.setX(facing == Direction.LEFT ? -maxVelocity : maxVelocity);
+        velocity.x = facing == Direction.LEFT ? -maxVelocity : maxVelocity;
     }
 
     @Override

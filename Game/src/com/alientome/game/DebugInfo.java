@@ -1,7 +1,7 @@
 package com.alientome.game;
 
 import com.alientome.core.Context;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 import com.alientome.game.entities.Entity;
 import com.alientome.game.level.Level;
 
@@ -69,7 +69,7 @@ public class DebugInfo {
         baseLineY += lineHeight;
         g.drawString(ups + "UPS", 5, baseLineY);
         baseLineY += lineHeight;
-        g.drawString("X / Y : " + playerPos.getX() + " / " + playerPos.getY(), 5, baseLineY);
+        g.drawString("X / Y : " + playerPos.x + " / " + playerPos.y, 5, baseLineY);
         baseLineY += lineHeight;
         g.drawString("G : " + (player.isOnGround() ? 1 : 0), 5, baseLineY);
         baseLineY += lineHeight;

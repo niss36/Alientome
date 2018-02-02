@@ -1,6 +1,6 @@
 package com.alientome.game.collisions;
 
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -40,7 +40,7 @@ public class StaticBoundingBox extends AbstractBoundingBox {
 
     public StaticBoundingBox(Vec2 pos, double width, double height) {
 
-        this(pos.getX(), pos.getY(), pos.getX() + width, pos.getY() + height);
+        this(pos.x, pos.y, pos.x + width, pos.y + height);
     }
 
     @Override

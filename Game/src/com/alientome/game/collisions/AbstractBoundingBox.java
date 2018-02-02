@@ -4,8 +4,7 @@ import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.collisions.Contact;
 import com.alientome.core.collisions.Line;
 import com.alientome.core.graphics.GameGraphics;
-import com.alientome.core.vecmath.Constants;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 
 import static java.lang.Math.*;
 
@@ -24,23 +23,21 @@ public abstract class AbstractBoundingBox implements AxisAlignedBoundingBox {
 
         double minX = getMinX(), minY = getMinY(), maxX = getMaxX(), maxY = getMaxY();
 
-        double x1 = p1.getX(), x2 = p2.getX(), y1 = p1.getY(), y2 = p2.getY();
-
-        if ((x1 <= minX && x2 <= minX) || (y1 <= minY && y2 <= minY) || (x1 >= maxX && x2 >= maxX) || (y1 >= maxY && y2 >= maxY))
+        if ((p1.x <= minX && p2.x <= minX) || (p1.y <= minY && p2.y <= minY) || (p1.x >= maxX && p2.x >= maxX) || (p1.y >= maxY && p2.y >= maxY))
             return false;
 
-        double m = (y2 - y1) / (x2 - x1);
+        double m = (p2.y - p1.y) / (p2.x - p1.x);
 
-        double y = m * (minX - x1) + y1;
+        double y = m * (minX - p1.x) + p1.y;
         if (y > minY && y < maxY) return true;
 
-        y = m * (maxX - x1) + y1;
+        y = m * (maxX - p1.x) + p1.y;
         if (y > minY && y < maxY) return true;
 
-        double x = (minY - y1) / m + x1;
+        double x = (minY - p1.y) / m + p1.x;
         if (x > minX && x < maxX) return true;
 
-        x = (maxY - y1) / m + x1;
+        x = (maxY - p1.y) / m + p1.x;
         return x > minX && x < maxX;
     }
 
@@ -56,11 +53,11 @@ public abstract class AbstractBoundingBox implements AxisAlignedBoundingBox {
                 other.getCenterX() - getCenterX(),
                 other.getCenterY() - getCenterY());
 
-        double overlapX = getWidth() / 2 + other.getWidth() / 2 - abs(thisToOther.getX());
+        double overlapX = getWidth() / 2 + other.getWidth() / 2 - abs(thisToOther.x);
 
         if (overlapX > 0) {
 
-            double overlapY = getHeight() / 2 + other.getHeight() / 2 - abs(thisToOther.getY());
+            double overlapY = getHeight() / 2 + other.getHeight() / 2 - abs(thisToOther.y);
 
             if (overlapY > 0) {
 
@@ -69,19 +66,19 @@ public abstract class AbstractBoundingBox implements AxisAlignedBoundingBox {
 
                 if (overlapX < overlapY) {
 
-                    if (thisToOther.getX() < 0)
-                        normal = Constants.UNIT_X;
+                    if (thisToOther.x < 0)
+                        normal = Vec2.UNIT_X;
                     else
-                        normal = Constants.UNIT_MINUS_X;
+                        normal = Vec2.UNIT_MINUS_X;
 
                     depth = overlapX;
 
                 } else {
 
-                    if (thisToOther.getY() < 0)
-                        normal = Constants.UNIT_Y;
+                    if (thisToOther.y < 0)
+                        normal = Vec2.UNIT_Y;
                     else
-                        normal = Constants.UNIT_MINUS_Y;
+                        normal = Vec2.UNIT_MINUS_Y;
 
                     depth = overlapY;
                 }
@@ -100,7 +97,7 @@ public abstract class AbstractBoundingBox implements AxisAlignedBoundingBox {
 
     @Override
     public AxisAlignedBoundingBox offset(Vec2 vec) {
-        return offset(vec.getX(), vec.getY());
+        return offset(vec.x, vec.y);
     }
 
     @Override

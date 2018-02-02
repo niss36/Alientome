@@ -2,7 +2,7 @@ package com.alientome.game.blocks.component;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.collisions.Contact;
-import com.alientome.core.vecmath.Constants;
+import com.alientome.core.util.Vec2;
 import com.alientome.game.entities.Entity;
 
 public class PlatformBlockType implements BlockTypeComponent {
@@ -32,7 +32,7 @@ public class PlatformBlockType implements BlockTypeComponent {
     @Override
     public int beforeCollide(Entity entity, Contact contact) {
 
-        if (isTopPlatform && contact.normal == Constants.UNIT_MINUS_Y && entity.getBoundingBox().getMaxY() <= platformTopY)
+        if (isTopPlatform && contact.normal == Vec2.UNIT_MINUS_Y && entity.getBoundingBox().getMaxY() <= platformTopY)
             return COLLISION;
 
         return NO_COLLISION;

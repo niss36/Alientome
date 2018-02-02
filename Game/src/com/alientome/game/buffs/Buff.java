@@ -2,7 +2,7 @@ package com.alientome.game.buffs;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.graphics.GameGraphics;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 import com.alientome.game.GameObject;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
@@ -58,8 +58,8 @@ public abstract class Buff extends GameObject {
 
         Buff buff = Util.create(registry.getBuffsRegistry(), state.identifier, constructorTypes, args);
 
-        pos.setX(state.spawnX * Block.WIDTH + Block.WIDTH / 2 - buff.dim.width / 2);
-        pos.setY(state.spawnY * Block.WIDTH + Block.WIDTH - buff.dim.height);
+        pos.x = state.spawnX * Block.WIDTH + Block.WIDTH / 2 - buff.dim.width / 2;
+        pos.y = state.spawnY * Block.WIDTH + Block.WIDTH - buff.dim.height;
 
         buff.actualizeBoundingBox();
 

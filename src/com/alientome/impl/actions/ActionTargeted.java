@@ -47,11 +47,11 @@ public class ActionTargeted implements Action {
 
     @Override
     public double getX() {
-        return target.getPos().getX();
+        return target.getPos().x;
     }
 
     @Override
     public double getY() {
-        return target.getPos().getY();
+        return target.getPos().y;
     }
 }

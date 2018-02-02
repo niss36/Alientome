@@ -2,7 +2,7 @@ package com.alientome.game.entities;
 
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.util.Direction;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 import com.alientome.game.particles.ParticleGenerator;
 import com.alientome.game.particles.ParticlePlayerCharge;
 
@@ -30,7 +30,7 @@ public class EntityGhostBall extends EntityProjectile {
 
         this.big = big;
 
-        pos.addY(5);
+        pos.y += 5;
 
         maxVelocity = big ? 7 : 10;
 

@@ -1,6 +1,6 @@
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.graphics.GameGraphics;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 import com.alientome.game.GameContext;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
@@ -173,7 +173,7 @@ public class Scratch {
                     pos.set(x * WIDTH, y * WIDTH - bh);
                     free = testCollision(map, dynamic);
                     if (!free) {
-                        pos.addX(WIDTH - bw);
+                        pos.x += WIDTH - bw;
                         free = testCollision(map, dynamic);
                     }
 

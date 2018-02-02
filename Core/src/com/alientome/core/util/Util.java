@@ -2,7 +2,6 @@ package com.alientome.core.util;
 
 import com.alientome.core.keybindings.InputListener;
 import com.alientome.core.keybindings.MappedKeyEvent;
-import com.alientome.core.vecmath.Vec2;
 import com.jcabi.xml.XMLDocument;
 import javafx.beans.property.Property;
 import org.w3c.dom.Element;

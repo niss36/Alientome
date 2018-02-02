@@ -24,6 +24,6 @@ public class KnockbackAttack<T extends Entity> implements Attack<T> {
     public void on(Entity from, T target) {
         base.on(from, target);
         Direction knockback = knockbackDirection.apply(from);
-        target.getVelocity().add(knockbackX * knockback.normal.getX(), -knockbackY);
+        target.getVelocity().add(knockbackX * knockback.normal.x, -knockbackY);
     }
 }

@@ -2,7 +2,7 @@ package com.alientome.game.camera;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.util.MathUtils;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 
 import java.awt.*;
 
@@ -22,14 +22,14 @@ public class TravelCamera implements Camera {
 
     private double getX(double interpolation) {
         if (counter < time)
-            return current.getX() + increment.getX() * interpolation;
-        return current.getX();
+            return current.x + increment.x * interpolation;
+        return current.x;
     }
 
     private double getY(double interpolation) {
         if (counter < time)
-            return current.getY() + increment.getY() * interpolation;
-        return current.getY();
+            return current.y + increment.y * interpolation;
+        return current.y;
     }
 
     @Override
@@ -53,9 +53,9 @@ public class TravelCamera implements Camera {
         if (!init) {
 
             Vec2 start = new Vec2(point.x + viewBounds.width / 2, point.y + viewBounds.height / 2);
-            Vec2 end = new Vec2(computeX(this.end.getX(), viewBounds, levelBounds) + viewBounds.width / 2, computeY(this.end.getY(), viewBounds, levelBounds) + viewBounds.height / 2);
+            Vec2 end = new Vec2(computeX(this.end.x, viewBounds, levelBounds) + viewBounds.width / 2, computeY(this.end.y, viewBounds, levelBounds) + viewBounds.height / 2);
 
-            increment.add(end).sub(start).divide(time);
+            increment.add(end).subtract(start).divide(time);
             current.set(start);
             init = true;
         }

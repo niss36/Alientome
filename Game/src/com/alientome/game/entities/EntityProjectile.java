@@ -2,7 +2,7 @@ package com.alientome.game.entities;
 
 import com.alientome.core.collisions.Contact;
 import com.alientome.core.graphics.GameGraphics;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 import com.alientome.game.blocks.Block;
 
 import java.awt.*;
@@ -23,7 +23,7 @@ public abstract class EntityProjectile extends Entity {
      */
     protected EntityProjectile(Entity thrower, Dimension dimension, float damage) {
 
-        super(new Vec2(thrower.getPos().getX() + thrower.dimension.width / 2, thrower.getPos().getY()), dimension, thrower.level, null);
+        super(new Vec2(thrower.getPos().x + thrower.dimension.width / 2, thrower.getPos().y), dimension, thrower.level, null);
 
         this.thrower = thrower;
 
@@ -78,9 +78,9 @@ public abstract class EntityProjectile extends Entity {
     @Override
     protected void notifyCollision(Entity other, Contact contact) {
 
-        other.velocity.add(
-                -knockbackXFactor() * contact.normal.getX(),
-                -knockbackYFactor());
+        other.velocity.add(new Vec2(
+                -knockbackXFactor() * contact.normal.x,
+                -knockbackYFactor()));
 
         setDead();
     }

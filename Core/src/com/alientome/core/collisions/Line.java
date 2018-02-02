@@ -1,7 +1,7 @@
 package com.alientome.core.collisions;
 
 import com.alientome.core.graphics.GameGraphics;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 
 import static com.alientome.core.util.Colors.LINE_NO_SEE;
 import static com.alientome.core.util.Colors.LINE_SEE;
@@ -51,6 +51,6 @@ public class Line {
     public void draw(GameGraphics g) {
 
         g.graphics.setColor(see ? LINE_SEE : LINE_NO_SEE);
-        g.graphics.drawLine((int) pos1.getX() - g.origin.x, (int) pos1.getY() - g.origin.y, (int) pos2.getX() - g.origin.x, (int) pos2.getY() - g.origin.y);
+        g.graphics.drawLine((int) pos1.x - g.origin.x, (int) pos1.y - g.origin.y, (int) pos2.x - g.origin.x, (int) pos2.y - g.origin.y);
     }
 }

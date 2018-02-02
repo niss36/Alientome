@@ -3,7 +3,7 @@ package com.alientome.impl.level;
 import com.alientome.core.events.GameEventListener;
 import com.alientome.core.events.GameEventType;
 import com.alientome.core.util.Logger;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 import com.alientome.game.GameContext;
 import com.alientome.game.camera.TravelCamera;
 import com.alientome.game.level.Level;

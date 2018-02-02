@@ -1,7 +1,7 @@
 package com.alientome.game.blocks.component;
 
 import com.alientome.core.util.Direction;
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 
 public class SimpleSlopeBlockType extends SlopeBlockType {
 

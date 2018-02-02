@@ -1,6 +1,6 @@
 package com.alientome.game.collisions;
 
-import com.alientome.core.vecmath.Vec2;
+import com.alientome.core.util.Vec2;
 
 /**
  * A pseudo-mutable, locked to the provided pos, implementation of the <code>AxisAlignedBoundingBox</code>
@@ -31,22 +31,22 @@ public class DynamicBoundingBox extends AbstractBoundingBox {
 
     @Override
     public double getMinX() {
-        return pos.getX();
+        return pos.x;
     }
 
     @Override
     public double getMinY() {
-        return pos.getY();
+        return pos.y;
     }
 
     @Override
     public double getMaxX() {
-        return pos.getX() + width;
+        return pos.x + width;
     }
 
     @Override
     public double getMaxY() {
-        return pos.getY() + height;
+        return pos.y + height;
     }
 
     @Override
@@ -61,11 +61,11 @@ public class DynamicBoundingBox extends AbstractBoundingBox {
 
     @Override
     public double getCenterX() {
-        return pos.getX() + width / 2;
+        return pos.x + width / 2;
     }
 
     @Override
     public double getCenterY() {
-        return pos.getY() + height / 2;
+        return pos.y + height / 2;
     }
 }
