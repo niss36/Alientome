@@ -1,6 +1,6 @@
 package com.alientome.impl.buffs;
 
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.buffs.Buff;
 import com.alientome.game.entities.Entity;
 import com.alientome.game.entities.EntityPlayer;

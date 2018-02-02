@@ -25,8 +25,8 @@ public class AIShoot extends AI {
     @Override
     public void act() {
 
-        if (target.getPos().x < entity.getPos().x) entity.move(Direction.LEFT, 0);
-        else if (target.getPos().x > entity.getPos().x) entity.move(Direction.RIGHT, 0);
+        if (target.getPos().getX() < entity.getPos().getX()) entity.move(Direction.LEFT, 0);
+        else if (target.getPos().getX() > entity.getPos().getX()) entity.move(Direction.RIGHT, 0);
 
         marksman.startCharging();
     }
