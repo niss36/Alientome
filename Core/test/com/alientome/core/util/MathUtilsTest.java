@@ -1,5 +1,6 @@
 package com.alientome.core.util;
 
+import com.alientome.core.vecmath.Vec2;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -79,8 +80,8 @@ public class MathUtilsTest {
             Vec2 vec = new Vec2(vX, vY);
             MathUtils.decrease(vec, decreaseBy);
 
-            assertEquals(expectedVX, vec.x, 0.1);
-            assertEquals(expectedVY, vec.y, 0.1);
+            assertEquals(expectedVX, vec.getX(), 0.1);
+            assertEquals(expectedVY, vec.getY(), 0.1);
         }
     }
 
@@ -257,8 +258,8 @@ public class MathUtilsTest {
 
             Vec2 result = MathUtils.lerpVec2(start, end, t);
 
-            assertEquals(expectedX, result.x, 0.01);
-            assertEquals(expectedY, result.y, 0.01);
+            assertEquals(expectedX, result.getX(), 0.01);
+            assertEquals(expectedY, result.getY(), 0.01);
         }
     }
 

@@ -1,5 +1,7 @@
 package com.alientome.core.util;
 
+import com.alientome.core.vecmath.Vec2;
+
 public class MathUtils {
 
     private MathUtils() {
@@ -25,8 +27,8 @@ public class MathUtils {
      */
     public static void decrease(Vec2 vec, double decreaseBy) {
 
-        vec.x = decrease(vec.x, decreaseBy);
-        vec.y = decrease(vec.y, decreaseBy);
+        vec.setX(decrease(vec.getX(), decreaseBy));
+        vec.setY(decrease(vec.getY(), decreaseBy));
     }
 
     public static double clamp(double value, double minVal, double maxVal) {
@@ -52,12 +54,12 @@ public class MathUtils {
     }
 
     public static Vec2 lerpVec2(Vec2 start, Vec2 end, double t) {
-        return new Vec2(lerp(start.x, end.x, t), lerp(start.y, end.y, t));
+        return new Vec2(lerp(start.getX(), end.getX(), t), lerp(start.getY(), end.getY(), t));
     }
 
     public static double diagonalDistance(Vec2 pos0, Vec2 pos1) {
 
-        double dx = pos1.x - pos0.x, dy = pos1.y - pos0.y;
+        double dx = pos1.getX() - pos0.getX(), dy = pos1.getY() - pos0.getY();
         return Math.max(Math.abs(dx), Math.abs(dy));
     }
 
