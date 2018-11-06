@@ -102,10 +102,12 @@ public class Scratch {
         LevelMap map = source.getMap();
         int w = map.getWidth();
 
+        //Create a graph of all nodes in which we can stand and record "platforms", sets of nodes that are within walking reach
         GridGraph graph = createGraph(map, box);
 
         for (WalkablePlatform platform : graph.platforms) {
 
+            //Connect all nodes with their successor and vice versa
             List<GraphNode> nodes = platform.nodes;
             for (int i = 0; i < nodes.size() - 1; i++) {
                 GraphNode a = nodes.get(i), b = nodes.get(i + 1);
@@ -113,10 +115,12 @@ public class Scratch {
                 b.connect(a, 1, ConnectionType.WALK);
             }
 
+            //Find out if we can get anywhere by falling along the left edge
             GraphNode leftEdge = platform.getLeftEdge();
             if (leftEdge.x > 0)
                 fallAlong(map, box, graph, leftEdge, LEFT);
 
+            //Same, for the right edge
             GraphNode rightEdge = platform.getRightEdge();
             if (rightEdge.x < w - 1)
                 fallAlong(map, box, graph, rightEdge, RIGHT);
@@ -149,10 +153,10 @@ public class Scratch {
 
         for (int i = 0; i < w; i++) {
             for (int j = 0; j < h - 1; j++) {
-                if (grid[i][j] != -1)
+                if (grid[i][j] != -1) //Already visited
                     continue;
                 Block b = map.getBlock(i, j, false);
-                if (b.canBeCollidedWith())
+                if (b.canBeCollidedWith()) //Can't be inside a block
                     continue;
 
                 List<GraphNode> platformNodes = new ArrayList<>();
@@ -160,39 +164,39 @@ public class Scratch {
                 Block under = map.getBlock(i, j + 1, false);
                 while (under.canBeCollidedWith()) {
                     int x = under.blockX, y = under.blockY;
-                    if (y == 0)
+                    if (y == 0) //Might happen when the bounding box is less than a block tall and there's a slope going all the way to the top of the world
                         break;
 
-                    b = map.getBlock(x, y - 1, false);
-                    if (b.canBeCollidedWith()) {
-                        if (isSlope(b)) {
+                    b = map.getBlock(x, y - 1, false); //The block at feet level in which we walk
+                    if (b.canBeCollidedWith()) { //Definitely false on first iteration, might be true afterwards
+                        if (isSlope(b)) { //Handles slopes going up to the right
                             under = b;
                             continue;
-                        } else if (!isPlatform(b))
+                        } else if (!isPlatform(b)) //Platforms can be collided with but we still can walk through
                             break;
                     }
 
                     boolean free;
-                    pos.set(x * WIDTH, y * WIDTH - bh);
+                    pos.set(x * WIDTH, y * WIDTH - bh); //Place bounding box resting in the bottom-left corner of b
                     free = testCollision(map, dynamic);
                     if (!free) {
-                        pos.addX(WIDTH - bw);
+                        pos.addX(WIDTH - bw); //Might work if we are in the bottom-right corner instead
                         free = testCollision(map, dynamic);
                     }
 
                     if (free) {
                         GraphNode node = new GraphNode(x, y - 1, platformID);
-                        grid[x][y - 1] = nodeIndex++;
+                        grid[x][y - 1] = nodeIndex++; //Grid links block coordinates to node indices in the nodes list
                         nodes.add(node);
                         platformNodes.add(node);
 
-                        if (x == w - 1)
+                        if (x == w - 1) //Reached the world boundary
                             break;
                         else {
                             boolean wasSlope = isSlope(under);
-                            under = map.getBlock(x + 1, y, false);
+                            under = map.getBlock(x + 1, y, false); //Go right by 1
 
-                            if (wasSlope && !under.canBeCollidedWith())
+                            if (wasSlope && !under.canBeCollidedWith()) //Handles slopes going down to the right
                                 under = map.getBlock(x + 1, y + 1, false);
                         }
                     } else break;
@@ -245,11 +249,11 @@ public class Scratch {
 
         switch (dir) {
             case LEFT:
-                startX = (int) (from.x * WIDTH - bw);
+                startX = (int) (from.x * WIDTH - bw); //Hug the left edge
                 break;
 
             case RIGHT:
-                startX = (from.x + 1) * WIDTH;
+                startX = (from.x + 1) * WIDTH; //Hug the right edge
                 break;
 
             default:
@@ -262,23 +266,29 @@ public class Scratch {
 
         int h = map.getHeight();
 
+        //Block x coordinate for left and right edges of the bounding box
         int minBX = (int) floor(dynamic.getMinX() / WIDTH);
         int maxBX = (int) floor(dynamic.getMaxX() / WIDTH);
 
+        //If falling along the left, start with the rightmost block. Otherwise, start with the leftmost.
+        //(The closest to where we're falling from)
         int[] start = {maxBX, minBX};
+        //Then go towards the other edge
         int[] inc = {-1, 1};
 
         for (int i = from.y; i < h; i++) {
-            if (!testCollision(map, dynamic))
+            if (!testCollision(map, dynamic)) //Falling is prevented by some block above ground level
                 break;
             pos.add(0, WIDTH - 1);
+            //Make the bounding box intersect the next block below;
+            //Go as far as possible not to miss blocks smaller than max height.
 
             for (int j = start[dir]; j >= minBX && j <= maxBX; j += inc[dir]) {
                 Block b = map.getBlock(j, i + 1, false);
-                if (b.canBeCollidedWith() && b.getBoundingBox().intersects(dynamic)) {
+                if (b.canBeCollidedWith() && b.getBoundingBox().intersects(dynamic)) { //Landed on something
                     GraphNode other = graph.get(j, i);
-                    if (other != null) {
-                        if (i == from.y)
+                    if (other != null) { //It's a walkable node
+                        if (i == from.y) //This covers gaps when the bounding box is wide enough
                             from.connect(other, 1, ConnectionType.WALK);
                         else
                             from.connect(other, 2, ConnectionType.FALL);
