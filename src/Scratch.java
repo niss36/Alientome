@@ -8,6 +8,7 @@ import com.alientome.game.blocks.component.PlatformBlockType;
 import com.alientome.game.blocks.component.SlopeBlockType;
 import com.alientome.game.collisions.DynamicBoundingBox;
 import com.alientome.game.collisions.StaticBoundingBox;
+import com.alientome.game.entities.EntityPlayer;
 import com.alientome.game.level.LevelMap;
 import com.alientome.game.registry.GameRegistry;
 import com.alientome.game.registry.Registry;
@@ -85,6 +86,8 @@ public class Scratch {
         registry.set("platform_sand", BlockPlatformSand.class);
         registry.set("slope_sand", BlockSlopeSand.class);
         registry.set("spikes", BlockSpikes.class);
+
+        gameRegistry.getEntitiesRegistry().set("player", EntityPlayer.class);
 
         context.setRegistry(gameRegistry);
 
@@ -268,7 +271,7 @@ public class Scratch {
         for (int i = from.y; i < h; i++) {
             if (!testCollision(map, dynamic))
                 break;
-            pos.add(0, 1);
+            pos.add(0, WIDTH - 1);
 
             for (int j = start[dir]; j >= minBX && j <= maxBX; j += inc[dir]) {
                 Block b = map.getBlock(j, i + 1, false);
@@ -283,7 +286,7 @@ public class Scratch {
                     return;
                 }
             }
-            pos.add(0, WIDTH - 1);
+            pos.add(0, 1);
         }
     }
 
