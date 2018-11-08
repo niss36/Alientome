@@ -249,6 +249,8 @@ public class Level {
                 deepCopy(tiles, new BlockState[tiles.length][tiles[0].length]),
                 deepCopy(entityList),
                 deepCopy(scripts),
+                deepCopy(layers),
+                background.scale,
                 playerX, playerY);
     }
 
@@ -260,6 +262,8 @@ public class Level {
         for (Entity e : entityList)
             entities[e.x][e.y] = e;
         update(scripts, state.scripts);
+        update(layers, state.layers);
+        background.scale = state.bgScale;
         playerX = state.playerX;
         playerY = state.playerY;
     }

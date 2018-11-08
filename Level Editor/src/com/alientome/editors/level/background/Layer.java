@@ -1,9 +1,11 @@
 package com.alientome.editors.level.background;
 
+import com.alientome.editors.level.util.Copyable;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class Layer {
+public class Layer implements Copyable<Layer> {
 
     public String name;
     public BufferedImage image;
@@ -35,5 +37,10 @@ public class Layer {
                 g.drawImage(image, resolvedX, 0, imgWidth, imgHeight, null);
             }
         }
+    }
+
+    @Override
+    public Layer copy() {
+        return new Layer(name, image, xCoef, yCoef); //Keep the same image reference; the image itself doesn't change.
     }
 }
