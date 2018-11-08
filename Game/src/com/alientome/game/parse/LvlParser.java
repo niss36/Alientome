@@ -22,7 +22,6 @@ public class LvlParser {
 
         WrappedXML backgroundXML = document.getFirst("level/background");
 
-        int yOffset = backgroundXML.getOrDefaultInt("yOffset", 0);
         int scale = backgroundXML.getOrDefaultInt("scale", 1);
 
         List<XML> layersXML = backgroundXML.nodes("layer");
@@ -40,7 +39,7 @@ public class LvlParser {
             layers.add(layerParser.parse(xCoef, yCoef, src, image));
         }
 
-        return backgroundParser.parse(layers, yOffset, scale);
+        return backgroundParser.parse(layers, scale);
     }
 
     public static void parseEntitiesXML(WrappedXML document, XMLEntityParser callback) {

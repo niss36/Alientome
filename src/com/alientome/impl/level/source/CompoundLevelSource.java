@@ -70,7 +70,7 @@ public abstract class CompoundLevelSource implements LevelSource {
                         }
                     },
                     (xCoef, yCoef, src, image) -> new Layer(image, xCoef, yCoef),
-                    (layers, yOffset, scale) -> new ParallaxBackground(layers, yOffset));
+                    (layers, scale) -> new ParallaxBackground(layers));
 
             WrappedXML dictionaryXML = parseXMLNew(provider.get("dictionary.xml"));
 

@@ -9,11 +9,9 @@ import java.util.List;
 public class ParallaxBackground {
 
     private final List<Layer> layers;
-    private final int yOffset;
 
-    public ParallaxBackground(List<Layer> layers, int yOffset) {
+    public ParallaxBackground(List<Layer> layers) {
         this.layers = layers;
-        this.yOffset = yOffset;
     }
 
     public boolean isEmpty() {
@@ -22,8 +20,8 @@ public class ParallaxBackground {
 
     public void draw(GameGraphics g, Rectangle clipBounds, AxisAlignedBoundingBox levelBounds) {
 
-        int x = (int) levelBounds.getWidth() - g.origin.x;
-        int y = yOffset - (int) levelBounds.getHeight() - g.origin.y;
+        int x = (int) levelBounds.getWidth() - g.origin.x - clipBounds.width / 2; //Need to reverse direction. Take origin to be the center of the viewport.
+        int y = (int) levelBounds.getHeight() - g.origin.y - clipBounds.height / 2; //Same
 
         for (Layer layer : layers)
             layer.draw(g.graphics, clipBounds, x, y);

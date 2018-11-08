@@ -5,14 +5,12 @@ import java.util.List;
 
 public class Background {
 
-    public List<Layer> layers;
+    private final List<Layer> layers;
     public int scale;
-    public int yOffset;
 
-    public Background(List<Layer> layers, int scale, int yOffset) {
+    public Background(List<Layer> layers, int scale) {
         this.layers = layers;
         this.scale = scale;
-        this.yOffset = yOffset;
     }
 
     public void draw(Graphics g, double interpolation) {

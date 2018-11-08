@@ -265,7 +265,6 @@ public class FXMLGUIController extends FXMLController {
 
         Background lvlBg = level.getBackground();
         backgroundScale.setText(String.valueOf(lvlBg.scale));
-        backgroundYOffset.setText(String.valueOf(lvlBg.yOffset));
     }
 
     private void newLevel() {
@@ -324,7 +323,6 @@ public class FXMLGUIController extends FXMLController {
         layers.getItems().clear();
 
         backgroundScale.setText("");
-        backgroundYOffset.setText("");
     }
 
     private void save() {
@@ -725,7 +723,7 @@ public class FXMLGUIController extends FXMLController {
     private Canvas background;
 
     @FXML
-    private TextField backgroundScale, backgroundYOffset;
+    private TextField backgroundScale;
 
     @FXML
     private Button addLayer, deleteLayer;
@@ -889,9 +887,6 @@ public class FXMLGUIController extends FXMLController {
         } else if (s == backgroundScale) {
             beforeModification("set background scale");
             level.getBackground().scale = Integer.parseInt(backgroundScale.getText());
-        } else if (s == backgroundYOffset) {
-            beforeModification("set background y offset");
-            level.getBackground().yOffset = Integer.parseInt(backgroundYOffset.getText());
         } else if (selectedLayer != null) {
             if (s == deleteLayer) {
                 beforeModification("delete layer");

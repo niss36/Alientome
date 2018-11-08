@@ -68,7 +68,7 @@ public class Level {
 
         entities = new Entity[width][height];
 
-        background = new Background(layers, 1, 0);
+        background = new Background(layers, 1);
     }
 
     public Level(EditorRegistry registry, List<ScriptObject> scripts, List<Layer> layers, File source) throws IOException {
@@ -110,9 +110,9 @@ public class Level {
                         throw new UncheckedIOException(e);
                     }
                 }, (xCoef, yCoef, src, image) -> new Layer(src, image, xCoef, yCoef),
-                (layers1, yOffset, scale) -> {
+                (layers1, scale) -> {
                     layers.addAll(layers1);
-                    return new Background(layers, scale, yOffset);
+                    return new Background(layers, scale);
                 });
 
         WrappedXML dictionary = parseXMLNew(tempDirectory.resolve("dictionary.xml").toUri());
@@ -328,7 +328,7 @@ public class Level {
 
                 Directives directives = new Directives().add("level");
                 directives.add("dimension").attr("width", width).attr("height", height).up();
-                directives.add("background").attr("scale", background.scale).attr("yOffset", background.yOffset);
+                directives.add("background").attr("scale", background.scale);
                 layers.stream().map(Level::createLayer).forEach(directives::append);
 
                 new Xembler(directives).apply(doc);

@@ -253,16 +253,13 @@
                                             <rowConstraints>
                                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                              <children>
                                                 <Label text="Background :" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
                                                 <Label text="Scale" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                                                <Label text="Y Offset" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                                                 <TextField fx:id="backgroundScale" onAction="#onBackgroundAction" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                                                <TextField fx:id="backgroundYOffset" onAction="#onBackgroundAction" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                                                <Button fx:id="addLayer" mnemonicParsing="false" onAction="#onBackgroundAction" text="Add Layer" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                <Button fx:id="addLayer" mnemonicParsing="false" onAction="#onBackgroundAction" text="Add Layer" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                                              </children>
                                           </GridPane>
                                           <ListView fx:id="layers">
