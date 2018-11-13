@@ -14,4 +14,6 @@
              path="Sprites/Block/Sand/slope_sheet.png"/>
     <tileset name="Spikes" id="spikes" dimension="16x16" scale="2" firstMeta="0" cols="1" num="1"
              path="Sprites/Block/Spikes/sheet.png"/>
+    <tileset name="Bushes" id="bush" dimension="16x16" scale="2" firstMeta="0" cols="2" num="4"
+             path="Sprites/Block/Bushes/sheet.png"/>
 </states>

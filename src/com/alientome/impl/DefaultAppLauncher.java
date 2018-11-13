@@ -152,6 +152,7 @@ public class DefaultAppLauncher extends AppLauncher {
         registry.set("platform_sand", BlockPlatformSand.class);
         registry.set("slope_sand", BlockSlopeSand.class);
         registry.set("spikes", BlockSpikes.class);
+        registry.set("bush", BlockBush.class);
     }
 
     protected void registerEntities(Registry<Class<? extends Entity>> registry) {
