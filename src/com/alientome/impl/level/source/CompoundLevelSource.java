@@ -18,8 +18,8 @@ import com.alientome.game.parse.LvlParser;
 import com.alientome.game.registry.Registry;
 import com.alientome.game.scripts.ScriptObject;
 import com.alientome.game.util.EntityTags;
-import com.alientome.game.util.Layer;
-import com.alientome.game.util.ParallaxBackground;
+import com.alientome.game.background.Layer;
+import com.alientome.game.background.ParallaxBackground;
 import com.alientome.impl.level.source.uri.URIProvider;
 import com.alientome.script.Script;
 import com.alientome.script.ScriptException;
@@ -69,7 +69,7 @@ public abstract class CompoundLevelSource implements LevelSource {
                             throw new UncheckedIOException(e);
                         }
                     },
-                    (xCoef, yCoef, src, image) -> new Layer(image, xCoef, yCoef),
+                    (xCoef, yCoef, src, image) -> Layer.of(image, xCoef, yCoef),
                     (layers, scale) -> new ParallaxBackground(layers));
 
             WrappedXML dictionaryXML = parseXMLNew(provider.get("dictionary.xml"));

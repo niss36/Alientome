@@ -1,4 +1,4 @@
-package com.alientome.game.util;
+package com.alientome.game.background;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.graphics.GameGraphics;
