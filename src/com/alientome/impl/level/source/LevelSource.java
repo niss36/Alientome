@@ -8,7 +8,7 @@ import com.alientome.game.entities.EntityPlayer;
 import com.alientome.game.level.Level;
 import com.alientome.game.level.LevelMap;
 import com.alientome.game.scripts.ScriptObject;
-import com.alientome.game.util.ParallaxBackground;
+import com.alientome.game.background.ParallaxBackground;
 
 import java.io.IOException;
 import java.util.List;

@@ -24,7 +24,7 @@ import com.alientome.game.level.LevelManager;
 import com.alientome.game.level.LevelMap;
 import com.alientome.game.particles.Particle;
 import com.alientome.game.scripts.ScriptObject;
-import com.alientome.game.util.ParallaxBackground;
+import com.alientome.game.background.ParallaxBackground;
 import com.alientome.game.util.Selector;
 import com.alientome.impl.level.source.LevelSource;
 
