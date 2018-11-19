@@ -8,7 +8,6 @@ import com.alientome.game.control.Control;
 import com.alientome.game.control.Controller;
 import com.alientome.game.entities.Entity;
 import com.alientome.game.entities.EntityEnemy;
-import com.alientome.game.entities.EntityGhostBall;
 import com.alientome.game.entities.EntityLiving;
 import com.alientome.game.level.Level;
 import com.alientome.game.particles.ParticleGenerator;

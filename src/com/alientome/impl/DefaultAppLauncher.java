@@ -157,7 +157,7 @@ public class DefaultAppLauncher extends AppLauncher {
 
     protected void registerEntities(Registry<Class<? extends Entity>> registry) {
 
-        registry.set("player", EntityPlayer.class);
+        registry.set("player", EntityAlientome.class);
 
         registry.set("living", EntityLiving.class);
 

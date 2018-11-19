@@ -1,8 +1,10 @@
-package com.alientome.game.entities;
+package com.alientome.impl.entities;
 
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.util.Direction;
 import com.alientome.core.vecmath.Vec2;
+import com.alientome.game.entities.Entity;
+import com.alientome.game.entities.EntityProjectile;
 import com.alientome.game.particles.ParticleGenerator;
 import com.alientome.game.particles.ParticlePlayerCharge;
 

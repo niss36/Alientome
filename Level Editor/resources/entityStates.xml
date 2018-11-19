@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <states>
     <state name="Player" id="player">
-        <visual type="sprite" value="com.alientome.game.entities.EntityPlayer:0"/>
+        <visual type="sprite" value="com.alientome.impl.entities.EntityAlientome:0"/>
     </state>
     <state name="Enemy Default" id="enemyDefault">
         <visual type="sprite" value="com.alientome.impl.entities.EntityEnemyDefault:0"/>

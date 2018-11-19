@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <animations>
     <!--Entities-->
-    <package directory="Entity" name="com.alientome.game.entities">
-        <class name="EntityPlayer" subDirectory="Alientome">
+    <package directory="Entity" name="com.alientome.impl.entities">
+        <class name="EntityAlientome" subDirectory="Alientome">
             <animation dimension="20x31" name="idle.aam" scale="2"/>
             <animation dimension="20x31" name="attack.aam" scale="2"/>
         </class>
@@ -10,8 +10,6 @@
             <animation dimension="8x8" name="regular.aam" scale="2"/>
             <animation dimension="12x12" name="big.aam" scale="2"/>
         </class>
-    </package>
-    <package directory="Entity" name="com.alientome.impl.entities">
         <class name="EntityArrow" subDirectory="Arrow">
             <animation dimension="10x3" name="regular.aam" scale="2"/>
         </class>
