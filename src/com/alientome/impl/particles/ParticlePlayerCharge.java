@@ -1,7 +1,8 @@
-package com.alientome.game.particles;
+package com.alientome.impl.particles;
 
 import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.level.Level;
+import com.alientome.game.particles.ParticleSheet;
 
 public class ParticlePlayerCharge extends ParticleSheet {
 

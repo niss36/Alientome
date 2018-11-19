@@ -6,7 +6,7 @@ import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.entities.Entity;
 import com.alientome.game.entities.EntityProjectile;
 import com.alientome.game.particles.ParticleGenerator;
-import com.alientome.game.particles.ParticlePlayerCharge;
+import com.alientome.impl.particles.ParticlePlayerCharge;
 
 import java.awt.*;
 

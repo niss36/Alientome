@@ -17,7 +17,7 @@ import com.alientome.game.entities.bars.StatusBar;
 import com.alientome.game.level.Level;
 import com.alientome.game.particles.Particle;
 import com.alientome.game.particles.ParticleGenerator;
-import com.alientome.game.particles.ParticlePlayerCharge;
+import com.alientome.impl.particles.ParticlePlayerCharge;
 import com.alientome.game.util.EntityTags;
 import com.alientome.game.util.Util;
 

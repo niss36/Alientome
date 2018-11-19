@@ -54,12 +54,10 @@
             <animation dimension="32x41" name="regular.aam"/>
         </class>
     </package>
-    <package directory="Particle" name="com.alientome.game.particles">
+    <package directory="Particle" name="com.alientome.impl.particles">
         <class name="ParticlePlayerCharge" subDirectory="PlayerCharge">
             <sheet cols="2" dimension="2x2" name="sheet.png" num="2" scale="1"/>
         </class>
-    </package>
-    <package directory="Particle" name="com.alientome.impl.particles">
         <class name="ParticleHeal" subDirectory="Heal">
             <sheet cols="1" dimension="6x6" name="sheet.png" num="1" scale="1"/>
         </class>
