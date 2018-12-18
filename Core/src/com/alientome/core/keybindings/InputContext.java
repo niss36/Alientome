@@ -1,6 +1,7 @@
 package com.alientome.core.keybindings;
 
 import com.alientome.core.util.WrappedXML;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.input.KeyCode;
@@ -99,7 +100,7 @@ public class InputContext {
             values.put(entry.getKey(), entry.getValue().getValue().name());
     }
 
-    protected void read(List<String> lines) {
+    protected void read(List<String> lines, InvalidationListener invalidationListener) {
 
         for (String line : lines) {
 
@@ -108,10 +109,16 @@ public class InputContext {
             KeyCode value = KeyCode.valueOf(keyValPair[1]);
             KeyBinding binding = bindings.get(key);
             if (binding != null)
-                bindingIDToKeycode.computeIfAbsent(key, s -> new SimpleObjectProperty<>()).setValue(value);
+                bindingIDToKeycode.computeIfAbsent(key, s -> newProperty(invalidationListener)).setValue(value);
         }
 
         for (KeyBinding binding : bindings.values())
-            bindingIDToKeycode.putIfAbsent(binding.id, new SimpleObjectProperty<>(KeyCode.UNDEFINED));
+            bindingIDToKeycode.computeIfAbsent(binding.id, s -> newProperty(invalidationListener));
+    }
+
+    private Property<KeyCode> newProperty(InvalidationListener listener) {
+        Property<KeyCode> property = new SimpleObjectProperty<>(KeyCode.UNDEFINED);
+        property.addListener(listener);
+        return property;
     }
 }

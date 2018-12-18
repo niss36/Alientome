@@ -9,6 +9,7 @@ import com.alientome.core.util.WrappedXML;
 import com.alientome.game.events.ConfigResetEvent;
 import com.alientome.gui.fx.DialogsUtil;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -63,8 +64,8 @@ public class FXMLOptionsController extends FXMLController {
             box.setMaxHeight(USE_PREF_SIZE);
             GridPane.setHalignment(box, HPos.RIGHT);
 
-            Property<Number> property = config.getProperty(id);
-            label.textProperty().bind(Bindings.createStringBinding(() -> property.getValue().intValue() + "%", property));
+            IntegerProperty property = config.getIntegerProperty(id);
+            label.textProperty().bind(Bindings.createStringBinding(() -> property.get() + "%", property));
             slider.valueProperty().bindBidirectional(property);
 
             return box;
@@ -195,11 +196,17 @@ public class FXMLOptionsController extends FXMLController {
 
         Object s = e.getSource();
 
-             if (s == done) manager.popScene();
+             if (s == done) done();
         else if (s == resetOptions) {
             if (DialogsUtil.showConfirmDialog(context, null, null, "menu.options.reset.prompt"))
                 context.getDispatcher().submit(new ConfigResetEvent());
         }
         else if (s == controls) manager.pushScene("CONTROLS");
+    }
+
+    private void done() {
+        manager.popScene();
+        if (context.getConfig().needsSave())
+            new Thread(context.getConfig()::save, "Config-Save").start();
     }
 }

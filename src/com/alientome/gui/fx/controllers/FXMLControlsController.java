@@ -144,7 +144,7 @@ public class FXMLControlsController extends FXMLController {
             used = null;
         }
 
-             if (s == done) manager.popScene();
+             if (s == done) done();
         else if (s == resetControls) {
             if (DialogsUtil.showConfirmDialog(context, null, null, "menu.controls.reset.prompt"))
                 context.getDispatcher().submit(new KeybindingsResetEvent());
@@ -160,5 +160,11 @@ public class FXMLControlsController extends FXMLController {
 
         s.setText("<...>");
         used = s;
+    }
+
+    private void done() {
+        manager.popScene();
+        if (context.getInputManager().needsSave())
+            new Thread(context.getInputManager()::save, "Keybindings-Save").start();
     }
 }

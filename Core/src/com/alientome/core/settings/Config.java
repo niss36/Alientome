@@ -1,6 +1,7 @@
 package com.alientome.core.settings;
 
 import com.alientome.core.util.VersionConflictData;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 
 import java.io.File;
@@ -11,6 +12,8 @@ public interface Config {
 
     void resolveConflict(VersionConflictData data);
 
+    boolean needsSave();
+
     void save();
 
     void reset();
@@ -18,6 +21,8 @@ public interface Config {
     void createConfigFile(File target);
 
     <T> Property<T> getProperty(String key);
+
+    IntegerProperty getIntegerProperty(String key);
 
     boolean getAsBoolean(String key);
 

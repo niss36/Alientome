@@ -8,7 +8,10 @@ import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.buffs.Buff;
 import com.alientome.game.commands.Command;
-import com.alientome.game.entities.*;
+import com.alientome.game.entities.Entity;
+import com.alientome.game.entities.EntityEnemy;
+import com.alientome.game.entities.EntityLiving;
+import com.alientome.game.entities.EntityProjectile;
 import com.alientome.game.events.GamePauseEvent;
 import com.alientome.game.events.GameStartEvent;
 import com.alientome.game.profiling.ExecutionTimeProfiler;
@@ -86,8 +89,14 @@ public class DefaultAppLauncher extends AppLauncher {
         SpritesLoader.register("animations.xml");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            context.getConfig().save();
-            context.getInputManager().save();
+            if (context.getConfig().needsSave()) {
+                log.w("Unsaved changes to config");
+                context.getConfig().save();
+            }
+            if (context.getInputManager().needsSave()) {
+                log.w("Unsaved changes to key bindings");
+                context.getInputManager().save();
+            }
             ExecutionTimeProfiler.theProfiler.dumpProfileData();
         }, "Thread-Shutdown"));
     }

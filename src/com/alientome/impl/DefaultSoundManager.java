@@ -3,9 +3,8 @@ package com.alientome.impl;
 import com.alientome.core.Context;
 import com.alientome.core.sound.SoundManager;
 import com.alientome.core.util.Logger;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.Property;
+import javafx.beans.property.IntegerProperty;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
@@ -69,7 +68,7 @@ public class DefaultSoundManager implements SoundManager {
 
     private DoubleBinding createVolumeBinding(String volumePropertyKey) {
 
-        Property<Integer> volumeProperty = context.getConfig().getProperty(volumePropertyKey);
-        return Bindings.createDoubleBinding(() -> volumeProperty.getValue() / 100.0, volumeProperty);
+        IntegerProperty volumeProperty = context.getConfig().getIntegerProperty(volumePropertyKey);
+        return volumeProperty.divide(100.0);
     }
 }

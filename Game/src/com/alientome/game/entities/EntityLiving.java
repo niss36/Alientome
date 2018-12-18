@@ -44,8 +44,8 @@ public abstract class EntityLiving extends Entity implements StatusValue {
     protected EntityLiving(Vec2 pos, Dimension dimension, Level level, EntityTags tags, int defaultMaxHealth) {
         super(pos, dimension, level, tags);
 
-        this.maxHealth = tags.getAsInt("maxHealth", defaultMaxHealth);
-        health = Math.min(tags.getAsFloat("health", this.maxHealth), this.maxHealth);
+        maxHealth = tags.getAsInt("maxHealth", defaultMaxHealth);
+        health = Math.min(tags.getAsFloat("health", maxHealth), maxHealth);
 
         statusBars.add(new StatusBar(getHealthFill(), iconHealth, 6, true, this));
         statusBars.add(new StatusBar(new SimpleFillColor(Colors.SHIELD_BAR), iconShield, 6, true, () -> shield == null ? 0 : shield.percentValue()));
@@ -116,43 +116,6 @@ public abstract class EntityLiving extends Entity implements StatusValue {
             }
         }
     }
-
-    /**
-     * Used to visually represent this <code>EntityLiving</code>'s health.
-     *
-     * @param g the <code>Graphics</code> to draw with
-     */
-    /*private void drawHealthBar(Graphics g, int x, int y) {
-
-        if (health <= 0) return;
-
-        g.setColor(STATUS_BAR_DEF_BG);
-        g.fillRect(x - 1, y - 10, 30, 6);
-
-        g.drawImage(iconHealth, x - 7, y - 10, null);
-
-        float percentHP = health / maxHealth;
-
-        if (this instanceof EntityEnemy) g.setColor(HEALTH_ENEMY);
-        else if (percentHP >= 0.75) g.setColor(HEALTH_75);
-        else if (percentHP >= 0.5) g.setColor(HEALTH_50);
-        else if (percentHP >= 0) g.setColor(HEALTH_0);
-
-        g.fillRect(x, y - 9, (int) (percentHP * 28), 4);
-    }
-
-    private void drawShieldBar(Graphics g, int x, int y) {
-
-        if (shield == null || shield.percentValue() <= 0) return;
-
-        g.setColor(STATUS_BAR_DEF_BG);
-        g.fillRect(x - 1, y - 10, 30, 6);
-
-        g.drawImage(iconShield, x - 7, y - 10, null);
-
-        g.setColor(SHIELD_BAR);
-        g.fillRect(x, y - 9, (int) (shield.percentValue() * 28), 4);
-    }*/
 
     /**
      * Removes <code>value</code> health to this <code>EntityLiving</code>'s health

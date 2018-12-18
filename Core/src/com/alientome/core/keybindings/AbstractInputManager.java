@@ -23,6 +23,8 @@ public abstract class AbstractInputManager implements InputManager {
     protected final Map<String, InputContext> contexts = new LinkedHashMap<>();
     protected InputContext activeContext;
 
+    private boolean needsSave;
+
     protected AbstractInputManager(Context context) {
         this.context = context;
     }
@@ -43,9 +45,11 @@ public abstract class AbstractInputManager implements InputManager {
         read(defaultKeybindings());
 
         read(userKeybindings());
+
+        needsSave = false;
     }
 
-    protected void init() throws IOException {
+    private void init() throws IOException {
 
         WrappedXML xml = getXML();
 
@@ -53,26 +57,33 @@ public abstract class AbstractInputManager implements InputManager {
             InputContext.parseXML(this, contextXML, null);
     }
 
-    protected void read(InputStream stream) {
+    private void read(InputStream stream) {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
             List<String> lines = reader.lines().collect(Collectors.toList());
-
-            for (InputContext context : contexts.values()) context.read(lines);
+            read(lines);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    protected void read(File file) {
+    private void read(File file) {
 
         try {
             List<String> lines = Files.readAllLines(file.toPath());
-
-            for (InputContext context : contexts.values()) context.read(lines);
+            read(lines);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void read(List<String> lines) {
+        for (InputContext context : contexts.values()) context.read(lines, observable -> needsSave = true);
+    }
+
+    @Override
+    public boolean needsSave() {
+        return needsSave;
     }
 
     @Override
@@ -92,6 +103,8 @@ public abstract class AbstractInputManager implements InputManager {
                 writer.write(line);
                 writer.newLine();
             }
+
+            needsSave = false;
         } catch (IOException e) {
             e.printStackTrace();
             log.e("Could not save keybindings");

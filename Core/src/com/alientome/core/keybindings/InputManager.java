@@ -10,6 +10,8 @@ public interface InputManager {
 
     void load();
 
+    boolean needsSave();
+
     void save();
 
     void reset();

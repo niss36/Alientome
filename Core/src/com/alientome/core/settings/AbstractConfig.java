@@ -5,10 +5,7 @@ import com.alientome.core.util.Logger;
 import com.alientome.core.util.VersionConflictData;
 import com.alientome.core.util.WrappedXML;
 import javafx.application.Platform;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -16,7 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static com.alientome.core.events.GameEventType.CONFIG_RESET;
@@ -26,9 +22,10 @@ public abstract class AbstractConfig implements Config {
     protected static final Logger log = Logger.get();
 
     protected final Context context;
-    protected final Map<Class<?>, BiFunction<Property<?>, String, Property<?>>> propertyProviders = new HashMap<>();
     protected final Map<String, Setting> settings = new LinkedHashMap<>();
     protected final Map<String, Property<?>> properties = new HashMap<>();
+
+    private boolean needsSave;
 
     public AbstractConfig(Context context) {
         this.context = context;
@@ -55,36 +52,7 @@ public abstract class AbstractConfig implements Config {
 
         String userVersion = this.<String>getProperty("version").getValue();
 
-        /*try {
-
-            File backupDir = context.getFileManager().getBackup(userVersion);
-            if (backupDir.exists()) {
-                log.w("Backup directory already exists");
-                // TODO prompt for overwrite
-            } else {
-                if (backupDir.mkdir()) {
-
-                    Path dir = backupDir.toPath();
-
-                    // We need to save the config, the key bindings and the saves.
-
-                    Path mainDir = context.getFileManager().getRootDirectory().toPath();
-
-                    Path config = context.getFileManager().getConfig().toPath();
-                    Path keybindings = context.getFileManager().getKeybindings().toPath();
-                    Path savesDir = context.getFileManager().getSavesRoot().toPath();
-
-                    Files.copy(config, dir.resolve(mainDir.relativize(config)));
-                    Files.copy(keybindings, dir.resolve(mainDir.relativize(keybindings)));
-                    FileUtils.copyDirectory(savesDir, dir.resolve(mainDir.relativize(savesDir)));
-
-                } else
-                    throw new IOException("Couldn't create backup directory");
-            }
-        } catch (IOException e) {
-            // TODO alert user
-            throw new UncheckedIOException(e);
-        }*/
+        needsSave = false;
 
         if (gameVersion.equals(userVersion))
             return null;
@@ -102,10 +70,9 @@ public abstract class AbstractConfig implements Config {
         }
     }
 
-    protected void read(InputStream stream) {
+    private void read(InputStream stream) {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-
             List<String> lines = reader.lines().collect(Collectors.toList());
             read(lines);
         } catch (IOException e) {
@@ -113,7 +80,7 @@ public abstract class AbstractConfig implements Config {
         }
     }
 
-    protected void read(File file) {
+    private void read(File file) {
 
         try {
             List<String> lines = Files.readAllLines(file.toPath());
@@ -123,7 +90,7 @@ public abstract class AbstractConfig implements Config {
         }
     }
 
-    protected void read(List<String> lines) {
+    private void read(List<String> lines) {
 
         for (String line : lines) {
 
@@ -133,11 +100,16 @@ public abstract class AbstractConfig implements Config {
 
             Setting setting = settings.get(key);
             if (setting != null) {
-                Property<?> current = properties.get(key);
-                Property<?> property = parse(setting.valueType, current, val);
+                Property<?> property = parse(setting.valueType, key, val);
+                property.addListener(observable -> needsSave = true);
                 properties.put(key, property);
             } else log.w("Unknown key found : '" + key + "'. Discarding.");
         }
+    }
+
+    @Override
+    public boolean needsSave() {
+        return needsSave;
     }
 
     @Override
@@ -153,6 +125,8 @@ public abstract class AbstractConfig implements Config {
                 writer.write(line);
                 writer.newLine();
             }
+
+            needsSave = false;
         } catch (IOException e) {
             log.e("Could not save config :");
             e.printStackTrace();
@@ -183,9 +157,15 @@ public abstract class AbstractConfig implements Config {
     protected abstract WrappedXML getXML() throws IOException;
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> Property<T> getProperty(String key) {
+        // Inherently unsafe as we are dealing with data that's not compile-time checked.
+        // This is purely for convenience, which is fine if the caller knows the setting's runtime type.
         return (Property<T>) properties.get(key);
+    }
+
+    @Override
+    public IntegerProperty getIntegerProperty(String key) {
+        return (IntegerProperty) properties.get(key);
     }
 
     @Override
@@ -198,29 +178,54 @@ public abstract class AbstractConfig implements Config {
         return this.<Integer>getProperty(key).getValue();
     }
 
+    private final Map<Class, PropertyProvider> propertyProviders = new HashMap<>();
+    
+    protected final <T> void addPropertyProvider(Class<? extends T> type, PropertyProvider<T> provider) {
+        propertyProviders.put(type, provider);
+    }
+
+    protected final <T> PropertyProvider<T> getPropertyProvider(Class<? extends T> type) {
+        // Not strictly safe, but will do what's expected of it.
+        return propertyProviders.get(type);
+    }
+
     {
-        propertyProviders.put(String.class, (p, s) -> {
-            if (p != null) return forceSet(p, s);
+        addPropertyProvider(String.class, (current, s) -> {
+            if (current != null) {
+                current.setValue(s);
+                return current;
+            }
             return new SimpleStringProperty(s);
         });
-        propertyProviders.put(Integer.class, (p, s) -> {
-            if (p != null) return forceSet(p, Integer.valueOf(s));
+        this.<Number>addPropertyProvider(Integer.class, (current, s) -> {
+            if (current != null) {
+                current.setValue(Integer.valueOf(s));
+                return current;
+            }
             return new SimpleIntegerProperty(Integer.parseInt(s));
         });
-        propertyProviders.put(Boolean.class, (p, s) -> {
-            if (p != null) return forceSet(p, Boolean.valueOf(s));
+        this.<Number>addPropertyProvider(Double.class, (current, s) -> {
+            if (current != null) {
+                current.setValue(Double.valueOf(s));
+                return current;
+            }
+            return new SimpleDoubleProperty(Double.parseDouble(s));
+        });
+        addPropertyProvider(Boolean.class, (current, s) -> {
+            if (current != null) {
+                current.setValue(Boolean.valueOf(s));
+                return current;
+            }
             return new SimpleBooleanProperty(Boolean.parseBoolean(s));
         });
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> Property<?> forceSet(Property<?> source, T value) {
-        ((Property<T>) source).setValue(value);
-        return source;
-    }
+    private <T> Property<T> parse(Class<? extends T> type, String key, String s) {
 
-    private Property<?> parse(Class<?> valueType, Property<?> current, String valueString) {
+        Property<T> current = getProperty(key);
 
-        return propertyProviders.get(valueType).apply(current, valueString);
+        PropertyProvider<T> provider = getPropertyProvider(type);
+
+        return provider.parse(current, s);
     }
 }
