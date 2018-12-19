@@ -1,8 +1,9 @@
 package com.alientome.gui.fx.controllers;
 
+import com.alientome.core.Context;
 import com.alientome.core.events.GameEventDispatcher;
 import com.alientome.core.events.QuitRequestEvent;
-import com.alientome.editors.level.LevelEditor;
+import com.alientome.editors.level.LevelEditorContext;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -14,6 +15,15 @@ import java.io.IOException;
 import static com.alientome.core.events.GameEventType.*;
 
 public class FXMLMainController extends FXMLController {
+
+    private LevelEditorContext context;
+
+    @Override
+    public void setContext(Context context) {
+        super.setContext(context);
+
+        this.context = (LevelEditorContext) context;
+    }
 
     @Override
     public void init(Scene scene) throws IOException {
@@ -34,7 +44,7 @@ public class FXMLMainController extends FXMLController {
         dispatcher.register(GAME_EXIT, e -> context.getSoundManager().playLooping("music.main"));
         dispatcher.register(QUIT, e -> {
             manager.exit();
-            LevelEditor.exit();
+            context.getLevelEditor().exit();
         });
 
         context.getSoundManager().playLooping("music.main");

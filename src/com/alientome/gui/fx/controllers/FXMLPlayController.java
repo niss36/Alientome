@@ -3,8 +3,7 @@ package com.alientome.gui.fx.controllers;
 import com.alientome.core.Context;
 import com.alientome.core.internationalization.I18N;
 import com.alientome.core.util.Logger;
-import com.alientome.editors.level.LevelEditor;
-import com.alientome.game.GameContext;
+import com.alientome.editors.level.LevelEditorContext;
 import com.alientome.game.events.GameStartEvent;
 import com.alientome.gui.fx.DialogsUtil;
 import javafx.beans.property.IntegerProperty;
@@ -24,13 +23,13 @@ public class FXMLPlayController extends FXMLController {
     private final Button[] saves = new Button[3];
     private final Button[] deletes = new Button[3];
 
-    private GameContext context;
+    private LevelEditorContext context;
 
     @Override
     public void setContext(Context context) {
         super.setContext(context);
 
-        this.context = (GameContext) context;
+        this.context = (LevelEditorContext) context;
     }
 
     @Override
@@ -146,7 +145,7 @@ public class FXMLPlayController extends FXMLController {
     private void openEditor() {
 
         try {
-            LevelEditor.start(context);
+            context.getLevelEditor().start();
         } catch (Exception e) {
             log.e("Exception while opening editor :");
             e.printStackTrace();

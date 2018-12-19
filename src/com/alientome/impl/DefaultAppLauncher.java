@@ -3,7 +3,8 @@ package com.alientome.impl;
 import com.alientome.core.AppLauncher;
 import com.alientome.core.util.Logger;
 import com.alientome.core.util.VersionConflictData;
-import com.alientome.game.GameContext;
+import com.alientome.editors.level.LevelEditor;
+import com.alientome.editors.level.LevelEditorContext;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.buffs.Buff;
@@ -39,7 +40,7 @@ import static com.alientome.core.events.GameEventType.GAME_START;
 public class DefaultAppLauncher extends AppLauncher {
 
     protected static final Logger log = Logger.get();
-    private final GameContext context = new GameContext();
+    private final LevelEditorContext context = new LevelEditorContext();
     private VersionConflictData conflictData;
 
     public DefaultAppLauncher(String[] args) {
@@ -69,6 +70,7 @@ public class DefaultAppLauncher extends AppLauncher {
         context.setLoader(new DefaultLevelLoader(context));
         context.setRegistry(new GameRegistry());
         context.setSaveManager(new DefaultSaveManager(context));
+        context.setLevelEditor(new LevelEditor(context));
     }
 
     @Override

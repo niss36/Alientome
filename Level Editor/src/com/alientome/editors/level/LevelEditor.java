@@ -21,9 +21,14 @@ import static com.alientome.core.util.Util.parseXMLNew;
 
 public class LevelEditor {
 
-    private static Stage stage;
+    private final GameContext context;
+    private Stage stage;
 
-    public static void start(GameContext context) throws Exception {
+    public LevelEditor(GameContext context) {
+        this.context = context;
+    }
+
+    public void start() throws Exception {
 
         if (stage == null) {
 
@@ -48,7 +53,7 @@ public class LevelEditor {
         stage.show();
     }
 
-    public static void exit() {
+    public void exit() {
 
         if (stage != null)
             Platform.runLater(stage::close);
