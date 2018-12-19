@@ -23,12 +23,12 @@ public class Context {
     private final Property<SoundManager> soundManager;
 
     {
-        config = new WriteOnceObjectProperty<>(this, "Config");
-        dispatcher = new WriteOnceObjectProperty<>(this, "Dispatcher");
-        fileManager = new WriteOnceObjectProperty<>(this, "File Manager");
-        i18N = new WriteOnceObjectProperty<>(this, "I18N");
-        inputManager = new WriteOnceObjectProperty<>(this, "Input Manager");
-        soundManager = new WriteOnceObjectProperty<>(this, "Sound Manager");
+        config = new WriteOnceObjectProperty<>(null, "Config");
+        dispatcher = new WriteOnceObjectProperty<>(null, "Dispatcher");
+        fileManager = new WriteOnceObjectProperty<>(null, "File Manager");
+        i18N = new WriteOnceObjectProperty<>(null, "I18N");
+        inputManager = new WriteOnceObjectProperty<>(null, "Input Manager");
+        soundManager = new WriteOnceObjectProperty<>(null, "Sound Manager");
     }
 
     private final Map<String, Property<?>> custom = new HashMap<>();

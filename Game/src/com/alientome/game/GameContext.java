@@ -14,9 +14,9 @@ public class GameContext extends Context {
     private final Property<SaveManager> saveManager;
 
     {
-        loader = new WriteOnceObjectProperty<>(this, "Level Loader");
-        registry = new WriteOnceObjectProperty<>(this, "Registry");
-        saveManager = new WriteOnceObjectProperty<>(this, "Save Manager");
+        loader = new WriteOnceObjectProperty<>(null, "Level Loader");
+        registry = new WriteOnceObjectProperty<>(null, "Registry");
+        saveManager = new WriteOnceObjectProperty<>(null, "Save Manager");
     }
 
     // REGISTRY
