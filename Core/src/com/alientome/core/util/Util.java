@@ -19,7 +19,10 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.Predicate;
@@ -29,7 +32,6 @@ import java.util.regex.Pattern;
 public class Util {
 
     private static final Logger log = Logger.get();
-    private static final SimpleDateFormat screenshotDateFormat = new SimpleDateFormat("YYYY-MM-dd_HH.mm.ss");
 
     /**
      * Not instantiable
@@ -101,6 +103,8 @@ public class Util {
         };
     }
 
+    private static final SimpleDateFormat screenshotDateFormat = new SimpleDateFormat("YYYY-MM-dd_HH.mm.ss");
+
     public static void saveScreenshot(Context context, BufferedImage image) {
 
         FileManager manager = context.getFileManager();
@@ -108,15 +112,15 @@ public class Util {
         Date date = new Date();
         String timestamp = screenshotDateFormat.format(date);
 
-        File outputFile;
+        Path target;
         String fileName = timestamp;
 
-        for (int i = 1; (outputFile = manager.getScreenshot(fileName)).exists(); i++)
+        for (int i = 1; Files.exists(target = manager.getScreenshot(fileName)); i++)
             fileName = timestamp + "_" + i;
 
-        try {
-            ImageIO.write(image, "png", outputFile);
-            log.i("Saved screenshot as " + outputFile.getPath());
+        try (OutputStream stream = Files.newOutputStream(target)) {
+            ImageIO.write(image, "png", stream);
+            log.i("Saved screenshot as " + target);
         } catch (IOException e) {
             e.printStackTrace();
         }

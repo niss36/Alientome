@@ -9,6 +9,7 @@ import javafx.beans.property.*;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,15 +33,22 @@ public abstract class AbstractConfig implements Config {
     }
 
     @Override
-    public VersionConflictData load() {
+    public VersionConflictData load() throws IOException {
 
-        context.getDispatcher().register(CONFIG_RESET, e -> Platform.runLater(this::reset));
+        context.getDispatcher().register(CONFIG_RESET, e -> Platform.runLater(() -> {
+            try {
+                reset();
+            } catch (IOException ioe) {
+                log.e("Couldn't reset config:");
+                ioe.printStackTrace();
+            }
+        }));
 
         log.i("Loading config");
 
         try {
             init();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException("Exception while loading settings", e);
         }
 
@@ -70,24 +78,18 @@ public abstract class AbstractConfig implements Config {
         }
     }
 
-    private void read(InputStream stream) {
+    private void read(InputStream stream) throws IOException {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
             List<String> lines = reader.lines().collect(Collectors.toList());
             read(lines);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    private void read(File file) {
+    private void read(Path path) throws IOException {
 
-        try {
-            List<String> lines = Files.readAllLines(file.toPath());
-            read(lines);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        List<String> lines = Files.readAllLines(path);
+        read(lines);
     }
 
     private void read(List<String> lines) {
@@ -116,7 +118,7 @@ public abstract class AbstractConfig implements Config {
     public void save() {
 
         log.i("Saving config");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userConfig()))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(userConfig())) {
 
             for (Map.Entry<String, Property<?>> entry : properties.entrySet()) {
 
@@ -128,31 +130,27 @@ public abstract class AbstractConfig implements Config {
 
             needsSave = false;
         } catch (IOException e) {
-            log.e("Could not save config :");
-            e.printStackTrace();
+            log.e("Could not save config:");
+            e.printStackTrace(); //TODO
         }
     }
 
     @Override
-    public void reset() {
+    public void reset() throws IOException {
         read(defaultConfig());
     }
 
     @Override
-    public void createConfigFile(File targetFile) {
+    public void createDefaultFile(Path target) throws IOException {
 
         try (InputStream in = defaultConfig()) {
-            Files.copy(in, targetFile.toPath());
-            log.i("Config file was created");
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.w("Config file could not be created");
+            Files.copy(in, target);
         }
     }
 
     protected abstract InputStream defaultConfig();
 
-    protected abstract File userConfig();
+    protected abstract Path userConfig();
 
     protected abstract WrappedXML getXML() throws IOException;
 

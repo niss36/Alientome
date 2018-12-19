@@ -4,19 +4,20 @@ import javafx.beans.property.Property;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public interface InputManager {
 
-    void load();
+    void load() throws IOException;
 
     boolean needsSave();
 
     void save();
 
-    void reset();
+    void reset() throws IOException;
 
-    void createKeybindingsFile(File targetFile);
+    void createDefaultFile(Path target) throws IOException;
 
     void setListener(String contextID, String bindingID, InputListener listener);
 

@@ -24,8 +24,8 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,7 +93,7 @@ public class Scratch {
         SpritesLoader.waitUntilLoaded();
 
         ScriptEngine engine = new ScriptEngine();
-        LevelSource source = new CompressedCompoundSource(context, engine.newParser(), new File("C:/Users/niss3/Desktop/pathfinding test.lvl"));
+        LevelSource source = new CompressedCompoundSource(context, engine.newParser(), Paths.get("C:/Users/niss3/Desktop/pathfinding test.lvl"));
         source.load();
 
         LevelMap map = source.getMap();

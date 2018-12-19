@@ -1,6 +1,5 @@
 package com.alientome.core.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -11,8 +10,8 @@ public class FileUtils {
 
     private static final Path alientomeTmp = Paths.get(System.getProperty("java.io.tmpdir")).resolve("Alientome");
 
-    public static URI toZip(File f) {
-        return URI.create("jar:" + f.toURI().toString());
+    public static URI toZip(Path f) {
+        return URI.create("jar:" + f.toUri().toString());
     }
 
     public static InputStream openStream(URI uri) throws IOException {

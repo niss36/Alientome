@@ -19,7 +19,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,20 +33,14 @@ public class FXMLControlsController extends FXMLController {
     private Button used = null;
 
     @Override
-    public void init(Scene scene) {
+    public void init(Scene scene) throws IOException {
 
         scene.getRoot().lookupAll("*").forEach(node -> {
             if (node instanceof Labeled)
                 context.getI18N().applyBindTo((Labeled) node);
         });
 
-        WrappedXML keybindingsDisplayXML;
-
-        try {
-            keybindingsDisplayXML = Util.parseXMLNew("keybindingsDisplay.xml");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        WrappedXML keybindingsDisplayXML = Util.parseXMLNew("keybindingsDisplay.xml");
 
         int rowIndex = 0;
         for (WrappedXML categoryXML : keybindingsDisplayXML.nodesWrapped("categories/category")) {
@@ -147,7 +140,7 @@ public class FXMLControlsController extends FXMLController {
              if (s == done) done();
         else if (s == resetControls) {
             if (DialogsUtil.showConfirmDialog(context, null, null, "menu.controls.reset.prompt"))
-                context.getDispatcher().submit(new KeybindingsResetEvent());
+                context.getDispatcher().submit(new KeybindingsResetEvent()); // TODO replace with direct call & exception handling
         }
     }
 

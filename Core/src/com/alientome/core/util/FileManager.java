@@ -1,26 +1,27 @@
 package com.alientome.core.util;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public interface FileManager {
 
-    void checkFiles();
+    void checkFiles() throws IOException;
 
-    File getRootDirectory();
+    Path getRootDirectory();
 
-    File getConfig();
+    Path getConfig();
 
-    File getKeybindings();
+    Path getKeybindings();
 
-    File getSavesRoot();
+    Path getSavesRoot();
 
-    File getSave(int index);
+    Path getSave(int index);
 
-    File getScreenshotsRoot();
+    Path getScreenshotsRoot();
 
-    File getScreenshot(String name);
+    Path getScreenshot(String name);
 
-    File getBackupsRoot();
+    Path getBackupsRoot();
 
-    File getBackup(String prefix);
+    Path getBackup(String prefix);
 }

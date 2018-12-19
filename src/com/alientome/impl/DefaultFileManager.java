@@ -4,23 +4,24 @@ import com.alientome.core.Context;
 import com.alientome.core.util.FileManager;
 import com.alientome.core.util.Logger;
 
-import java.io.File;
-import java.util.function.Consumer;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class DefaultFileManager implements FileManager {
 
     protected static final Logger log = Logger.get();
     protected final Context context;
-    protected final File rootDirectory;
+    protected final Path rootDirectory;
 
-    public DefaultFileManager(Context context, File rootDirectory) {
+    public DefaultFileManager(Context context, Path rootDirectory) {
 
         this.context = context;
         this.rootDirectory = rootDirectory;
     }
 
     @Override
-    public void checkFiles() {
+    public void checkFiles() throws IOException {
 
         checkDir(getRootDirectory(), "Main directory");
 
@@ -30,67 +31,83 @@ public class DefaultFileManager implements FileManager {
 
         checkDir(getBackupsRoot(), "Backups directory");
 
-        checkFile(getConfig(), context.getConfig()::createConfigFile);
+        checkFile(getConfig(), context.getConfig()::createDefaultFile, "Config default file");
 
-        checkFile(getKeybindings(), context.getInputManager()::createKeybindingsFile);
+        checkFile(getKeybindings(), context.getInputManager()::createDefaultFile, "Keybindings default file");
     }
 
     @Override
-    public File getRootDirectory() {
+    public Path getRootDirectory() {
         return rootDirectory;
     }
 
     @Override
-    public File getConfig() {
-        return new File(rootDirectory, "config.txt");
+    public Path getConfig() {
+        return rootDirectory.resolve("config.txt");
     }
 
     @Override
-    public File getKeybindings() {
-        return new File(rootDirectory, "keybindings.txt");
+    public Path getKeybindings() {
+        return rootDirectory.resolve("keybindings.txt");
     }
 
     @Override
-    public File getSavesRoot() {
-        return new File(rootDirectory, "saves");
+    public Path getSavesRoot() {
+        return rootDirectory.resolve("saves");
     }
 
     @Override
-    public File getSave(int index) {
-        return new File(rootDirectory, "saves/" + index + ".txt");
+    public Path getSave(int index) {
+        return getSavesRoot().resolve(index + ".txt");
     }
 
     @Override
-    public File getScreenshotsRoot() {
-        return new File(rootDirectory, "screenshots");
+    public Path getScreenshotsRoot() {
+        return rootDirectory.resolve("screenshots");
     }
 
     @Override
-    public File getScreenshot(String name) {
-        return new File(rootDirectory, "screenshots/" + name + ".png");
+    public Path getScreenshot(String name) {
+        return getScreenshotsRoot().resolve(name + ".png");
     }
 
     @Override
-    public File getBackupsRoot() {
-        return new File(rootDirectory, "backups");
+    public Path getBackupsRoot() {
+        return rootDirectory.resolve("backups");
     }
 
     @Override
-    public File getBackup(String prefix) {
-        return new File(rootDirectory, "backups/" + prefix);
+    public Path getBackup(String prefix) {
+        return getBackupsRoot().resolve(prefix);
     }
 
-    protected void checkDir(File directory, String loggedName) {
+    protected void checkDir(Path directory, String loggedName) throws IOException {
 
-        if (!directory.exists())
-            if (directory.mkdir())
+        if (Files.notExists(directory)) {
+            try {
+                Files.createDirectory(directory);
                 log.i(loggedName + " was created");
-            else
-                log.e(loggedName + " could not be created");
+            } catch (IOException e) {
+                log.e("Couldn't create " + loggedName);
+                throw e;
+            }
+        }
     }
 
-    protected void checkFile(File file, Consumer<File> creator) {
+    protected void checkFile(Path path, FileCreator creator, String loggedName) throws IOException {
+        if (Files.notExists(path)) {
+            try {
+                creator.create(path);
+                log.i(loggedName + " was created");
+            } catch (IOException e) {
+                log.e("Couldn't create " + loggedName);
+                throw e;
+            }
+        }
+    }
 
-        if (!file.exists()) creator.accept(file);
+    protected interface FileCreator {
+
+        void create(Path destination) throws IOException;
     }
 }

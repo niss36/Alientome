@@ -6,8 +6,8 @@ import com.alientome.game.level.LevelManager;
 import com.alientome.impl.level.CompoundLevelManager;
 import com.alientome.impl.level.SaveLevelManager;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class DefaultLevelLoader implements LevelLoader {
 
@@ -18,12 +18,12 @@ public class DefaultLevelLoader implements LevelLoader {
     }
 
     @Override
-    public LevelManager loadFrom(File temp, File actual) throws IOException {
+    public LevelManager loadFrom(Path temp, Path actual) throws IOException {
         return new CompoundLevelManager(context, temp, actual);
     }
 
     @Override
-    public LevelManager loadFrom(File file) throws IOException {
+    public LevelManager loadFrom(Path file) throws IOException {
         return new CompoundLevelManager(context, file);
     }
 

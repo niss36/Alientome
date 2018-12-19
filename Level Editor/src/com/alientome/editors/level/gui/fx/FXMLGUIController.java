@@ -30,11 +30,11 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
-import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -96,7 +96,7 @@ public class FXMLGUIController extends FXMLController {
     private BufferedImage backgroundBuffer;
     private WritableImage backgroundImage;
 
-    public FXMLGUIController() {
+    public FXMLGUIController() throws IOException {
 
         SpritesLoader.load();
 
@@ -273,8 +273,13 @@ public class FXMLGUIController extends FXMLController {
 
             int[] result = showNewLevelDialog();
 
-            if (result != null)
-                setLevel(new Level(registry, scripts.getItems(), layers.getItems(), result[0], result[1]));
+            if (result != null) {
+                try {
+                    setLevel(new Level(registry, scripts.getItems(), layers.getItems(), result[0], result[1]));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -291,10 +296,12 @@ public class FXMLGUIController extends FXMLController {
             File selected = chooser.showOpenDialog(manager.getStage());
             if (selected != null) {
 
+                Path selectedPath = selected.toPath();
+
                 lastDirectory = selected.getParentFile();
 
                 try {
-                    setLevel(new Level(registry, scripts.getItems(), layers.getItems(), selected));
+                    setLevel(new Level(registry, scripts.getItems(), layers.getItems(), selectedPath));
                 } catch (IOException e) {
                     e.printStackTrace();
                     showErrorDialog(context, e);
@@ -345,15 +352,17 @@ public class FXMLGUIController extends FXMLController {
         chooser.setTitle("Save Level as");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Alientome Level Files", "*.lvl"));
         if (level.canSave())
-            chooser.setInitialFileName(level.getSource().getName());
+            chooser.setInitialFileName(level.getSource().getFileName().toString());
         File selected = chooser.showSaveDialog(manager.getStage());
         if (selected != null) {
+
+            Path selectedPath = selected.toPath();
 
             lastDirectory = selected.getParentFile();
 
             try {
-                level.saveTo(selected);
-                level.setSource(selected);
+                level.saveTo(selectedPath);
+                level.setSource(selectedPath);
                 needsSave = false;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -430,7 +439,7 @@ public class FXMLGUIController extends FXMLController {
 
             try {
 
-                File tmp = level.getTempDirectory().toFile();
+                Path tmp = level.getTempDirectory();
 
                 level.saveToTemp();
 
@@ -576,7 +585,7 @@ public class FXMLGUIController extends FXMLController {
     }
 
     @Override
-    public void init(Scene scene) {
+    public void init(Scene scene) throws IOException {
 
         context.getDispatcher().register(QUIT_REQUEST, e ->
                 invokeAndWait(() -> {

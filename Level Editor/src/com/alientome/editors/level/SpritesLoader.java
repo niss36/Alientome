@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ public class SpritesLoader {
         return sprites.get(classFullName)[index];
     }
 
-    private static Sprite parse(String path, Dimension dimension, int scale) {
+    private static Sprite parse(String path, Dimension dimension, int scale) throws IOException {
 
         try (DataInputStream stream = new DataInputStream(new BufferedInputStream(ClassLoader.getSystemResourceAsStream(path)))) {
 
@@ -70,22 +69,12 @@ public class SpritesLoader {
 
             return new Sprite(image, xOffset, yOffset, dimension);
 
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
-        return null;
     }
 
-    public static void load() {
+    public static void load() throws IOException {
 
-        WrappedXML xml;
-
-        try {
-            xml = parseXMLNew("animations.xml");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        WrappedXML xml = parseXMLNew("animations.xml");
 
         for (WrappedXML packageXML : xml.nodesWrapped("animations/package")) {
 

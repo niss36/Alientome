@@ -4,6 +4,8 @@ import com.alientome.core.Context;
 import com.alientome.gui.fx.StageManager;
 import javafx.scene.Scene;
 
+import java.io.IOException;
+
 public abstract class FXMLController {
 
     protected StageManager manager;
@@ -17,5 +19,5 @@ public abstract class FXMLController {
         this.context = context;
     }
 
-    public abstract void init(Scene scene);
+    public abstract void init(Scene scene) throws IOException;
 }

@@ -28,9 +28,10 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static com.alientome.core.events.GameEventType.GAME_START;
@@ -46,7 +47,7 @@ public class DefaultAppLauncher extends AppLauncher {
     }
 
     @Override
-    public void preInit() {
+    public void preInit() throws Exception {
 
         Thread.currentThread().setName("Thread-Main");
 
@@ -61,7 +62,7 @@ public class DefaultAppLauncher extends AppLauncher {
 
         context.setConfig(new DefaultConfig(context,"config.xml", "defaultConfig.txt"));
         context.setDispatcher(new DefaultGameEventDispatcher());
-        context.setFileManager(new DefaultFileManager(context, new File(System.getProperty("user.home") + "/Alientome")));
+        context.setFileManager(new DefaultFileManager(context, Paths.get(System.getProperty("user.home"), "Alientome")));
         context.setI18N(new DefaultI18N(context,"Lang/lang"));
         context.setInputManager(new DefaultInputManager(context, "keybindings.xml", "defaultKeybindings.txt"));
         context.setSoundManager(new DefaultSoundManager(context));
@@ -71,7 +72,7 @@ public class DefaultAppLauncher extends AppLauncher {
     }
 
     @Override
-    public void init() {
+    public void init() throws Exception {
 
         GameRegistry registry = context.getRegistry();
 
@@ -102,7 +103,7 @@ public class DefaultAppLauncher extends AppLauncher {
     }
 
     @Override
-    public void postInit() {
+    public void postInit() throws Exception {
         SpritesLoader.loadAll();
     }
 
@@ -135,11 +136,11 @@ public class DefaultAppLauncher extends AppLauncher {
         if (unnamed.size() > 0) {
 
             try {
-                File levelFile = new File(unnamed.get(0));
+                Path level = Paths.get(unnamed.get(0));
 
-                log.i("Loading level from " + levelFile);
+                log.i("Loading level from " + level);
 
-                context.getDispatcher().submit(new GameStartEvent(context.getLoader().loadFrom(levelFile)));
+                context.getDispatcher().submit(new GameStartEvent(context.getLoader().loadFrom(level)));
 
                 manager.switchToScene("GAME");
             } catch (Exception e) {

@@ -12,11 +12,11 @@ public abstract class AppLauncher {
         arguments = new Arguments(args);
     }
 
-    public abstract void preInit();
+    public abstract void preInit() throws Exception;
 
-    public abstract void init();
+    public abstract void init() throws Exception;
 
-    public abstract void postInit();
+    public abstract void postInit() throws Exception;
 
     public abstract void start(Application app, Stage stage) throws Exception;
 }

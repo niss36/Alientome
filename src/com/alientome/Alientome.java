@@ -9,7 +9,7 @@ public class Alientome extends Application {
 
     private static AppLauncher launcher;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         launcher = new DefaultAppLauncher(args);
 

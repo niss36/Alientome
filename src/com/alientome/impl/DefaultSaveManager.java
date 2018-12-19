@@ -4,7 +4,11 @@ import com.alientome.core.Context;
 import com.alientome.core.util.FileManager;
 import com.alientome.game.level.SaveManager;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class DefaultSaveManager extends SaveManager {
 
@@ -15,53 +19,39 @@ public class DefaultSaveManager extends SaveManager {
     }
 
     @Override
-    public int read(int saveIndex, boolean createFile) {
+    public int read(int saveIndex, boolean createFile) throws IOException {
 
-        File saveFile = context.getFileManager().getSave(saveIndex);
+        Path saveFile = context.getFileManager().getSave(saveIndex);
 
-        if (!saveFile.exists())
+        if (Files.notExists(saveFile))
             if (createFile)
                 getStatus(saveIndex).set(1);
             else
                 return EMPTY_SAVE_ID;
 
-        try {
-            return read(saveFile);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return read(saveFile);
     }
 
     @Override
-    public void save(int saveIndex, int levelID) {
+    public void save(int saveIndex, int levelID) throws IOException {
 
         FileManager manager = context.getFileManager();
 
-        try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(manager.getSave(saveIndex)))) {
-
+        try (DataOutputStream stream = new DataOutputStream(Files.newOutputStream(manager.getSave(saveIndex)))) {
             stream.writeInt(levelID);
-
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public boolean delete(int saveIndex) {
+    public void delete(int saveIndex) throws IOException {
 
-        if (context.getFileManager().getSave(saveIndex).delete()) {
-
-            getStatus(saveIndex).set(-1);
-
-            return true;
-        }
-
-        return false;
+        Files.delete(context.getFileManager().getSave(saveIndex));
+        getStatus(saveIndex).set(EMPTY_SAVE_ID);
     }
 
-    protected int read(File saveFile) throws IOException {
+    protected int read(Path saveFile) throws IOException {
 
-        try (DataInputStream stream = new DataInputStream(new FileInputStream(saveFile))) {
+        try (DataInputStream stream = new DataInputStream(Files.newInputStream(saveFile))) {
             return stream.readInt();
         }
     }

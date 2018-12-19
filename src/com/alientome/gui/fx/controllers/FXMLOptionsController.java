@@ -23,7 +23,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,7 +104,7 @@ public class FXMLOptionsController extends FXMLController {
     }
 
     @Override
-    public void init(Scene scene) {
+    public void init(Scene scene) throws IOException {
 
         Config config = context.getConfig();
         I18N i18N = context.getI18N();
@@ -115,13 +114,7 @@ public class FXMLOptionsController extends FXMLController {
                 context.getI18N().applyBindTo((Labeled) node);
         });
 
-        WrappedXML configDisplayXML;
-
-        try {
-            configDisplayXML = Util.parseXMLNew("configDisplay.xml");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        WrappedXML configDisplayXML = Util.parseXMLNew("configDisplay.xml");
 
         grid.getChildren().clear();
 
@@ -199,7 +192,7 @@ public class FXMLOptionsController extends FXMLController {
              if (s == done) done();
         else if (s == resetOptions) {
             if (DialogsUtil.showConfirmDialog(context, null, null, "menu.options.reset.prompt"))
-                context.getDispatcher().submit(new ConfigResetEvent());
+                context.getDispatcher().submit(new ConfigResetEvent()); // TODO replace with direct call & exception handling
         }
         else if (s == controls) manager.pushScene("CONTROLS");
     }

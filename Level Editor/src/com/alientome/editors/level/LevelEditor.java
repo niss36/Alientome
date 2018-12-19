@@ -16,7 +16,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 
 import static com.alientome.core.util.Util.parseXMLNew;
 
@@ -55,15 +54,9 @@ public class LevelEditor {
             Platform.runLater(stage::close);
     }
 
-    public static void registerBlocks(Registry<BlockState> registry) {
+    public static void registerBlocks(Registry<BlockState> registry) throws IOException {
 
-        WrappedXML xml;
-
-        try {
-            xml = parseXMLNew("blockStates.xml");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        WrappedXML xml = parseXMLNew("blockStates.xml");
 
         for (WrappedXML state : xml.nodesWrapped("states/state")) {
 
@@ -76,14 +69,15 @@ public class LevelEditor {
             registerTileset(registry, tileset);
     }
 
-    private static void registerTileset(Registry<BlockState> registry, WrappedXML tilesetXML) {
+    private static void registerTileset(Registry<BlockState> registry, WrappedXML tilesetXML) throws IOException {
 
         BufferedImage source;
 
-        try (InputStream stream = ClassLoader.getSystemResourceAsStream(tilesetXML.getAttr("path"))) {
+        String path = tilesetXML.getAttr("path");
+        try (InputStream stream = ClassLoader.getSystemResourceAsStream(path)) {
+            if (stream == null)
+                throw new IOException("Tileset '" + path + "' not found");
             source = ImageIO.read(stream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
 
         String name = tilesetXML.getAttr("name");
@@ -111,15 +105,9 @@ public class LevelEditor {
         }
     }
 
-    public static void registerEntities(Registry<EntityState> registry) {
+    public static void registerEntities(Registry<EntityState> registry) throws IOException {
 
-        WrappedXML xml;
-
-        try {
-            xml = parseXMLNew("entityStates.xml");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        WrappedXML xml = parseXMLNew("entityStates.xml");
 
         for (WrappedXML state : xml.nodesWrapped("states/state")) {
             EntityState entityState = EntityState.fromXML(state);

@@ -3,6 +3,9 @@ package com.alientome.game.level;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
 public abstract class SaveManager {
 
     public static final int EMPTY_SAVE_ID = -1;
@@ -16,13 +19,17 @@ public abstract class SaveManager {
 
             savesStatus[i] = new SimpleIntegerProperty();
             savesStatus[i].addListener((observable, oldValue, newValue) -> {
-                if (newValue.intValue() != EMPTY_SAVE_ID && oldValue.intValue() != 0)
-                    save(index, newValue.intValue());
+                try {
+                    if (newValue.intValue() != EMPTY_SAVE_ID && oldValue.intValue() != 0)
+                        save(index, newValue.intValue());
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e); //TODO find a way to make that checked
+                }
             });
         }
     }
 
-    public void actualize() {
+    public void actualize() throws IOException {
 
         for (int i = 0; i < savesStatus.length; i++)
             savesStatus[i].set(read(i, false));
@@ -32,9 +39,9 @@ public abstract class SaveManager {
         return savesStatus[saveIndex];
     }
 
-    protected abstract int read(int saveIndex, boolean createFile);
+    protected abstract int read(int saveIndex, boolean createFile) throws IOException;
 
-    protected abstract void save(int saveIndex, int levelID);
+    protected abstract void save(int saveIndex, int levelID) throws IOException;
 
-    public abstract boolean delete(int saveIndex);
+    public abstract void delete(int saveIndex) throws IOException;
 }

@@ -8,7 +8,6 @@ import com.alientome.game.GameContext;
 import com.alientome.gui.fx.DialogsUtil;
 import javafx.scene.control.Alert;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -38,7 +37,7 @@ public class DefaultConfig extends AbstractConfig {
     }
 
     @Override
-    protected File userConfig() {
+    protected Path userConfig() {
         return context.getFileManager().getConfig();
     }
 
@@ -71,7 +70,7 @@ public class DefaultConfig extends AbstractConfig {
             switch (doBackup) {
 
                 case YES:
-                    Path backupDir = manager.getBackup(userVersion).toPath();
+                    Path backupDir = manager.getBackup(userVersion);
 
                     if (Files.exists(backupDir)) { // A backup already exists for this version; ask the user what to do
 
@@ -135,13 +134,9 @@ public class DefaultConfig extends AbstractConfig {
 
                     case NO: // Delete preferences and saves, and create default files.
 
-                        Path config = manager.getConfig().toPath();
-                        Path keybindings = manager.getKeybindings().toPath();
-                        Path savesDir = manager.getSavesRoot().toPath();
-
-                        Files.delete(config);
-                        Files.delete(keybindings);
-                        FileUtils.deleteDirectory(savesDir);
+                        Files.delete(manager.getConfig());
+                        Files.delete(manager.getKeybindings());
+                        FileUtils.deleteDirectory(manager.getSavesRoot());
 
                         context.getFileManager().checkFiles();
 
@@ -171,11 +166,11 @@ public class DefaultConfig extends AbstractConfig {
 
         FileManager manager = context.getFileManager();
 
-        Path mainDir = manager.getRootDirectory().toPath();
+        Path mainDir = manager.getRootDirectory();
 
-        Path config = manager.getConfig().toPath();
-        Path keybindings = manager.getKeybindings().toPath();
-        Path savesDir = manager.getSavesRoot().toPath();
+        Path config = manager.getConfig();
+        Path keybindings = manager.getKeybindings();
+        Path savesDir = manager.getSavesRoot();
 
         Files.copy(config, backupDir.resolve(mainDir.relativize(config)), options);
         Files.copy(keybindings, backupDir.resolve(mainDir.relativize(keybindings)), options);

@@ -23,11 +23,9 @@ import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.nio.file.*;
 import java.util.List;
+import java.util.*;
 
 import static com.alientome.core.util.Util.parseXMLNew;
 import static com.alientome.editors.level.state.BlockState.WIDTH;
@@ -39,7 +37,7 @@ public class Level {
     private final BlockState defaultState;
     private final List<ScriptObject> scripts;
     private final List<Layer> layers;
-    private File source;
+    private Path source;
     private Background background;
     private BlockState[][] tiles;
     private Entity[][] entities;
@@ -47,13 +45,9 @@ public class Level {
     private int playerX = -1;
     private int playerY = -1;
 
-    public Level(EditorRegistry registry, List<ScriptObject> scripts, List<Layer> layers, int width, int height) {
+    public Level(EditorRegistry registry, List<ScriptObject> scripts, List<Layer> layers, int width, int height) throws IOException {
 
-        try {
-            tempDirectory = FileUtils.createTempDirectory("Unnamed", "Level Editor");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        tempDirectory = FileUtils.createTempDirectory("Unnamed", "Level Editor");
 
         this.scripts = scripts;
         scripts.clear();
@@ -71,12 +65,12 @@ public class Level {
         background = new Background(layers, 1);
     }
 
-    public Level(EditorRegistry registry, List<ScriptObject> scripts, List<Layer> layers, File source) throws IOException {
+    public Level(EditorRegistry registry, List<ScriptObject> scripts, List<Layer> layers, Path source) throws IOException {
 
-        if (!source.exists())
+        if (Files.notExists(source))
             throw new FileNotFoundException(source.toString());
 
-        tempDirectory = FileUtils.createTempDirectory(source.getName() + "_", "Level Editor");
+        tempDirectory = FileUtils.createTempDirectory(source.getFileName() + "_", "Level Editor");
 
         this.scripts = scripts;
         scripts.clear();
@@ -103,13 +97,8 @@ public class Level {
         int height = dimension.getAttrInt("height");
 
         background = LvlParser.parseBackground(level,
-                (path, scale) -> {
-                    try {
-                        return ImageIO.read(tempDirectory.resolve(path).toFile());
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                }, (xCoef, yCoef, src, image) -> new Layer(src, image, xCoef, yCoef),
+                (path, scale) -> ImageIO.read(tempDirectory.resolve(path).toFile()),
+                (xCoef, yCoef, src, image) -> new Layer(src, image, xCoef, yCoef),
                 (layers1, scale) -> {
                     layers.addAll(layers1);
                     return new Background(layers, scale);
@@ -280,11 +269,11 @@ public class Level {
         return source != null;
     }
 
-    public File getSource() {
+    public Path getSource() {
         return source;
     }
 
-    public void setSource(File source) {
+    public void setSource(Path source) {
         this.source = source;
     }
 
@@ -408,7 +397,7 @@ public class Level {
                 .add("content").set(s.content).up().up();
     }
 
-    public void saveTo(File target) throws IOException {
+    public void saveTo(Path target) throws IOException {
 
         if (target == null)
             throw new NullPointerException("Null target");

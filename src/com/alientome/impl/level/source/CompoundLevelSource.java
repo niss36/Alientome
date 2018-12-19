@@ -4,6 +4,8 @@ import com.alientome.core.util.FileUtils;
 import com.alientome.core.util.Util;
 import com.alientome.core.util.WrappedXML;
 import com.alientome.game.GameContext;
+import com.alientome.game.background.Layer;
+import com.alientome.game.background.ParallaxBackground;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.blocks.parse.BlockState;
 import com.alientome.game.buffs.Buff;
@@ -18,8 +20,6 @@ import com.alientome.game.parse.LvlParser;
 import com.alientome.game.registry.Registry;
 import com.alientome.game.scripts.ScriptObject;
 import com.alientome.game.util.EntityTags;
-import com.alientome.game.background.Layer;
-import com.alientome.game.background.ParallaxBackground;
 import com.alientome.impl.level.source.uri.URIProvider;
 import com.alientome.script.Script;
 import com.alientome.script.ScriptException;
@@ -27,7 +27,6 @@ import com.alientome.script.ScriptParser;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,13 +61,7 @@ public abstract class CompoundLevelSource implements LevelSource {
             int height = dimension.getAttrInt("height");
 
             background = LvlParser.parseBackground(levelXML,
-                    (path, scale) -> {
-                        try {
-                            return Util.scale(ImageIO.read(provider.get(path).toURL()), scale);
-                        } catch (IOException e) {
-                            throw new UncheckedIOException(e);
-                        }
-                    },
+                    (path, scale) -> Util.scale(ImageIO.read(provider.get(path).toURL()), scale),
                     (xCoef, yCoef, src, image) -> Layer.of(image, xCoef, yCoef),
                     (layers, scale) -> new ParallaxBackground(layers));
 

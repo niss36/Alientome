@@ -9,12 +9,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
 
+import java.io.IOException;
+
 import static com.alientome.core.events.GameEventType.*;
 
 public class FXMLMainController extends FXMLController {
 
     @Override
-    public void init(Scene scene) {
+    public void init(Scene scene) throws IOException {
 
         scene.getRoot().lookupAll("*").forEach(node -> {
             if (node instanceof Labeled) {

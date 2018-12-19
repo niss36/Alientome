@@ -25,8 +25,8 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.control.*;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -35,6 +35,7 @@ import javafx.util.Duration;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import static com.alientome.core.events.GameEventType.*;
 import static com.alientome.core.util.Colors.*;
@@ -67,7 +68,7 @@ public class FXMLGameController extends FXMLController implements GameRenderer {
     private AnimationTimer timer;
 
     @Override
-    public void init(Scene scene) {
+    public void init(Scene scene) throws IOException {
 
         game = new Game(this, (GameContext) context);
 

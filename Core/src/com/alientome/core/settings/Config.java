@@ -4,11 +4,12 @@ import com.alientome.core.util.VersionConflictData;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public interface Config {
 
-    VersionConflictData load();
+    VersionConflictData load() throws IOException;
 
     void resolveConflict(VersionConflictData data);
 
@@ -16,9 +17,9 @@ public interface Config {
 
     void save();
 
-    void reset();
+    void reset() throws IOException;
 
-    void createConfigFile(File target);
+    void createDefaultFile(Path target) throws IOException;
 
     <T> Property<T> getProperty(String key);
 

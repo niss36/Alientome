@@ -5,9 +5,9 @@ import com.alientome.core.keybindings.AbstractInputManager;
 import com.alientome.core.util.Util;
 import com.alientome.core.util.WrappedXML;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 
 public class DefaultInputManager extends AbstractInputManager {
 
@@ -28,7 +28,7 @@ public class DefaultInputManager extends AbstractInputManager {
     }
 
     @Override
-    protected File userKeybindings() {
+    protected Path userKeybindings() {
         return context.getFileManager().getKeybindings();
     }
 

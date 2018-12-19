@@ -34,7 +34,7 @@ public class FXMLPlayController extends FXMLController {
     }
 
     @Override
-    public void init(Scene scene) {
+    public void init(Scene scene) throws IOException {
 
         I18N i18N = context.getI18N();
 
@@ -72,8 +72,15 @@ public class FXMLPlayController extends FXMLController {
         }
 
         scene.windowProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null)
-                context.getSaveManager().actualize();
+            if (newValue != null) {
+                try {
+                    context.getSaveManager().actualize();
+                } catch (IOException e) {
+                    log.e("Couldn't actualise saves:");
+                    e.printStackTrace();
+                    DialogsUtil.showErrorDialog(context, e);
+                }
+            }
         });
     }
 
@@ -125,8 +132,15 @@ public class FXMLPlayController extends FXMLController {
 
         boolean delete = DialogsUtil.showConfirmDialog(context, null, null, "menu.saves.deletePrompt");
 
-        if (delete && !context.getSaveManager().delete(index))
-            log.w("Save " + index + " could not be deleted");
+        if (delete) {
+            try {
+                context.getSaveManager().delete(index);
+            } catch (IOException e) {
+                log.e("Save " + index + " could not be deleted");
+                e.printStackTrace();
+                DialogsUtil.showErrorDialog(context, e);
+            }
+        }
     }
 
     private void openEditor() {

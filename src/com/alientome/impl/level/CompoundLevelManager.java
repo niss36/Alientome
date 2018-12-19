@@ -5,26 +5,26 @@ import com.alientome.impl.level.source.CompressedCompoundSource;
 import com.alientome.impl.level.source.LevelSource;
 import com.alientome.impl.level.source.UncompressedCompoundSource;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class CompoundLevelManager extends AbstractLevelManager {
 
     private Path lastFile;
 
-    public CompoundLevelManager(GameContext context, File file) throws IOException {
+    public CompoundLevelManager(GameContext context, Path file) throws IOException {
         this(context, file, file);
     }
 
-    public CompoundLevelManager(GameContext context, File tempFile, File location) throws IOException {
+    public CompoundLevelManager(GameContext context, Path tempFile, Path location) throws IOException {
 
         super(context);
 
         try {
             loadLevel(tempFile);
-            lastFile = location.toPath();
+            lastFile = location;
         } catch (IOException | RuntimeException e) {
             dispose();
             throw e;
@@ -41,7 +41,7 @@ public class CompoundLevelManager extends AbstractLevelManager {
 
         try {
             Path resolved = lastFile.resolve(path);
-            loadLevel(resolved.toFile());
+            loadLevel(resolved);
 
             reset();
 
@@ -51,11 +51,11 @@ public class CompoundLevelManager extends AbstractLevelManager {
         }
     }
 
-    private void loadLevel(File file) throws IOException {
+    private void loadLevel(Path file) throws IOException {
 
         LevelSource source;
 
-        if (file.isDirectory())
+        if (Files.isDirectory(file))
             source = new UncompressedCompoundSource(context, parser, file);
         else
             source = new CompressedCompoundSource(context, parser, file);

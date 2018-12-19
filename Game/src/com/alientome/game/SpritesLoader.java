@@ -16,7 +16,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,13 +130,14 @@ public class SpritesLoader {
         new Thread(() -> {
 
             try {
-                toLoad.forEach(SpritesLoader::load);
+                for (String docPath : toLoad)
+                    load(docPath);
 
                 synchronized (loadLock) {
                     loaded = true;
                     loadLock.notify();
                 }
-            } catch (RuntimeException e) {
+            } catch (IOException | RuntimeException e) {
                 log.e("Error while loading sprites :");
                 e.printStackTrace();
                 System.exit(-1);
@@ -146,18 +146,12 @@ public class SpritesLoader {
         }, "Thread-AnimationsLoad").start();
     }
 
-    private static void load(String docPath) {
+    private static void load(String docPath) throws IOException {
 
         log.i("Loading " + docPath);
         long start = System.nanoTime();
 
-        WrappedXML xml;
-
-        try {
-            xml = parseXMLNew(docPath);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        WrappedXML xml = parseXMLNew(docPath);
 
         for (WrappedXML packageXML : xml.nodesWrapped("animations/package")) {
 

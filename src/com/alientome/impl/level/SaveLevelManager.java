@@ -74,6 +74,6 @@ public class SaveLevelManager extends AbstractLevelManager {
             Files.copy(stream, temp, StandardCopyOption.REPLACE_EXISTING);
         }
 
-        return new DefaultLevel(this, new CompressedCompoundSource(context, parser, temp.toFile()));
+        return new DefaultLevel(this, new CompressedCompoundSource(context, parser, temp));
     }
 }

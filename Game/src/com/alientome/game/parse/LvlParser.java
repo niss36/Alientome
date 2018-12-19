@@ -18,7 +18,7 @@ public class LvlParser {
     public static <BG, LAYER> BG parseBackground(WrappedXML document,
                                                  ImageParser imageParser,
                                                  XMLLayerParser<LAYER> layerParser,
-                                                 XMLBackgroundParser<BG, LAYER> backgroundParser) {
+                                                 XMLBackgroundParser<BG, LAYER> backgroundParser) throws IOException {
 
         WrappedXML backgroundXML = document.getFirst("level/background");
 
