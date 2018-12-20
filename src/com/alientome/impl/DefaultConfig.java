@@ -142,7 +142,7 @@ public class DefaultConfig extends AbstractConfig {
 
                         reset();
                         context.getInputManager().reset();
-                        ((GameContext) context).getSaveManager().actualize();
+                        ((GameContext) context).getSaveManager().actualise();
                         break;
 
                     case CANCEL:

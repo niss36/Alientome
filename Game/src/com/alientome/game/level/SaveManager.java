@@ -1,47 +1,35 @@
 package com.alientome.game.level;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-
 import java.io.IOException;
-import java.io.UncheckedIOException;
 
 public abstract class SaveManager {
 
-    public static final int EMPTY_SAVE_ID = -1;
+    protected static final int EMPTY_SAVE = -1;
+    protected static final int UNINITIALISED_SAVE = 0;
+    protected static final int FIRST_LEVEL_ID = 1;
 
-    protected final IntegerProperty[] savesStatus = new IntegerProperty[3];
+    protected final SaveStatus[] saveStatuses = new SaveStatus[3];
 
-    {
-        for (int i = 0; i < savesStatus.length; i++) {
+    public SaveManager() {
+        for (int i = 0; i < saveStatuses.length; i++) {
 
-            int index = i;
-
-            savesStatus[i] = new SimpleIntegerProperty();
-            savesStatus[i].addListener((observable, oldValue, newValue) -> {
-                try {
-                    if (newValue.intValue() != EMPTY_SAVE_ID && oldValue.intValue() != 0)
-                        save(index, newValue.intValue());
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e); //TODO find a way to make that checked
-                }
-            });
+            saveStatuses[i] = new SaveStatus(this, i);
         }
     }
 
-    public void actualize() throws IOException {
+    public void actualise() throws IOException {
 
-        for (int i = 0; i < savesStatus.length; i++)
-            savesStatus[i].set(read(i, false));
+        for (SaveStatus saveStatus : saveStatuses)
+            saveStatus.actualise();
     }
 
-    public IntegerProperty getStatus(int saveIndex) {
-        return savesStatus[saveIndex];
+    public SaveStatus getStatus(int saveIndex) {
+        return saveStatuses[saveIndex];
     }
 
-    protected abstract int read(int saveIndex, boolean createFile) throws IOException;
+    protected abstract int read(int saveIndex) throws IOException;
 
     protected abstract void save(int saveIndex, int levelID) throws IOException;
 
-    public abstract void delete(int saveIndex) throws IOException;
+    protected abstract void delete(int saveIndex) throws IOException;
 }

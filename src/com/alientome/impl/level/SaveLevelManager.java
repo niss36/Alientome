@@ -3,8 +3,8 @@ package com.alientome.impl.level;
 import com.alientome.core.util.FileUtils;
 import com.alientome.game.GameContext;
 import com.alientome.game.level.Level;
+import com.alientome.game.level.SaveStatus;
 import com.alientome.impl.level.source.CompressedCompoundSource;
-import javafx.beans.property.IntegerProperty;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +16,7 @@ import java.nio.file.StandardCopyOption;
 
 public class SaveLevelManager extends AbstractLevelManager {
 
-    private final IntegerProperty saveStatus;
+    private final SaveStatus saveStatus;
 
     public SaveLevelManager(GameContext context, int saveIndex) throws IOException {
 

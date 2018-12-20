@@ -19,15 +19,12 @@ public class DefaultSaveManager extends SaveManager {
     }
 
     @Override
-    public int read(int saveIndex, boolean createFile) throws IOException {
+    public int read(int saveIndex) throws IOException {
 
         Path saveFile = context.getFileManager().getSave(saveIndex);
 
         if (Files.notExists(saveFile))
-            if (createFile)
-                getStatus(saveIndex).set(1);
-            else
-                return EMPTY_SAVE_ID;
+            return EMPTY_SAVE;
 
         return read(saveFile);
     }
@@ -43,10 +40,9 @@ public class DefaultSaveManager extends SaveManager {
     }
 
     @Override
-    public void delete(int saveIndex) throws IOException {
+    protected void delete(int saveIndex) throws IOException {
 
         Files.delete(context.getFileManager().getSave(saveIndex));
-        getStatus(saveIndex).set(EMPTY_SAVE_ID);
     }
 
     protected int read(Path saveFile) throws IOException {

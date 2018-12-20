@@ -5,8 +5,8 @@ import com.alientome.core.internationalization.I18N;
 import com.alientome.core.util.Logger;
 import com.alientome.editors.level.LevelEditorContext;
 import com.alientome.game.events.GameStartEvent;
+import com.alientome.game.level.SaveStatus;
 import com.alientome.gui.fx.DialogsUtil;
-import javafx.beans.property.IntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -57,23 +57,23 @@ public class FXMLPlayController extends FXMLController {
 
         for (int i = 0; i < 3; i++) {
 
-            IntegerProperty saveStatus = context.getSaveManager().getStatus(i);
+            SaveStatus saveStatus = context.getSaveManager().getStatus(i);
 
             saves[i].textProperty().bind(i18N.createStringBinding(() -> {
-                if (saveStatus.get() > 0)
+                if (saveStatus.isNotEmpty())
                     return context.getI18N().get("menu.saves.level", saveStatus.get());
                 else
                     return context.getI18N().get("menu.saves.new");
             }, saveStatus));
 
             deletes[i].managedProperty().bind(deletes[i].visibleProperty());
-            deletes[i].visibleProperty().bind(saveStatus.greaterThan(0));
+            deletes[i].visibleProperty().bind(saveStatus.notEmptyBinding());
         }
 
         scene.windowProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 try {
-                    context.getSaveManager().actualize();
+                    context.getSaveManager().actualise();
                 } catch (IOException e) {
                     log.e("Couldn't actualise saves:");
                     e.printStackTrace();
@@ -109,18 +109,24 @@ public class FXMLPlayController extends FXMLController {
 
     private void playSave(int index) {
 
-        IntegerProperty saveStatus = context.getSaveManager().getStatus(index);
+        SaveStatus saveStatus = context.getSaveManager().getStatus(index);
 
-        if (saveStatus.get() == -1)
-            saveStatus.set(1);
-        else {
+        if (saveStatus.isNotEmpty()) {
 
             try {
                 context.getDispatcher().submit(new GameStartEvent(context.getLoader().loadFrom(index)));
 
                 this.manager.switchToScene("GAME");
             } catch (IOException e) {
-                log.e("Exception while loading level " + saveStatus.get() + " :");
+                log.e("Exception while loading level " + saveStatus.get() + ":");
+                e.printStackTrace();
+                DialogsUtil.showErrorDialog(context, e);
+            }
+        } else {
+            try {
+                saveStatus.setToFirst();
+            } catch (IOException e) {
+                log.e("Couldn't set save " + index + " to first level:");
                 e.printStackTrace();
                 DialogsUtil.showErrorDialog(context, e);
             }
@@ -133,7 +139,7 @@ public class FXMLPlayController extends FXMLController {
 
         if (delete) {
             try {
-                context.getSaveManager().delete(index);
+                context.getSaveManager().getStatus(index).delete();
             } catch (IOException e) {
                 log.e("Save " + index + " could not be deleted");
                 e.printStackTrace();
