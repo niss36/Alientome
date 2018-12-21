@@ -1,8 +1,8 @@
 package com.alientome.gui.fx.controllers;
 
+import com.alientome.core.util.Logger;
 import com.alientome.core.util.Util;
 import com.alientome.core.util.WrappedXML;
-import com.alientome.game.events.KeybindingsResetEvent;
 import com.alientome.gui.fx.DialogsUtil;
 import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
@@ -28,6 +28,7 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
 public class FXMLControlsController extends FXMLController {
 
+    private static final Logger log = Logger.get();
     private final Map<String, Property<KeyCode>> properties = new HashMap<>();
 
     private Button used = null;
@@ -139,8 +140,15 @@ public class FXMLControlsController extends FXMLController {
 
              if (s == done) done();
         else if (s == resetControls) {
-            if (DialogsUtil.showConfirmDialog(context, null, null, "menu.controls.reset.prompt"))
-                context.getDispatcher().submit(new KeybindingsResetEvent()); // TODO replace with direct call & exception handling
+            if (DialogsUtil.showConfirmDialog(context, null, null, "menu.controls.reset.prompt")) {
+                try {
+                    context.getInputManager().reset();
+                } catch (IOException ioe) {
+                    log.e("Couldn't reset controls");
+                    ioe.printStackTrace();
+                    DialogsUtil.showErrorDialog(context, ioe);
+                }
+            }
         }
     }
 

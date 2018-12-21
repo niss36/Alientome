@@ -1,7 +1,4 @@
-package com.alientome.game.events;
-
-import com.alientome.core.events.GameEvent;
-import com.alientome.core.events.GameEventType;
+package com.alientome.core.events;
 
 public class KeybindingsResetEvent extends GameEvent {
 

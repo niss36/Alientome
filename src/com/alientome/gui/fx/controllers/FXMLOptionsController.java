@@ -6,7 +6,6 @@ import com.alientome.core.settings.Config;
 import com.alientome.core.util.Logger;
 import com.alientome.core.util.Util;
 import com.alientome.core.util.WrappedXML;
-import com.alientome.game.events.ConfigResetEvent;
 import com.alientome.gui.fx.DialogsUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
@@ -191,8 +190,15 @@ public class FXMLOptionsController extends FXMLController {
 
              if (s == done) done();
         else if (s == resetOptions) {
-            if (DialogsUtil.showConfirmDialog(context, null, null, "menu.options.reset.prompt"))
-                context.getDispatcher().submit(new ConfigResetEvent()); // TODO replace with direct call & exception handling
+            if (DialogsUtil.showConfirmDialog(context, null, null, "menu.options.reset.prompt")) {
+                try {
+                    context.getConfig().reset();
+                } catch (IOException ioe) {
+                    log.e("Couldn't reset config");
+                    ioe.printStackTrace();
+                    DialogsUtil.showErrorDialog(context, ioe);
+                }
+            }
         }
         else if (s == controls) manager.pushScene("CONTROLS");
     }

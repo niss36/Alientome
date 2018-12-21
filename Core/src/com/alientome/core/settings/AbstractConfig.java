@@ -1,10 +1,10 @@
 package com.alientome.core.settings;
 
 import com.alientome.core.Context;
+import com.alientome.core.events.ConfigResetEvent;
 import com.alientome.core.util.Logger;
 import com.alientome.core.util.VersionConflictData;
 import com.alientome.core.util.WrappedXML;
-import javafx.application.Platform;
 import javafx.beans.property.*;
 
 import java.io.*;
@@ -15,8 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.alientome.core.events.GameEventType.CONFIG_RESET;
 
 public abstract class AbstractConfig implements Config {
 
@@ -34,15 +32,6 @@ public abstract class AbstractConfig implements Config {
 
     @Override
     public VersionConflictData load() throws IOException {
-
-        context.getDispatcher().register(CONFIG_RESET, e -> Platform.runLater(() -> {
-            try {
-                reset();
-            } catch (IOException ioe) {
-                log.e("Couldn't reset config:");
-                ioe.printStackTrace();
-            }
-        }));
 
         log.i("Loading config");
 
@@ -138,6 +127,7 @@ public abstract class AbstractConfig implements Config {
     @Override
     public void reset() throws IOException {
         read(defaultConfig());
+        context.getDispatcher().submit(new ConfigResetEvent());
     }
 
     @Override

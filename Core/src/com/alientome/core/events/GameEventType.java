@@ -46,12 +46,12 @@ public enum GameEventType {
     GAME_ERROR,
 
     /**
-     * Triggers the reset of the current Config.
+     * Fired when the Config is reset.
      */
     CONFIG_RESET,
 
     /**
-     * Triggers the reset of the current Keybindings.
+     * Fired when the Keybindings are reset.
      */
     KEYBINDINGS_RESET,
 

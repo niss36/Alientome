@@ -1,9 +1,9 @@
 package com.alientome.core.keybindings;
 
 import com.alientome.core.Context;
+import com.alientome.core.events.KeybindingsResetEvent;
 import com.alientome.core.util.Logger;
 import com.alientome.core.util.WrappedXML;
-import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -13,8 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.alientome.core.events.GameEventType.KEYBINDINGS_RESET;
 
 public abstract class AbstractInputManager implements InputManager {
 
@@ -32,15 +30,6 @@ public abstract class AbstractInputManager implements InputManager {
 
     @Override
     public void load() throws IOException {
-
-        context.getDispatcher().register(KEYBINDINGS_RESET, e -> Platform.runLater(() -> {
-            try {
-                reset();
-            } catch (IOException ioe) {
-                log.e("Couldn't reset keybindings:");
-                ioe.printStackTrace();
-            }
-        }));
 
         log.i("Loading keybindings");
         init();
@@ -112,6 +101,7 @@ public abstract class AbstractInputManager implements InputManager {
     @Override
     public void reset() throws IOException {
         read(defaultKeybindings());
+        context.getDispatcher().submit(new KeybindingsResetEvent());
     }
 
     @Override
