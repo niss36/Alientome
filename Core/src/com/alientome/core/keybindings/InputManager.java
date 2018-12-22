@@ -13,7 +13,7 @@ public interface InputManager {
 
     boolean needsSave();
 
-    void save();
+    void save() throws IOException;
 
     void reset() throws IOException;
 

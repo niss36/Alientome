@@ -29,7 +29,6 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,8 +56,6 @@ public class DefaultAppLauncher extends AppLauncher {
 
         try (InputStream stream = ClassLoader.getSystemResourceAsStream("Font/Alientome.ttf")) {
             Font.loadFont(stream, 10);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         context.setConfig(new DefaultConfig(context,"config.xml", "defaultConfig.txt"));
@@ -90,18 +87,6 @@ public class DefaultAppLauncher extends AppLauncher {
         context.getSoundManager().load();
 
         SpritesLoader.register("animations.xml");
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (context.getConfig().needsSave()) {
-                log.w("Unsaved changes to config");
-                context.getConfig().save();
-            }
-            if (context.getInputManager().needsSave()) {
-                log.w("Unsaved changes to key bindings");
-                context.getInputManager().save();
-            }
-            ExecutionTimeProfiler.theProfiler.dumpProfileData();
-        }, "Thread-Shutdown"));
     }
 
     @Override
@@ -154,6 +139,19 @@ public class DefaultAppLauncher extends AppLauncher {
             manager.switchToScene("MAIN");
 
         stage.show();
+    }
+
+    @Override
+    public void shutdown() throws Exception {
+        if (context.getConfig().needsSave()) {
+            log.w("Unsaved changes to config");
+            context.getConfig().save();
+        }
+        if (context.getInputManager().needsSave()) {
+            log.w("Unsaved changes to key bindings");
+            context.getInputManager().save();
+        }
+        ExecutionTimeProfiler.theProfiler.dumpProfileData();
     }
 
     protected void registerBlocks(Registry<Class<? extends Block>> registry) {

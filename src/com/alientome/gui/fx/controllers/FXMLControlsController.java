@@ -164,8 +164,14 @@ public class FXMLControlsController extends FXMLController {
     }
 
     private void done() {
-        manager.popScene();
         if (context.getInputManager().needsSave())
-            new Thread(context.getInputManager()::save, "Keybindings-Save").start();
+            try {
+                context.getInputManager().save();
+            } catch (IOException e) {
+                log.e("Could not save keybindings:");
+                e.printStackTrace();
+                DialogsUtil.showErrorDialog(context, e);
+            }
+        manager.popScene();
     }
 }

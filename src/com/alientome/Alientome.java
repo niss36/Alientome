@@ -18,6 +18,8 @@ public class Alientome extends Application {
         launcher.postInit();
 
         launch(Alientome.class);
+
+        launcher.shutdown();
     }
 
     @Override

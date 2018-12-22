@@ -104,7 +104,7 @@ public abstract class AbstractConfig implements Config {
     }
 
     @Override
-    public void save() {
+    public void save() throws IOException {
 
         log.i("Saving config");
         try (BufferedWriter writer = Files.newBufferedWriter(userConfig())) {
@@ -118,9 +118,6 @@ public abstract class AbstractConfig implements Config {
             }
 
             needsSave = false;
-        } catch (IOException e) {
-            log.e("Could not save config:");
-            e.printStackTrace(); //TODO
         }
     }
 

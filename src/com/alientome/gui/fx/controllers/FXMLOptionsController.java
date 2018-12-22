@@ -206,6 +206,12 @@ public class FXMLOptionsController extends FXMLController {
     private void done() {
         manager.popScene();
         if (context.getConfig().needsSave())
-            new Thread(context.getConfig()::save, "Config-Save").start();
+            try {
+                context.getConfig().save();
+            } catch (IOException e) {
+                log.e("Could not save config:");
+                e.printStackTrace();
+                DialogsUtil.showErrorDialog(context, e);
+            }
     }
 }

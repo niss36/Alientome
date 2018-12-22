@@ -19,4 +19,6 @@ public abstract class AppLauncher {
     public abstract void postInit() throws Exception;
 
     public abstract void start(Application app, Stage stage) throws Exception;
+
+    public abstract void shutdown() throws Exception;
 }

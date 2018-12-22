@@ -74,7 +74,7 @@ public abstract class AbstractInputManager implements InputManager {
     }
 
     @Override
-    public void save() {
+    public void save() throws IOException {
 
         log.i("Saving keybindings");
         try (BufferedWriter writer = Files.newBufferedWriter(userKeybindings())) {
@@ -92,9 +92,6 @@ public abstract class AbstractInputManager implements InputManager {
             }
 
             needsSave = false;
-        } catch (IOException e) {
-            log.e("Could not save keybindings:");
-            e.printStackTrace(); //TODO
         }
     }
 
