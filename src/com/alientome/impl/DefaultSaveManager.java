@@ -19,7 +19,7 @@ public class DefaultSaveManager extends SaveManager {
     }
 
     @Override
-    public int read(int saveIndex) throws IOException {
+    protected int read(int saveIndex) throws IOException {
 
         Path saveFile = context.getFileManager().getSave(saveIndex);
 
@@ -30,7 +30,7 @@ public class DefaultSaveManager extends SaveManager {
     }
 
     @Override
-    public void save(int saveIndex, int levelID) throws IOException {
+    protected void save(int saveIndex, int levelID) throws IOException {
 
         FileManager manager = context.getFileManager();
 
