@@ -1,6 +1,7 @@
 package com.alientome.impl.level;
 
 import com.alientome.core.collisions.Line;
+import com.alientome.game.collisions.SightLine;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.keybindings.MappedKeyEvent;
 import com.alientome.core.util.Util;
@@ -99,7 +100,7 @@ public class DefaultLevel extends AbstractLevel {
         Vec2 pos0 = new Vec2(entity0.getPos().getX() + entity0.dimension.getWidth() / 2, entity0.getPos().getY());
         Vec2 pos1 = new Vec2(entity1.getPos().getX() + entity1.dimension.getWidth() / 2, entity1.getPos().getY());
 
-        Line line = new Line(pos0, pos1);
+        SightLine line = new SightLine(pos0, pos1);
 
         lines.add(line);
 
@@ -107,9 +108,9 @@ public class DefaultLevel extends AbstractLevel {
 
         for (Block block : blocksLine)
             if (block.isOpaque() && block.getBoundingBox().intersects(line))
-                return false; // Line#see is false by default.
+                return false; // SightLine#cleared is false by default.
 
-        line.see = true;
+        line.setCleared(true);
         return true;
     }
 
