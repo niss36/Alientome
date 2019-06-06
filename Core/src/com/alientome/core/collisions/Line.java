@@ -3,9 +3,6 @@ package com.alientome.core.collisions;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.vecmath.Vec2;
 
-import static com.alientome.core.util.Colors.LINE_NO_SEE;
-import static com.alientome.core.util.Colors.LINE_SEE;
-
 /**
  * Represents a line segment. Notably used for line of sight tests.
  */
