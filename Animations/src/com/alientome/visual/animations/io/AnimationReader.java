@@ -2,6 +2,7 @@ package com.alientome.visual.animations.io;
 
 import com.alientome.core.util.Util;
 import com.alientome.visual.animations.Animation;
+import com.alientome.visual.animations.AnimationImpl;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -90,7 +91,7 @@ public class AnimationReader implements Closeable {
                 yOffsets[i] = stream.readInt() * scale;
         }
 
-        return new Animation(sprites, delay, xOffsets, yOffsets, loop);
+        return new AnimationImpl(sprites, delay, xOffsets, yOffsets, loop);
     }
 
     @Override
