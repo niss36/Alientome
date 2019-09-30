@@ -1,11 +1,11 @@
 package com.alientome.editors.animations.gui.panels;
 
-import com.alientome.editors.animations.Animation;
+import com.alientome.editors.animations.ExtAnimation;
 import com.alientome.editors.animations.SpritesLoader;
 import com.alientome.editors.animations.gui.EFrame;
 import com.alientome.editors.animations.gui.dialogs.InfoDialog;
 import com.alientome.editors.animations.gui.dialogs.SettingsDialog;
-import com.alientome.editors.animations.io.AnimationWriter;
+import com.alientome.editors.animations.io.ExtAnimationWriter;
 import com.alientome.editors.animations.util.Settings;
 import com.alientome.editors.animations.util.TextAlign;
 import jiconfont.icons.FontAwesome;
@@ -96,7 +96,7 @@ public class AnimationPanel extends JPanel {
 
                 if (cache == null) return;
 
-                Animation animation = viewControlPanel.getCurrentAnimation();
+                ExtAnimation animation = viewControlPanel.getCurrentAnimation();
 
                 if (animation == null) return;
 
@@ -113,7 +113,7 @@ public class AnimationPanel extends JPanel {
                         }
                 }
 
-                try (AnimationWriter writer = new AnimationWriter(animation.getInfo().getSource())) {
+                try (ExtAnimationWriter writer = new ExtAnimationWriter(animation.getSource())) {
 
                     writer.writeAnimation(animation);
 
@@ -193,7 +193,7 @@ public class AnimationPanel extends JPanel {
 
         menuItemEditCurrentFrame.addActionListener(e -> {
 
-            Animation animation = viewControlPanel.getCurrentAnimation();
+            ExtAnimation animation = viewControlPanel.getCurrentAnimation();
 
             String editorPath = frame.getSettings().getString("externalEditorPath", "");
 
@@ -209,7 +209,7 @@ public class AnimationPanel extends JPanel {
 
         menuItemEditAllFrames.addActionListener(e -> {
 
-            Animation animation = viewControlPanel.getCurrentAnimation();
+            ExtAnimation animation = viewControlPanel.getCurrentAnimation();
 
             Settings settings = frame.getSettings();
 
@@ -250,7 +250,7 @@ public class AnimationPanel extends JPanel {
         add(cards, BorderLayout.CENTER);
     }
 
-    public void setAnimation(Animation animation) {
+    public void setAnimation(ExtAnimation animation) {
 
         if (animation == null) {
             show(0);
@@ -273,7 +273,7 @@ public class AnimationPanel extends JPanel {
         cl.show(cards, choices[index]);
     }
 
-    private void openAllInEditor(String editorPath, Animation animation, boolean sequential) throws IOException {
+    private void openAllInEditor(String editorPath, ExtAnimation animation, boolean sequential) throws IOException {
 
         if (animation == null) throw new IllegalArgumentException("Animation can't be null");
 
@@ -309,7 +309,7 @@ public class AnimationPanel extends JPanel {
         }
     }
 
-    private void openInEditor(String editorPath, Animation animation, int index) throws IOException {
+    private void openInEditor(String editorPath, ExtAnimation animation, int index) throws IOException {
 
         if (animation == null) throw new IllegalArgumentException("Animation can't be null");
 

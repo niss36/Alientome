@@ -8,6 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Core" />
+    <orderEntry type="module" module-name="Animations" />
     <orderEntry type="library" name="com.jcabi.incubator:xembly:0.22" level="project" />
     <orderEntry type="library" name="com.jcabi:jcabi-xml:0.20.1" level="project" />
     <orderEntry type="library" name="com.github.jiconfont:jiconfont-swing:1.0.1" level="project" />

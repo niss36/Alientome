@@ -1,7 +1,7 @@
 package com.alientome.editors.animations.gui.panels;
 
 import com.alientome.core.util.Direction;
-import com.alientome.editors.animations.Animation;
+import com.alientome.editors.animations.ExtAnimation;
 import com.alientome.editors.animations.util.PlayState;
 import com.alientome.editors.animations.util.TextAlign;
 import com.alientome.editors.animations.util.Util;
@@ -11,7 +11,7 @@ import java.awt.*;
 
 public class AnimationViewPanel extends JPanel implements Runnable {
 
-    private Animation animation;
+    private ExtAnimation animation;
     private PlayState state = PlayState.PLAYING;
     private Direction facing = Direction.LEFT;
     private int scale = 1;
@@ -57,7 +57,7 @@ public class AnimationViewPanel extends JPanel implements Runnable {
         }
     }
 
-    public void setAnimation(Animation animation) {
+    public void setAnimation(ExtAnimation animation) {
 
         this.animation = animation;
 
@@ -88,7 +88,7 @@ public class AnimationViewPanel extends JPanel implements Runnable {
         if (canDraw()) animation.previousFrame();
     }
 
-    public Animation getCurrentAnimation() {
+    public ExtAnimation getCurrentAnimation() {
         return animation;
     }
 

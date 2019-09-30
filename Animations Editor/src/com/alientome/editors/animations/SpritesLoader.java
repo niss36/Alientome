@@ -4,12 +4,14 @@ import com.alientome.core.util.Logger;
 import com.alientome.editors.animations.dto.AnimationDTO;
 import com.alientome.editors.animations.dto.ClassDTO;
 import com.alientome.editors.animations.dto.PackageDTO;
-import com.alientome.editors.animations.io.AnimationReader;
-import com.alientome.editors.animations.io.AnimationWriter;
+import com.alientome.editors.animations.io.ExtAnimationReader;
+import com.alientome.editors.animations.io.ExtAnimationWriter;
 import com.alientome.editors.animations.util.AnimationID;
 import com.alientome.editors.animations.util.Settings;
 import com.alientome.editors.animations.util.TreeView;
 import com.alientome.editors.animations.util.Util;
+import com.alientome.visual.animations.Animation;
+import com.alientome.visual.animations.AnimationImpl;
 import com.jcabi.xml.XML;
 import com.jcabi.xml.XMLDocument;
 import org.w3c.dom.Document;
@@ -38,28 +40,29 @@ import static com.alientome.editors.animations.util.Util.*;
 public class SpritesLoader {
 
     private static final Logger log = Logger.get();
-    private static final Map<String, LinkedHashMap<String, Animation>> animations = new HashMap<>();
+    private static final Map<String, LinkedHashMap<String, ExtAnimation>> animations = new HashMap<>();
     private static Settings settings;
 
     private static void init(String className, String classDirectory, String[] names, Dimension[] dimensions, int[] scales) {
 
-        LinkedHashMap<String, Animation> animations = new LinkedHashMap<>(names.length);
+        LinkedHashMap<String, ExtAnimation> animations = new LinkedHashMap<>(names.length);
 
         for (int i = 0; i < names.length; i++) {
 
-            try (AnimationReader reader = new AnimationReader(new File(getSpritesRoot(), classDirectory + "/" + names[i]))) {
+            try (ExtAnimationReader reader = new ExtAnimationReader(new File(getSpritesRoot(), classDirectory + "/" + names[i]))) {
 
                 animations.put(names[i], reader.readAnimation(dimensions[i], scales[i]));
 
             } catch (IOException e) {
                 e.printStackTrace();
+                System.err.println(className + " " + names[i]);
             }
         }
 
         SpritesLoader.animations.put(className, animations);
     }
 
-    public static Animation getAnimation(AnimationID id) {
+    public static ExtAnimation getAnimation(AnimationID id) {
 
         return animations.get(id.classFullName).get(id.animationName);
     }
@@ -152,7 +155,7 @@ public class SpritesLoader {
         return new DefaultTreeModel(treeRoot);
     }
 
-    public static Animation reload(TreePath path) {
+    public static ExtAnimation reload(TreePath path) {
 
         if (path == null) return null;
 
@@ -198,9 +201,9 @@ public class SpritesLoader {
 
         String animationPath = classDirectory + "/" + id.animationName;
 
-        try (AnimationReader reader = new AnimationReader(new File(spritesRoot, animationPath))) {
+        try (ExtAnimationReader reader = new ExtAnimationReader(new File(spritesRoot, animationPath))) {
 
-            Animation animation = reader.readAnimation(dimension, scale);
+            ExtAnimation animation = reader.readAnimation(dimension, scale);
 
             animations.get(id.classFullName).put(id.animationName, animation);
 
@@ -373,13 +376,13 @@ public class SpritesLoader {
 
         File file = new File(spritesRoot, classDirectory + "/" + info.animationName);
 
-        Animation animation = newAnimation(info, file);
+        ExtAnimation animation = newAnimation(info, file);
 
         String classFullName = info.packageName + '.' + info.className;
 
         animations.computeIfAbsent(classFullName, s -> new LinkedHashMap<>()).put(info.animationName, animation);
 
-        try (AnimationWriter writer = new AnimationWriter(file)) {
+        try (ExtAnimationWriter writer = new ExtAnimationWriter(file)) {
 
             writer.writeAnimation(animation);
 
@@ -394,20 +397,19 @@ public class SpritesLoader {
         }
     }
 
-    private static Animation newAnimation(AnimationDTO info, File source) {
+    private static ExtAnimation newAnimation(AnimationDTO info, File source) {
 
         BufferedImage[] sprites = new BufferedImage[info.length];
         int[] xOffsets = new int[info.length];
         int[] yOffsets = new int[info.length];
 
         for (int i = 0; i < info.length; i++) {
-
             sprites[i] = new BufferedImage(info.dimension.width, info.dimension.height, BufferedImage.TYPE_INT_ARGB);
-            xOffsets[i] = 0;
-            yOffsets[i] = 0;
         }
 
-        return new Animation(sprites, source, info.delay, xOffsets, yOffsets, info.loop, info.dimension, info.scale);
+        Animation animation = new AnimationImpl(sprites, info.delay, xOffsets, yOffsets, info.loop);
+
+        return new ExtAnimation(source, animation, info.dimension, info.scale);
     }
 
     public static void deletePackage(DefaultTreeModel model, DefaultMutableTreeNode selectedNode) {

@@ -1,7 +1,7 @@
 package com.alientome.editors.animations.gui.panels;
 
 import com.alientome.core.util.Direction;
-import com.alientome.editors.animations.Animation;
+import com.alientome.editors.animations.ExtAnimation;
 import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 
@@ -81,11 +81,11 @@ public class AnimationViewControlPanel extends JPanel {
         }, AWTEvent.MOUSE_WHEEL_EVENT_MASK);
     }
 
-    public void setAnimation(Animation animation) {
+    public void setAnimation(ExtAnimation animation) {
         controlled.setAnimation(animation);
     }
 
-    public Animation getCurrentAnimation() {
+    public ExtAnimation getCurrentAnimation() {
         return controlled.getCurrentAnimation();
     }
 }
