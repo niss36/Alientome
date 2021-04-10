@@ -1,9 +1,9 @@
 package com.alientome.core.util;
 
-import com.alientome.core.Context;
 import com.alientome.core.keybindings.InputListener;
 import com.alientome.core.keybindings.MappedKeyEvent;
 import com.jcabi.xml.XMLDocument;
+import javafx.beans.property.Property;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -37,53 +37,6 @@ public class Util {
 
     }
 
-    /**
-     * Function used to decrease velocity, that is, make it closer to zero.
-     *
-     * @param toDecrease the number to be decreased.
-     * @param value      the amount to decrease.
-     * @return If <code>toDecrease==0</code> 0 else <code>toDecrease</code> closer to 0 by <code>value</code>.
-     */
-    public static double decrease(double toDecrease, double value) {
-        return Math.abs(toDecrease) - value <= 0 ? 0 : toDecrease < 0 ? toDecrease + value : toDecrease - value;
-    }
-
-    /**
-     * Function used to decrease a vector representing velocity.
-     *
-     * @param vec   the <code>Vec2</code> to be decreased.
-     * @param value the amount to decrease.
-     */
-    public static void decrease(Vec2 vec, double value) {
-
-        vec.x = decrease(vec.x, value);
-        vec.y = decrease(vec.y, value);
-    }
-
-    public static double clamp(double value, double minVal, double maxVal) {
-
-        return value < minVal ? minVal : value > maxVal ? maxVal : value;
-    }
-
-    public static int clamp(int value, int minVal, int maxVal) {
-
-        return value < minVal ? minVal : value > maxVal ? maxVal : value;
-    }
-
-    public static double lerp(double start, double end, double t) {
-        return start + t * (end - start);
-    }
-
-    public static Vec2 lerpVec2(Vec2 start, Vec2 end, double t) {
-        return new Vec2(lerp(start.x, end.x, t), lerp(start.y, end.y, t));
-    }
-
-    public static double diagonalDistance(Vec2 pos0, Vec2 pos1) {
-
-        double dx = pos1.x - pos0.x, dy = pos1.y - pos0.y;
-        return Math.max(Math.abs(dx), Math.abs(dy));
-    }
-
     public static InputListener makeListener(Runnable work) {
 
         return makeListener(work, mappedKeyEvent -> mappedKeyEvent.pressed);
@@ -100,18 +53,23 @@ public class Util {
         };
     }
 
-    public static void saveScreenshot(Context context, BufferedImage image) {
-
-        FileManager manager = context.getFileManager();
-
-        Date date = new Date();
-        String timestamp = screenshotDateFormat.format(date);
+    public static File findScreenshotFile(FileManager manager, String timestamp) {
 
         File outputFile;
         String fileName = timestamp;
 
         for (int i = 1; (outputFile = manager.getScreenshot(fileName)).exists(); i++)
             fileName = timestamp + "_" + i;
+
+        return outputFile;
+    }
+
+    public static void saveScreenshot(FileManager manager, BufferedImage image) {
+
+        Date date = new Date();
+        String timestamp = screenshotDateFormat.format(date);
+
+        File outputFile = findScreenshotFile(manager, timestamp);
 
         try {
             ImageIO.write(image, "png", outputFile);
@@ -149,13 +107,6 @@ public class Util {
         return image;
     }
 
-    public static double roundClosest(double toRound, double step) {
-
-        if (step == 0) throw new IllegalArgumentException("Step cannot be 0");
-
-        return Math.round(toRound / step) * step;
-    }
-
     public static WrappedXML parseXMLNew(String documentPath) throws IOException {
         try (InputStream stream = ClassLoader.getSystemResourceAsStream(documentPath)) {
             return new WrappedXML(new XMLDocument(stream));
@@ -171,11 +122,6 @@ public class Util {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         return builder.parse(file).getDocumentElement();
-    }
-
-    public static double scale(double oldValue, double oldMin, double oldMax, double newMin, double newMax) {
-
-        return (((oldValue - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin;
     }
 
     public static File getParentFile(String path) {
@@ -201,5 +147,12 @@ public class Util {
         }
 
         throw new IllegalArgumentException("Invalid dimension : " + string);
+    }
+
+    public static <T> T require(Property<T> p) {
+        T v = p.getValue();
+        if (v == null)
+            throw new IllegalStateException("Missing component : " + p.getName());
+        return v;
     }
 }

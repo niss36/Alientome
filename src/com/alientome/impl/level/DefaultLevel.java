@@ -3,8 +3,8 @@ package com.alientome.impl.level;
 import com.alientome.core.collisions.Line;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.keybindings.MappedKeyEvent;
-import com.alientome.core.util.Util;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.util.MathUtils;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.blocks.Block;
 import com.alientome.game.buffs.Buff;
 import com.alientome.game.camera.Camera;
@@ -96,8 +96,8 @@ public class DefaultLevel extends AbstractLevel {
     @Override
     public boolean sightTest(Entity entity0, Entity entity1) {
 
-        Vec2 pos0 = new Vec2(entity0.getPos().x + entity0.dimension.getWidth() / 2, entity0.getPos().y);
-        Vec2 pos1 = new Vec2(entity1.getPos().x + entity1.dimension.getWidth() / 2, entity1.getPos().y);
+        Vec2 pos0 = new Vec2(entity0.getPos().getX() + entity0.dimension.getWidth() / 2, entity0.getPos().getY());
+        Vec2 pos1 = new Vec2(entity1.getPos().getX() + entity1.dimension.getWidth() / 2, entity1.getPos().getY());
 
         Line line = new Line(pos0, pos1);
 
@@ -125,7 +125,7 @@ public class DefaultLevel extends AbstractLevel {
 
     private Block[] line(Vec2 pos0, Vec2 pos1) {
 
-        int n = (int) Util.diagonalDistance(pos0, pos1) / Block.WIDTH + 2;
+        int n = (int) MathUtils.diagonalDistance(pos0, pos1) / Block.WIDTH + 2;
 
         Block[] blocks = new Block[n];
 
@@ -133,9 +133,9 @@ public class DefaultLevel extends AbstractLevel {
 
             double t = (double) i / n;
 
-            Vec2 v = Util.lerpVec2(pos0, pos1, t);
+            Vec2 v = MathUtils.lerpVec2(pos0, pos1, t);
 
-            blocks[i] = map.getBlockAbsCoordinates(v.x, v.y);
+            blocks[i] = map.getBlockAbsCoordinates(v.getX(), v.getY());
         }
 
         return blocks;

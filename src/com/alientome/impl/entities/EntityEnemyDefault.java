@@ -2,7 +2,7 @@ package com.alientome.impl.entities;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.collisions.Contact;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.abilities.AttackAbility;
 import com.alientome.game.abilities.ChanneledAbility;
 import com.alientome.game.abilities.SimpleAttackAbility;

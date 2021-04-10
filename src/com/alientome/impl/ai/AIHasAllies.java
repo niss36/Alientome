@@ -24,7 +24,7 @@ public class AIHasAllies extends AITest {
     public void act() {
 
         if (entity.isDead()) fail();
-        else if (entity.level.countObjectsInRange(alliesType, entity.getPos().x, entity.getPos().y, range, entity) >= minCount) {
+        else if (entity.level.countObjectsInRange(alliesType, entity.getPos().getX(), entity.getPos().getY(), range, entity) >= minCount) {
             succeed();
         } else fail();
     }

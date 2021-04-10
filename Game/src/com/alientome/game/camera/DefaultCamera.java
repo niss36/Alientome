@@ -1,8 +1,8 @@
 package com.alientome.game.camera;
 
 import com.alientome.core.collisions.AxisAlignedBoundingBox;
-import com.alientome.core.util.Util;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.util.MathUtils;
+import com.alientome.core.vecmath.Vec2;
 
 import java.awt.*;
 
@@ -19,11 +19,11 @@ public class DefaultCamera implements Camera {
     }
 
     private double getX(double interpolation) {
-        return position.x + velocity.x * interpolation + xOffset;
+        return position.getX() + velocity.getX() * interpolation + xOffset;
     }
 
     private double getY(double interpolation) {
-        return position.y + velocity.y * interpolation + yOffset;
+        return position.getY() + velocity.getY() * interpolation + yOffset;
     }
 
     @Override
@@ -34,8 +34,8 @@ public class DefaultCamera implements Camera {
     @Override
     public void transform(Point point, double interpolation, Rectangle viewBounds, AxisAlignedBoundingBox levelBounds) {
 
-        int x = (int) Util.clamp(getX(interpolation) - viewBounds.width / 2, levelBounds.getMinX(), levelBounds.getMaxX() - viewBounds.width);
-        int y = (int) Util.clamp(getY(interpolation) - viewBounds.height / 2, levelBounds.getMinY(), levelBounds.getMaxY() - viewBounds.height);
+        int x = (int) MathUtils.clamp(getX(interpolation) - viewBounds.width / 2, levelBounds.getMinX(), levelBounds.getMaxX() - viewBounds.width);
+        int y = (int) MathUtils.clamp(getY(interpolation) - viewBounds.height / 2, levelBounds.getMinY(), levelBounds.getMaxY() - viewBounds.height);
 
         point.move(x, y);
     }

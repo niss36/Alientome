@@ -40,18 +40,18 @@ public class AIMoveTo extends AI {
      */
     private void move() {
 
-        if (destX != (int) entity.getPos().x) {
+        double x = entity.getPos().getX();
+        if (destX != (int) x) {
 
-            int predictedX = (int) (entity.getPos().x +
-                    Math.signum(entity.getVelocity().x) * entity.getVelocity().x * entity.getVelocity().x +
-                    entity.getVelocity().x / 2);
+            double vx = entity.getVelocity().getX();
+            int predictedX = (int) (x + Math.signum(vx) * vx * vx + vx / 2);
 
-            if ((entity.getPos().x <= destX && predictedX >= destX) || (entity.getPos().x >= destX && predictedX <= destX)) {
+            if ((x <= destX && predictedX >= destX) || (x >= destX && predictedX <= destX)) {
                 succeed();
                 return;
             }
 
-            entity.move(destX > entity.getPos().x ? Direction.RIGHT : Direction.LEFT);
+            entity.move(destX > x ? Direction.RIGHT : Direction.LEFT);
         }
         if (isAtDestination()) succeed();
         else if (entity.collidedX) fail();
@@ -61,6 +61,6 @@ public class AIMoveTo extends AI {
      * @return whether the target <code>Entity</code> is at the destination X
      */
     private boolean isAtDestination() {
-        return destX == entity.getPos().x;
+        return destX == entity.getPos().getX();
     }
 }

@@ -3,7 +3,8 @@ package com.alientome.game.entities;
 import com.alientome.core.collisions.Contact;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.util.Colors;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.vecmath.Constants;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.Shield;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
@@ -61,11 +62,11 @@ public abstract class EntityLiving extends Entity implements StatusValue {
     @Override
     public boolean onCollidedWithBlock(Block block, Contact contact) {
 
-        double tMotionY = velocity.y;
+        double tMotionY = velocity.getY();
 
         if (super.onCollidedWithBlock(block, contact)) {
 
-            if (contact.normal.equals(Vec2.UNIT_MINUS_Y) && tMotionY >= 15) {
+            if (contact.normal == Constants.UNIT_MINUS_Y && tMotionY >= 15) {
 
                 float damage = getFallDamage(tMotionY);
                 damageAbsolute(damage);

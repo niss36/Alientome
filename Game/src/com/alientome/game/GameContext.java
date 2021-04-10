@@ -7,6 +7,8 @@ import com.alientome.game.level.SaveManager;
 import com.alientome.game.registry.GameRegistry;
 import javafx.beans.property.Property;
 
+import static com.alientome.core.util.Util.require;
+
 public class GameContext extends Context {
 
     private final Property<LevelLoader> loader;

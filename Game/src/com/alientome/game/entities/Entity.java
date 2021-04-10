@@ -4,7 +4,8 @@ import com.alientome.core.collisions.AxisAlignedBoundingBox;
 import com.alientome.core.collisions.Contact;
 import com.alientome.core.graphics.GameGraphics;
 import com.alientome.core.util.Direction;
-import com.alientome.core.util.Vec2;
+import com.alientome.core.util.MathUtils;
+import com.alientome.core.vecmath.Vec2;
 import com.alientome.game.GameObject;
 import com.alientome.game.SpritesLoader;
 import com.alientome.game.blocks.Block;
@@ -26,7 +27,6 @@ import com.alientome.visual.animations.AnimationsHandler;
 import java.awt.*;
 
 import static com.alientome.core.util.Colors.DEBUG;
-import static com.alientome.core.util.Util.*;
 import static com.alientome.game.blocks.BlockConstants.*;
 import static com.alientome.game.profiling.ExecutionTimeProfiler.theProfiler;
 
@@ -103,8 +103,8 @@ public abstract class Entity extends GameObject implements CommandSender {
             return new int[] {Integer.parseInt(split[0]), Integer.parseInt(split[1])};
         });
 
-        pos.x = state.spawnX * Block.WIDTH + Block.WIDTH / 2 - entity.dimension.width / 2 + offsets[0];
-        pos.y = state.spawnY * Block.WIDTH + Block.WIDTH - entity.dimension.height + offsets[1];
+        pos.setX(state.spawnX * Block.WIDTH + Block.WIDTH / 2 - entity.dimension.width / 2 + offsets[0]);
+        pos.setY(state.spawnY * Block.WIDTH + Block.WIDTH - entity.dimension.height + offsets[1]);
 
         return entity;
     }
@@ -127,7 +127,7 @@ public abstract class Entity extends GameObject implements CommandSender {
         preUpdateInternal();
 
         // 1: Apply external forces.
-        decrease(velocity, 0.5d); // Pseudo-friction
+        MathUtils.decrease(velocity, 0.5d); // Pseudo-friction
 
         if (affectedByGravity) velocity.add(gravity); // Gravity
 
@@ -169,8 +169,8 @@ public abstract class Entity extends GameObject implements CommandSender {
         if (contact != null) {
 
             //Check internal edges
-            int nextBlockX = block.blockX + (int) contact.normal.x;
-            int nextBlockY = block.blockY + (int) contact.normal.y;
+            int nextBlockX = block.blockX + (int) contact.normal.getX();
+            int nextBlockY = block.blockY + (int) contact.normal.getY();
 
             if (level.getMap().getBlock(nextBlockX, nextBlockY).canBeCollidedWith())
                 return;
@@ -244,12 +244,12 @@ public abstract class Entity extends GameObject implements CommandSender {
 
     @Override
     public int getInterpolatedX(double partialTick) {
-        return (int) (pos.x + velocity.x * partialTick);
+        return (int) (pos.getX() + velocity.getX() * partialTick);
     }
 
     @Override
     public int getInterpolatedY(double partialTick) {
-        return (int) (pos.y + velocity.y * partialTick);
+        return (int) (pos.getY() + velocity.getY() * partialTick);
     }
 
     public boolean beforeCollideWith(Entity other) {
@@ -309,15 +309,15 @@ public abstract class Entity extends GameObject implements CommandSender {
                 return false;
 
             case COLLISION:
-                Vec2 mtv = contact.normal.multiplyImmutable(contact.depth);
+                Vec2 mtv = new Vec2(contact.normal, contact.depth);
 
                 velocity.add(mtv);
 
-                if (contact.normal.y < 0)
+                if (contact.normal.getY() < 0)
                     onGround = true;
 
             case PROCESSED_COLLISION:
-                if (contact.normal.x != 0)
+                if (contact.normal.getX() != 0)
                     collidedX = true;
                 else // y is assumed to be non-zero
                     collidedY = true;
@@ -340,22 +340,22 @@ public abstract class Entity extends GameObject implements CommandSender {
 
         if (beforeCollideWith(other) && other.beforeCollideWith(this)) {
 
-            double weightedDepth = roundClosest(contact.depth / 2, 0.5);
+            double weightedDepth = MathUtils.roundClosest(contact.depth / 2, 0.5);
 
-            Vec2 mtv = contact.normal.multiplyImmutable(weightedDepth);
+            Vec2 mtv = new Vec2(contact.normal, weightedDepth);
 
             velocity.add(mtv);
-            other.velocity.subtract(mtv);
+            other.velocity.sub(mtv);
 
-            if (contact.normal.x != 0)
+            if (contact.normal.getX() != 0)
                 collidedX = true;
             else // y is assumed to be non-zero
                 collidedY = true;
 
             lastCollidedWith = other;
 
-            if (contact.normal.y > 0) other.onGround = onGround;
-            else if (contact.normal.y < 0) onGround = other.onGround;
+            if (contact.normal.getY() > 0) other.onGround = onGround;
+            else if (contact.normal.getY() < 0) onGround = other.onGround;
 
             notifyCollision(other, contact);
             other.notifyCollision(this, contact.reverse());
@@ -392,15 +392,15 @@ public abstract class Entity extends GameObject implements CommandSender {
 
         double maxVelocity = this.maxVelocity + 0.5;
 
-        boolean wasExcess = velocity.x > maxVelocity || velocity.x < -maxVelocity;
+        boolean wasExcess = velocity.getX() > maxVelocity || velocity.getX() < -maxVelocity;
 
         if (!(wasExcess && direction.horizontal))
-            velocity.addMultiplied(direction.normal, value);
+            velocity.addScaled(direction.normal, value);
 
         if (direction.horizontal) {
             facing = direction;
             if (!wasExcess)
-                velocity.x = clamp(velocity.x, -maxVelocity, maxVelocity);
+                velocity.setX(MathUtils.clamp(velocity.getX(), -maxVelocity, maxVelocity));
         }
     }
 
@@ -409,9 +409,9 @@ public abstract class Entity extends GameObject implements CommandSender {
      */
     public void jump() {
         if (onGround) {
-            if (velocity.y < 0)
-                velocity.y = 0;
-            velocity.y -= 21;
+            if (velocity.getY() < 0)
+                velocity.setY(0);
+            velocity.addY(-21);
         }
     }
 
